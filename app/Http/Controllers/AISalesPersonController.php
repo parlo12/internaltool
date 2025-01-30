@@ -453,11 +453,10 @@ private function checkDateTime($dateTime)
 
 private function createAndRunThread(string $question): ThreadRunResponse
 {
-    // Ensure the script doesn't timeout
     set_time_limit(0);
     $api_key = "";
     $assistant_id = "asst_7qXPmiy2RwA7va56kl4Y3OJD";
-    // Log the contact context for debugging
+    
     $client = OpenAI::client($api_key);
     try {
         // Create and run the thread with OpenAI
