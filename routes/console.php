@@ -200,7 +200,7 @@ Schedule::call(function () {
             Log::error("Exception occurred while calling URL: $url. Message: " . $e->getMessage());
         }
     }
-})->everyMinute();
+})->everyThreeMinutes();
 
 Schedule::call(function () {
     $urls = [
@@ -278,7 +278,7 @@ Schedule::call(function () {
             Log::error('Error deleting file: ' . $file->getFilename() . '. Message: ' . $e->getMessage());
         }
     }
-})->everyMinute();
+})->hourly();
 
     // Schedule::call(function () {
     //     Log::info('Trying to process workows');
@@ -405,8 +405,13 @@ Schedule::call(function () {
                     Log::info("here");
                     foreach ($chunk as $contact) {
                         Log::info("Got $contact->id of workflow $contact->workflow_id") ;
-
+                        $existingJob = DB::table('jobs')
+                        ->where('payload', 'like', '%PrepareMessageJob%')
+                        ->where('payload', 'like', "%{$contact->uuid}%")
+                        ->exists();
                         // Dispatch a job to prepare the message without making third-party requests here
+                        if (!$existingJob) {
+
                         PrepareMessageJob::dispatch(
                             $contact->uuid,
                             $workflow->group_id,
@@ -420,6 +425,10 @@ Schedule::call(function () {
                         $contact->status = 'Waiting_For_Queau_Job';
                         $contact->save();
                     }
+                    else{
+                        Log::info("This job exists, skipping");
+                    }
+                    }
 
                     $startTime->addSeconds($interval);
 
@@ -430,4 +439,5 @@ Schedule::call(function () {
                 }
             }
         }
-    })->everyMinute();
+    })->name('prepare-messages')  
+    ->everyTwoMinutes()->withoutOverlapping();

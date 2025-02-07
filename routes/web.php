@@ -19,7 +19,7 @@ use App\Models\Workflow;
 use Illuminate\Support\Facades\Redirect;
 
 Route::get('/', function () {
-    return Redirect::route('create');
+    return Redirect::route('create-workflow');
 });
 Route::get('/make-call', [CallController::class, 'makeCall']);
 Route::post('/answer', [CallController::class, 'handleCall'])->name('answer');
