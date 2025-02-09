@@ -3,8 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Contact;
+use App\Services\CRMAPIRequestsService;
+use App\Services\DynamicTagsService;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,12 +36,13 @@ class PrepareMessageJob implements ShouldQueue
 
     public function handle()
     {
-        // Fetch contact information
-        $contactInfo = $this->get_contact($this->uuid, $this->group_id, $this->api_key);
+       // $CRMAPIRequestsService = new CRMAPIRequestsService($this->api_key);
+        //$contactInfo = $CRMAPIRequestsService->get_contact($this->uuid, $this->group_id);
+        $DynamicTagsService = new DynamicTagsService($this->api_key);
 
         // Compose and spintax the message
-        $message = $this->composeMessage($contactInfo, $this->step->content);
-        $message = $this->spintax($message);
+        $message =  $DynamicTagsService->composeMessage($this->contact, $this->step->content);
+        $message =  $DynamicTagsService->spintax($message);
 
         // Dispatch the QueaueMessagesJob with the composed message
         QueaueMessagesJob::dispatch(
@@ -76,62 +78,10 @@ class PrepareMessageJob implements ShouldQueue
         Log::info("The contact will move to the next step on $next_step_after");
         Log::info($message);
     }
-
-    private function get_contact($contact_uid, $group_id, $api_key)
-    {
-        $url = "https://www.godspeedoffers.com/api/v3/contacts/{$group_id}/search/{$contact_uid}";
-        $token = $api_key;
-        $client = new Client();
-        $response = $client->request('POST', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-            ],
-        ]);
-        $data = json_decode($response->getBody(), true);
-        if ($data['status'] == 'success') {
-            return $data['data'];
-        } else {
-            throw new \Exception('Failed to retrieve contact');
-        }
-    }
-
-    private function composeMessage($contact, $messageTemplate)
-    {
-        $message = $this->replacePlaceholders($messageTemplate, $contact);
-        return  $message;
-    }
-
-    private function spintax($text)
-    {
-        return preg_replace_callback(
-            '/\{(((?>[^\{\}]+)|(?R))*)\}/x',
-            function ($text) {
-                $text = $text[1];
-                $parts = explode('|', $text);
-                return $parts[array_rand($parts)];
-            },
-            $text
-        );
-    }
-    private function replacePlaceholders($template, $contact)
-    {
-        $placeholders = $this->create_placeholders($contact);
-        foreach ($placeholders as $key => $value) {
-            $template = str_replace($key, $value, $template);
-        }
-        Log::info('Final Template: ' . $template);
-        return $template;
-    }
-    private function create_placeholders($contact)
-    {
-        $placeholders = [
-            '{{phone}}' => $contact['phone'],
-        ];
-        foreach ($contact['custom_fields'] as $key => $value) {
-            $placeholders['{{' . $key . '}}'] = $value;
-        }
-        return $placeholders;
-    }
+    // private function composeMessage($contact, $messageTemplate)
+    // {
+    //     $message = $this->replacePlaceholders($messageTemplate, $contact);
+    //     return  $message;
+    // }
 }
 

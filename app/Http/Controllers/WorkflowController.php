@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Jobs\CreateWorkflowContactsJob;
 use App\Jobs\FillContactDetails;
 use App\Models\CallsSent;
@@ -15,13 +16,15 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client as TwilioClient;
 use Twilio\TwiML\VoiceResponse;
+use App\Services\CRMAPIRequestsService;
+use App\Services\DynamicTagsService;
 
 class WorkflowController extends Controller
 {
     public function store(Request $request)
     {
+        $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
         $organisationId = auth()->user()->organisation_id;
         if (!$organisationId) {
             return redirect()->route('create-workflow')
@@ -34,12 +37,12 @@ class WorkflowController extends Controller
             'calling_number' => 'required|string|max:255',
             'texting_number' => 'required|string|max:255'
         ]);
-        if (!$this->group_has_contacts($request->contact_group, auth()->user()->godspeedoffers_api)) {
+        if (!$CRMAPIRequestsService->group_has_contacts($request->contact_group)) {
             return redirect()->route('create-workflow')
                 ->with('error', 'The group must have atleast one contact. Add from godspeed offers.');
         }
-        $group_name = $this->get_group_name($request->contact_group, auth()->user()->godspeedoffers_api);
-        $contacts = $this->get_all_contacts($request->contact_group, auth()->user()->godspeedoffers_api);
+        $group_name = $CRMAPIRequestsService->get_group_name($request->contact_group);
+        $contacts = $CRMAPIRequestsService->get_all_contacts($request->contact_group);
         $workflow = Workflow::Create(
             [
                 'name' => $request->name,
@@ -53,11 +56,8 @@ class WorkflowController extends Controller
                 'organisation_id' => $organisationId,
                 'godspeedoffers_api' => auth()->user()->godspeedoffers_api,
                 'user_id' => auth()->user()->id,
-
             ]
         );
-        //create bins redirecting the texting and calling numbers to the agent number
-
         foreach ($contacts as $contact) {
             $organisationId = auth()->user()->organisation_id;
             CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $workflow->id, $contact['phone'], $organisationId)
@@ -73,12 +73,14 @@ class WorkflowController extends Controller
         return redirect()->route('add_steps', ['workflow' => $workflow->id])
             ->with('success', 'Workflow created successfulyy.');
     }
+
     public function create_contacts_for_workflows($contact_uid, $contact_group, $workflow_id, $contact_phone, $organisationId)
     {
         $workflow = Workflow::find($workflow_id);
-        $first_name = $this->get_contact($contact_uid, $contact_group, $workflow->godspeedoffers_api)['custom_fields']['FIRST_NAME'];
-        $last_name = $this->get_contact($contact_uid, $contact_group, $workflow->godspeedoffers_api)['custom_fields']['LAST_NAME'];
-        $contact=Contact::create(
+        $CRMAPIRequestsService = new CRMAPIRequestsService($workflow->godspeedoffers_api);
+        $first_name = $CRMAPIRequestsService->get_contact($contact_uid, $contact_group)['custom_fields']['FIRST_NAME'];
+        $last_name = $CRMAPIRequestsService->get_contact($contact_uid, $contact_group)['custom_fields']['LAST_NAME'];
+        $contact = Contact::create(
             [
                 'uuid' => $contact_uid,
                 'workflow_id' => $workflow_id,
@@ -95,6 +97,7 @@ class WorkflowController extends Controller
         );
         FillContactDetails::dispatch($contact);
     }
+
     public function create()
     {
         if (!auth()->user()->godspeedoffers_api) {
@@ -102,12 +105,13 @@ class WorkflowController extends Controller
                 ->with('error', 'Add a working godspeedoffers key first.');
         }
         $organisationId = auth()->user()->organisation_id;
-        $contactGroups = $this->get_contact_groups(auth()->user()->godspeedoffers_api);
+        $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
+        $contactGroups = $CRMAPIRequestsService->get_contact_groups();
         if (!isset($contactGroups['data'])) {
             return redirect()->route('admin.index')
                 ->with('error', 'Add a working godspeedoffers key first.');
         }
-        $contact_groups = $this->get_contact_groups(auth()->user()->godspeedoffers_api)['data'];
+        $contact_groups = $CRMAPIRequestsService->get_contact_groups()['data'];
         $voices = $this->getVoices();
         $workflows = Workflow::where('organisation_id', $organisationId)->get();
         $folders = Folder::where('organisation_id', $organisationId)->get();
@@ -129,6 +133,7 @@ class WorkflowController extends Controller
             'organisation' => $current_org
         ]);
     }
+
     public function destroy($id)
     {
         $workflow = Workflow::findorfail($id);
@@ -177,20 +182,20 @@ class WorkflowController extends Controller
             $call_sent->response = "Yes";
             $call_sent->save();
             Log::info("call sent response for $calling_number set to $contact->response");
-
         }
         if ($contact) {
             $contact->response = 'yes';
             $contact->save();
             Log::info("response for $calling_number set to $contact->response");
         }
-        
+
         $numberToDial = $workflow->agent_number;
         Log::info("This is the number to dial $numberToDial");
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');
     }
+
     public function redirect_signalwire_Call(Request $request)
     {
         $workflow = Workflow::where('texting_number', $request->input('To'))->first();
@@ -205,7 +210,6 @@ class WorkflowController extends Controller
             $call_sent->response = "Yes";
             $call_sent->save();
             Log::info("Call sent response for $calling_number set to $contact->response");
-
         }
         if ($contact) {
             $contact->response = 'Yes';
@@ -221,12 +225,12 @@ class WorkflowController extends Controller
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');
     }
+
     private function send_customer_data($to, $from, $token)
     {
         $data = [
             'to' => $to,
             'from' => $from,
-            // Add other necessary fields based on the API requirements
         ];
         $response = Http::withToken($token)->post('https://godspeedoffers.com/api/v3/sms/create-chatbox-entry', $data);
         if ($response->successful()) {
@@ -241,53 +245,25 @@ class WorkflowController extends Controller
             'error' => $response->body()
         ], $response->status());
     }
-    // public function send_message()
-    // {
-    //     $recipientNumber = '(407) 581-2918'; // The recipient's phone number
-    //     $messageBody = 'This means that we can change the format.'; // The message body
-    //     $sid = env('TWILIO_ACCOUNT_SID');
-    //     $token = env('TWILIO_AUTH_TOKEN');
-    //     $twilioNumber = '(866) 530-2257';
-    //     $client = new TwilioClient($sid, $token);
-    //     try {
-    //         $message = $client->messages->create(
-    //             $recipientNumber,
-    //             [
-    //                 'from' => $twilioNumber,
-    //                 'body' => $messageBody,
-    //             ]
-    //         );
-    //         return response()->json(['message' => 'Message sent successfully', 'sid' => $message->sid]);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
+
     public function copy(Request $request)
     {
         try {
             Log::info("Trying to copy workflow");
-    
             $organisation_id = auth()->user()->organisation_id;
-    
-            // Validate request
             $validatedData = $request->validate([
                 'workflow_name' => 'required|string|max:255',
                 'id' => 'integer',
                 'contact_group' => 'required|string|max:255'
             ]);
-    
-            // Fetch the old workflow
             $old_workflow = Workflow::find($validatedData['id']);
             if (!$old_workflow) {
                 Log::error("Workflow with ID {$validatedData['id']} not found.");
                 return redirect()->route('create-workflow')->withErrors('Workflow not found.');
             }
-    
-            // Fetch group name and contacts
-            $group_name = $this->get_group_name($request->contact_group, $old_workflow->godspeedoffers_api);
-            $contacts = $this->get_all_contacts($request->contact_group, $old_workflow->godspeedoffers_api);
-    
-            // Create new workflow
+            $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
+            $group_name = $CRMAPIRequestsService->get_group_name($request->contact_group);
+            $contacts = $CRMAPIRequestsService->get_all_contacts($request->contact_group);
             $new_workflow = Workflow::create([
                 'name' => $request->workflow_name,
                 'contact_group' => $group_name,
@@ -302,10 +278,7 @@ class WorkflowController extends Controller
                 'godspeedoffers_api' => $old_workflow->godspeedoffers_api,
                 'user_id' => auth()->user()->id
             ]);
-    
             Log::info("New workflow created successfully with ID: {$new_workflow->id}");
-    
-            // Dispatch jobs for contacts
             foreach ($contacts as $contact) {
                 try {
                     CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $new_workflow->id, $contact['phone'], $organisation_id)
@@ -314,8 +287,6 @@ class WorkflowController extends Controller
                     Log::error("Error dispatching contact job for UID {$contact['uid']}: {$e->getMessage()}");
                 }
             }
-    
-            // Copy steps if available
             if (!empty($old_workflow->steps_flow)) {
                 $steps_flow_array = explode(',', $old_workflow->steps_flow);
                 foreach ($steps_flow_array as $step_id) {
@@ -335,22 +306,18 @@ class WorkflowController extends Controller
                             'step_quota_balance' => $step_to_copy->step_quota_balance,
                             'days_of_week' => $step_to_copy->days_of_week
                         ]);
-    
                         $new_steps_flow = $new_workflow->steps_flow ? explode(',', $new_workflow->steps_flow) : [];
                         $new_steps_flow[] = $new_step->id;
                         $new_workflow->steps_flow = implode(',', $new_steps_flow);
                         $new_workflow->save();
-    
                         Log::info("Step ID {$step_id} copied to new step ID {$new_step->id}");
                     } catch (\Exception $e) {
                         Log::error("Error copying step ID {$step_id}: {$e->getMessage()}");
                     }
                 }
             }
-    
             return redirect()->route('create-workflow')
                 ->with('success', 'Workflow copied successfully.');
-    
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error("Validation error: " . $e->getMessage());
             return redirect()->back()->withErrors($e->errors());
@@ -359,11 +326,11 @@ class WorkflowController extends Controller
             return redirect()->route('create-workflow')->withErrors('An unexpected error occurred while copying the workflow.');
         }
     }
-    
 
     public function add_steps(Workflow $workflow)
     {
-        $place_holders = $this->get_placeholders($workflow->group_id, $workflow->godspeedoffers_api);
+        $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
+        $place_holders = $DynamicTagsService->get_placeholders($workflow->group_id);
         $spintaxes = Spintax::all();
         $voices = $this->getVoices();
         $calling_numbers = Number::where('purpose', 'calling')->get();
@@ -375,7 +342,6 @@ class WorkflowController extends Controller
                 array_push($steps, Step::findorfail($step_flow_array));
             }
         }
-
         return inertia("Workflows/AddSteps", [
             'success' => session('success'),
             'workflow' => $workflow,
@@ -387,210 +353,6 @@ class WorkflowController extends Controller
             'texting_numbers' => $texting_numbers
         ]);
     }
-    private function get_group_name($group_id, $godspeedoffers_apikey)
-    {
-        $client = new Client();
-        $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/show';
-        $token = $godspeedoffers_apikey;
-
-        try {
-            $response = $client->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ],
-            ]);
-
-            $statusCode = $response->getStatusCode();
-            $body = $response->getBody()->getContents();
-
-            if ($statusCode == 200) {
-                $data = json_decode($body, true);
-                if (isset($data['data']['name'])) {
-                    return $data['data']['name'];
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-    private function get_all_contacts($group_id, $godspeedoffers_apikey)
-    {
-        $client = new Client();
-        $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
-        $token = $godspeedoffers_apikey;
-        $allContacts = [];
-        $currentPage = 1;
-        $totalPages = 1;
-        do {
-            $response = $client->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                ],
-                'query' => [
-                    'page' => $currentPage,
-                ],
-            ]);
-            $data = json_decode($response->getBody()->getContents(), true);
-            if ($data['status'] == 'success') {
-                $allContacts = array_merge($allContacts, $data['data']['data']);
-                $currentPage++;
-                $totalPages = $data['data']['last_page'];
-            } else {
-                break;
-            }
-        } while ($currentPage <= $totalPages);
-        $contacts = array_map(function ($contact) {
-            return [
-                'uid' => $contact['uid'],
-                'phone' => $contact['phone'],
-            ];
-        }, $allContacts);
-        return $contacts;
-    }
-    private function get_contact_groups($godspeedoffers_apikey)
-    {
-        $url = 'https://www.godspeedoffers.com/api/v3/contacts';
-        $token = $godspeedoffers_apikey;
-        $client = new Client();
-        try {
-            $response = $client->request('GET', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/json',
-                ],
-            ]);
-            $body = $response->getBody();
-            $data = json_decode($body, true);
-            if ($data['status'] == 'success') {
-                return $data['data'];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'Failed to retrieve contacts'
-                ];
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-    private function get_contact($contact_uid, $group_id, $godspeedoffers_apikey)
-    {
-        $url = "https://www.godspeedoffers.com/api/v3/contacts/{$group_id}/search/{$contact_uid}";
-        $token = $godspeedoffers_apikey;
-        $client = new Client();
-        $response = $client->request('POST', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-            ],
-        ]);
-        $data = json_decode($response->getBody(), true);
-        if ($data['status'] == 'success') {
-            return $data['data'];
-        } else {
-            throw new \Exception('Failed to retrieve contact');
-        }
-    }
-    private function get_placeholders($group_id, $godspeedoffers_apikey)
-    {
-        $contact = $this->getFirstContact($group_id, $godspeedoffers_apikey);
-        $contact_info = $this->get_contact($contact['uid'], $group_id, $godspeedoffers_apikey);
-        $placeholders = $this->create_placeholders($contact_info, $godspeedoffers_apikey);
-        $placeholderKeys = array_keys($placeholders);
-        return $placeholderKeys;
-    }
-    private function create_placeholders($contact, $godspeedoffers_apikey)
-    {
-        $placeholders = [
-            '{{phone}}' => $contact['phone'],
-        ];
-        foreach ($contact['custom_fields'] as $key => $value) {
-            $placeholders['{{' . $key . '}}'] = $value;
-        }
-        return $placeholders;
-    }
-
-    private function getFirstContact($group_id, $godspeedoffers_apikey)
-    {
-        $client = new Client();
-        $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
-        $token = $godspeedoffers_apikey;
-        $currentPage = 1;
-        $totalPages = 1;
-        do {
-            $response = $client->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                ],
-                'query' => [
-                    'page' => $currentPage,
-                ],
-            ]);
-            $data = json_decode($response->getBody()->getContents(), true);
-            if ($data['status'] == 'success') {
-                $contacts = $data['data']['data'];
-                if (!empty($contacts)) {
-                    $firstContact = [
-                        'uid' => $contacts[0]['uid'],
-                        'phone' => $contacts[0]['phone'],
-                    ];
-                    return $firstContact;
-                }
-                $currentPage++;
-                $totalPages = $data['data']['last_page'];
-            } else {
-                // Handle the error as per your application's requirement
-                break;
-            }
-        } while ($currentPage <= $totalPages);
-        return null;
-    }
-
-    private function group_has_contacts($group_id, $godspeedoffers_apikey)
-    {
-        $client = new Client();
-        $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
-        $token = $godspeedoffers_apikey;
-        $currentPage = 1;
-        $totalPages = 1;
-
-        do {
-            $response = $client->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                ],
-                'query' => [
-                    'page' => $currentPage,
-                ],
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if ($data['status'] == 'success') {
-                $contacts = $data['data']['data'];
-                if (!empty($contacts)) {
-                    return true; // The group has contacts
-                }
-                $currentPage++;
-                $totalPages = $data['data']['last_page'];
-            } else {
-                // Handle the error as per your application's requirement
-                break;
-            }
-        } while ($currentPage <= $totalPages);
-
-        return false; // The group has no contacts
-    }
-
 
     private function getVoices()
     {
@@ -615,4 +377,5 @@ class WorkflowController extends Controller
             return ['error' => 'Request failed with error: ' . $e->getMessage()];
         }
     }
+    
 }

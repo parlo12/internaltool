@@ -5,12 +5,9 @@ namespace App\Services;
 use App\Models\CallsSent;
 use App\Models\Contact;
 use App\Models\Organisation;
-use App\Models\TextSent;
 use App\Models\Workflow;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client as TwilioClient;
-use SignalWire\Rest\Client as SignalWireClient;
 use Illuminate\Support\Str;
 use OpenAI;
 
@@ -25,12 +22,12 @@ class CallService
         $this->provider = $provider;
     }
 
-    public function sendCall($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    public function sendCall($phone, $content, $workflow_id, $detection_duration, $contact_id, $organisation_id)
     {
         try { //You add a new call provider from here.
             switch ($this->provider) {
                 case 'signalwire':
-                    return $this->sendWithSignalWire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+                    return $this->sendWithSignalWire($phone, $content, $workflow_id, $detection_duration, $contact_id, $organisation_id);
                 default:
                     throw new Exception("MMS provider not supported.");
             }
@@ -38,7 +35,8 @@ class CallService
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
-    private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+  
+    private function sendWithSignalwire($phone, $content, $workflow_id, $detection_duration, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
         $workflow = Workflow::find($workflow_id);
@@ -50,7 +48,7 @@ class CallService
             $contact->status = "OpenAI ERROR";
             $contact->save();
         }
-        $this->place_call($phone, $path, $agent_phone_number, '3', $contact_id, $organisation_id);
+        $this->place_call($phone, $path, $agent_phone_number, $detection_duration, $contact_id, $organisation_id);
         Log::info("I  Reached VoiceCall sending function");
     }
     private function place_call($phone, $voice_recording, $agent_phone_number, $detection_duration, $contact_id, $organisation_id)
@@ -131,27 +129,20 @@ class CallService
 
     private function text_to_speech_alt($textMessage, $messageId, $openAiApiKey)
     {
-        // Temporarily override the OpenAI API key
-        //config(['services.openai.key' => $openAiApiKey]);
         $client = OpenAI::client($openAiApiKey);
         try {
-            // Call the OpenAI API with the new key
             $result = $client->audio()->speech([
                 'model' => 'tts-1',
                 'input' => $textMessage,
                 'voice' => 'onyx',
             ]);
         } catch (\Exception $e) {
-            // Log the error and return false if the OpenAI request fails
             Log::error('OpenAI API request failed', ['error' => $e->getMessage()]);
             return false;
         }
-
-        // Save the audio file
         $baseDir = '/home/support/web/internaltools.godspeedoffers.com/public_html/uploads';
         $fileName = "mes_" . $messageId . '_' . rand(0000, 9999) . ".mp3";
         $fullPath = $baseDir . DIRECTORY_SEPARATOR . $fileName;
-
         if (!is_dir($baseDir)) {
             if (!mkdir($baseDir, 0777, true) && !is_dir($baseDir)) {
                 Log::error('Failed to create directory', ['directory' => $baseDir]);
