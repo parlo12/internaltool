@@ -19,14 +19,12 @@ use App\Models\User;
 use App\Models\ValidLead;
 use App\Models\Workflow;
 use Carbon\Carbon;
-use Database\Seeders\TextSentSeeder;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenAI;
 use OpenAI\Responses\Threads\Runs\ThreadRunResponse;
-use App\Models\Organisation;
 use Illuminate\Support\Str;
 
 class ApiController extends Controller

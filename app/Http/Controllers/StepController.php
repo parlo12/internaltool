@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\Step;
 use App\Models\Workflow;
-use Carbon\Carbon;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -80,11 +78,6 @@ class StepController extends Controller
             'workflow' => $workflow,
             'steps' => $steps
         ], 200);
-        // return inertia("Workflows/$request->workflow/add-steps", [
-        //     'success' => session('success'),
-        //     'workflow' => $workflow,
-        //     'steps' => $steps
-        // ]);
     }
     public function update(Request $request)
     {
@@ -157,20 +150,8 @@ class StepController extends Controller
             'steps' => $steps,
             'days' => $filteredDaysOfWeek
         ], 200);
-        // return redirect()->route('add_steps', ['workflow' => $request->workflow])
-        //     ->with('success', 'Step updated successfully.');
     }
-    public function step_quotas_reset()
-    {
-        $steps = Step::all();
-        foreach ($steps as $step) {
-            echo "step quota for $step->name was reset<br>";
-            $step = Step::find($step->id);
-            $step->step_quota_balance = $step->step_quota;
-            $step->save();
-            Log::info("step quota for $step->name was reset");
-        }
-    }
+
     public function destroy(Request $request, $id)
     {
         $workflow = Workflow::findorfail($request->workflow);

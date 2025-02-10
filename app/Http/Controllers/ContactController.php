@@ -157,9 +157,9 @@ class ContactController extends Controller
     //qeuaue them for send by passing contact info, content, messagetype,step
     //if contact is qeuaued successfully set can_send=0
     public function queaue_messages_from_workflows()
-    { //Keep the commented code for the purpose of ofline testing. 
+    { //Keep the commented code for the purpose of local testing. 
         //Uncomment when testing workflows offline
-        //production uses a copy in routes/console.php
+        //production uses a copy in routes/console.php so comment when pushing to prod
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', '256M');
         $steps = Step::where('created_at', '>=', now()->subMonth())->get();

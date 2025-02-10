@@ -20,8 +20,8 @@ class ContactEmail extends Mailable
     public function build()
     {
         return $this->from($this->details['from_email'], $this->details['from_name']) // Set dynamic "From" address
-                    ->subject($this->details['subject']) // Set dynamic subject
-                    ->view('emails.contact') // Your email view
+                    ->subject($this->details['subject']) 
+                    ->view('emails.contact') 
                     ->with('details', $this->details);
     }
 }

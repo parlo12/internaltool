@@ -2,21 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AICall;
 use App\Models\Assistant;
-use App\Models\CallResponse;
-use App\Models\KnowledgeBase;
 use App\Models\Organisation;
-use App\Models\Thread;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use OpenAI\Responses\Threads\Runs\ThreadRunResponse;
-use SignalWire\LaML\MessageResponse;
-use Twilio\TwiML\VoiceResponse;
-use Ratchet\Client\Connector;
-use React\EventLoop\Factory;
 use Illuminate\Support\Facades\Http;
 use OpenAI;
 use Carbon\Carbon;

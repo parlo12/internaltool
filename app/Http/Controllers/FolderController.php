@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Folder;
 use App\Models\Workflow;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class FolderController extends Controller
 {

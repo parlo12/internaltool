@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
         $middleware->validateCsrfTokens(except: [
+            //Do not demand csrf for these
             'https://voicemails.godspeedoffers.com/answer',
             'https://voicemails.godspeedoffers.com/transfer',
             'answer',
@@ -34,9 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             '/send-websocket-message',
             'handleEndOfCallWebhook',
             '/end-of-call'
-            // <-- exclude this route
         ]);
-        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

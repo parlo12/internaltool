@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Contact;
 use App\Models\Workflow;
+use App\Services\CRMAPIRequestsService;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,13 +26,10 @@ class FillContactDetails implements ShouldQueue
 
     public function handle()
     {
-        // Get the workflow information (you may want to fetch it based on the contact's workflow_id)
-        $workflow = Workflow::find($this->contact->workflow_id); // Assuming the Contact model has a workflow relationship
-
-        // Get contact information using the provided method
-        $contact_info = $this->get_contact($this->contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
+        $workflow = Workflow::find($this->contact->workflow_id); 
+        $CRMAPIRequestsService = new CRMAPIRequestsService($workflow->godspeedoffers_api);
+        $contact_info = $CRMAPIRequestsService->get_contact($this->contact->uuid, $workflow->group_id);
         Log::info("contact info",$contact_info);
-        // Extract the custom fields for city, state, and zipcode
         $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
         $city = $contact_info['custom_fields']['CITY'] ?? null;
         $state = $contact_info['custom_fields']['STATE'] ?? null;
@@ -46,7 +44,6 @@ class FillContactDetails implements ShouldQueue
         $creative_price = $contact_info['custom_fields']['CREATIVEPRICE'] ?? null;
         $down_payment = $contact_info['custom_fields']['DOWNPAYMENT'] ?? null;
         $monthly = $contact_info['custom_fields']['MONTHLY'] ?? null;
-
 
         // Update the contact record
         $this->contact->update([
@@ -65,24 +62,5 @@ class FillContactDetails implements ShouldQueue
             'monthly'=>$monthly,
             'downpayment'=>$down_payment
         ]);
-    }
-
-    private function get_contact($contact_uid, $group_id, $godspeedoffers_api)
-    {
-        $url = "https://www.godspeedoffers.com/api/v3/contacts/{$group_id}/search/{$contact_uid}";
-        $token = $godspeedoffers_api;
-        $client = new Client();
-        $response = $client->request('POST', $url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-            ],
-        ]);
-        $data = json_decode($response->getBody(), true);
-        if ($data['status'] == 'success') {
-            return $data['data'];
-        } else {
-            throw new \Exception('Failed to retrieve contact');
-        }
     }
 }

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('organisation_name');
-            $table->string('calling_service');
-            $table->string('texting_service');
+            $table->string('calling_service')->nullable();
+            $table->string('texting_service')->nullable();
             $table->string('signalwire_texting_space_url')->nullable();
             $table->string('signalwire_texting_api_token')->nullable();
             $table->string('signalwire_texting_project_id')->nullable();

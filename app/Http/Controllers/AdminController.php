@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\Number;
 use App\Models\Organisation;
+use App\Models\SendingServer;
 use App\Models\Spintax;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -50,6 +51,12 @@ class AdminController extends Controller
         $organisations = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
+        $query = SendingServer::query(); // Select all organisations
+        $sortField = request()->get("sort_field", 'created_at');
+        $sortDirection = request()->get("sort_direction", "desc");
+        $sending_servers = $query->orderBy($sortField, $sortDirection)
+            ->paginate(50)
+            ->onEachSide(1);
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
         return inertia("Admin/Index", [
             "users" => UserResource::collection($users),
@@ -59,6 +66,7 @@ class AdminController extends Controller
             "spintaxes" => $spintaxes,
             'numbers' => $numbers,
             'organisations' => $organisations,
+            'sendingServers' => $sending_servers,
             'organisation' => $current_org
         ]);
     }
@@ -171,11 +179,38 @@ class AdminController extends Controller
         //     'signalwire_calling_project_id'=>'string|max:255',
         // ]);
     }
+    public function store_server(Request $request)
+    {
+        $sending_server = SendingServer::create([
+            'server_name' => $request->server_name,
+            'service_provider' => $request->service_provider,
+            'purpose' => $request->purpose,
+            'signalwire_space_url' => $request->signalwire_space_url,
+            'signalwire_api_token' => $request->signalwire_api_token,
+            'signalwire_project_id' => $request->signalwire_project_id,
+            'twilio_auth_token' => $request->twilio_auth_token,
+            'twilio_account_sid' => $request->twilio_account_sid,
+            'user_id' => auth()->user()->id,
+            'websockets_api_url' => $request->websockets_api_url,
+            'websockets_auth_token' => $request->websockets_auth_token,
+            'websockets_device_id' => $request->websockets_device_id,
+            'organisation_id'=>auth()->user()->organisation_id
+
+        ]);
+        return redirect()->route('admin.index')->with('success', "Server $sending_server->server_name created successfuly.");
+    }
     public function get_org($id)
     {
         $organisation = Organisation::find($id);
         return response()->json([
             'organisation' => $organisation
+        ], 200);
+    }
+    public function get_server($id)
+    {
+        $sending_server = SendingServer::find($id);
+        return response()->json([
+            'sendingServer' => $sending_server
         ], 200);
     }
     public function update_organisation(Request $request)

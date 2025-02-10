@@ -9,6 +9,7 @@ use App\Models\TextSent;
 use App\Models\User;
 use App\Models\ValidLead;
 use App\Models\AI_Lead;
+use App\Models\SendingServer;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -50,7 +51,8 @@ class DatabaseSeeder extends Seeder
             NumberSeeder::class,
             FolderSeeder::class,
             AICallSeeder::class,
-            CsvFileSeeder::class
+            CsvFileSeeder::class,
+            SendingServerSeeder::class
 
         ]);
         $this->call([

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Contact;
-use App\Services\CRMAPIRequestsService;
 use App\Services\DynamicTagsService;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -36,8 +35,6 @@ class PrepareMessageJob implements ShouldQueue
 
     public function handle()
     {
-       // $CRMAPIRequestsService = new CRMAPIRequestsService($this->api_key);
-        //$contactInfo = $CRMAPIRequestsService->get_contact($this->uuid, $this->group_id);
         $DynamicTagsService = new DynamicTagsService($this->api_key);
 
         // Compose and spintax the message
@@ -78,10 +75,5 @@ class PrepareMessageJob implements ShouldQueue
         Log::info("The contact will move to the next step on $next_step_after");
         Log::info($message);
     }
-    // private function composeMessage($contact, $messageTemplate)
-    // {
-    //     $message = $this->replacePlaceholders($messageTemplate, $contact);
-    //     return  $message;
-    // }
 }
 
