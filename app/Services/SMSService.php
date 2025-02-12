@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Contact;
+use App\Models\Number;
 use App\Models\Organisation;
+use App\Models\SendingServer;
 use App\Models\TextSent;
 use App\Models\Workflow;
 use Exception;
@@ -43,13 +45,19 @@ class SMSService
     private function sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        Log::info("Org texting with $organisation->texting_service");
-        if ($organisation->texting_service == 'twilio') {
             Log::info("Texting service is twilio");
             $workflow = Workflow::find($workflow_id);
+            $texting_number=$workflow->texting_number;
+            $texting_number=Number::where('phone_number',$texting_number)->first();
+            $sending_server=SendingServer::find($texting_number->sending_server_id);
+            if($sending_server){//if the number is attached to a sending server
+                $sid = $sending_server->twilio_account_sid;
+                $token = $sending_server->twilio_auth_token;
+            }else{//use the org details
+                $sid = $organisation->twilio_texting_account_sid;
+                $token = $organisation->twilio_texting_auth_token;
+            }
             $texting_number = $workflow->texting_number;
-            $sid = $organisation->twilio_texting_account_sid;
-            $token = $organisation->twilio_texting_auth_token;
             $twilio = new TwilioClient($sid, $token);
             $message = $twilio->messages->create(
                 $phone,
@@ -93,20 +101,28 @@ class SMSService
                 Log::error("Contact with ID $contact_id not found.");
             }
             return ['success' => true, 'provider' => 'twilio'];
-        }
+        
     }
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        $signalWire = new SignalWireClient($this->config['signalwire']['project_id'], $this->config['signalwire']['token'], $this->config['signalwire']['space_url']);
         $contact = Contact::find($contact_id);
         if ($contact) {
             $workflow = Workflow::find($workflow_id);
             $texting_number = $workflow->texting_number;
-            $api_url = $organisation->api_url;
-            $auth_token = $organisation->auth_token;
-            $device_id = $organisation->device_id;
+            $texting_number=Number::where('phone_number',$texting_number)->first();
+            $sending_server=SendingServer::find($texting_number->sending_server_id);
+            if($sending_server){//if the number is attached to a sending server
+                $api_url = $sending_server->websockets_api_url;
+                $auth_token = $sending_server->websockets_auth_token;
+                $device_id = $sending_server->websockets_device_id;
+            }else{
+                $api_url = $organisation->api_url;
+                $auth_token = $organisation->auth_token;
+                $device_id = $organisation->device_id;
+            }
+            
             $client = ElephantClient::create('https://coral-app-cazak.ondigitalocean.app/?apiKey=692c2be16f7cb78700c969da90002582');
             $client->connect();
             Log::info('Connected to Websocket API');
@@ -140,11 +156,20 @@ class SMSService
     }
     private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
-        $organisation = Organisation::find($organisation_id);
-        $projectID = $organisation->signalwire_texting_project_id;
-        $authToken = $organisation->signalwire_texting_api_token;
-        $signalwireSpaceUrl = $organisation->signalwire_texting_space_url; // Example: example.signalwire.com
         $workflow = Workflow::find($workflow_id);
+        $organisation = Organisation::find($organisation_id);
+        $texting_number = $workflow->texting_number;
+        $texting_number=Number::where('phone_number',$texting_number)->first();
+        $sending_server=SendingServer::find($texting_number->sending_server_id);
+        if($sending_server){//if the number is attached to a sending server
+            $projectID = $sending_server->signalwire_project_id;
+            $authToken = $sending_server->signalwire_api_token;
+            $signalwireSpaceUrl = $sending_server->signalwire_space_url; // Example: example.signalwire.com
+        }else{
+            $projectID = $organisation->signalwire_texting_project_id;
+            $authToken = $organisation->signalwire_texting_api_token;
+            $signalwireSpaceUrl = $organisation->signalwire_texting_space_url; // Example: example.signalwire.com
+        }
         $texting_number = $workflow->texting_number;
         // Create a new SignalWire Client
         $client = new SignalWireClient($projectID, $authToken, [

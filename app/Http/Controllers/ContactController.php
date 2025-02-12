@@ -25,6 +25,8 @@ use Twilio\Rest\Client as TwilioClient;
 use SignalWire\Rest\Client as SignalWireClient;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ContactsExport;
+use App\Models\Number;
+use App\Models\SendingServer;
 use App\Services\SMSService;
 use App\Services\MMSService;
 use App\Services\OfferService;
@@ -438,27 +440,60 @@ class ContactController extends Controller
     private function send_SMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        Log::info("Org texting with $organisation->texting_service");
-        if ($organisation->texting_service == 'twilio') {
-            $SMSService = new SMSService('twilio');
-            $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
-        } elseif ($organisation->texting_service == 'websockets-api') {
-            $SMSService = new SMSService('websockets-api');
-            $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+        $workflow = Workflow::find($workflow_id);
+        $texting_number = $workflow->texting_number;
+        $texting_number = Number::where('phone_number', $texting_number)->first();
+        Log::info($texting_number);
+        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        if ($sending_server) { //if the number is attached to a sending server
+            Log::info("The workflow texting number $texting_number->phone_number is attached to a sending server");
+            if ($sending_server->service_provider == 'twilio') {
+                $SMSService = new SMSService('twilio');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } elseif ($sending_server->service_provider == 'websockets-api') {
+                $SMSService = new SMSService('websockets-api');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $SMSService = new SMSService('signalwire');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
         } else {
-            $SMSService = new SMSService('signalwire');
-            $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            Log::info("Org texting with $organisation->texting_service");
+            if ($organisation->texting_service == 'twilio') {
+                $SMSService = new SMSService('twilio');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } elseif ($organisation->texting_service == 'websockets-api') {
+                $SMSService = new SMSService('websockets-api');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $SMSService = new SMSService('signalwire');
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
         }
     }
     private function send_VoiceMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        if ($organisation->texting_service == 'twilio') {
-            $MMSService = new MMSService('twilio');
-            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+        $workflow = Workflow::find($workflow_id);
+        $texting_number = $workflow->texting_number;
+        $texting_number = Number::where('phone_number', $texting_number)->first();
+        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        if ($sending_server) {
+            if ($sending_server->service_provider == 'twilio') {
+                $MMSService = new MMSService('twilio');
+                $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $MMSService = new MMSService('signalwire');
+                $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
         } else {
-            $MMSService = new MMSService('signalwire');
-            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            if ($organisation->texting_service == 'twilio') {
+                $MMSService = new MMSService('twilio');
+                $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $MMSService = new MMSService('signalwire');
+                $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
         }
     }
     private function send_Offer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
@@ -472,32 +507,74 @@ class ContactController extends Controller
             return;
         }
         $organisation = Organisation::find($organisation_id);
-        if ($organisation->texting_service == 'twilio') {
-            $OfferService = new OfferService('twilio');
-            $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
-        } else {
-            $OfferService = new OfferService('signalwire');
-            $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+        $workflow = Workflow::find($workflow_id);
+        $texting_number = $workflow->texting_number;
+        $texting_number = Number::where('phone_number', $texting_number)->first();
+        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        if ($sending_server) {
+            if ($sending_server->service_provider == 'twilio') {
+                $OfferService = new OfferService('twilio');
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $OfferService = new OfferService('signalwire');
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
+        }else{
+            if ($organisation->texting_service == 'twilio') {
+                $OfferService = new OfferService('twilio');
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            } else {
+                $OfferService = new OfferService('signalwire');
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+            }
         }
+        
     }
     private function send_Voicemail($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        if ($organisation->calling_service == 'signalwire') {
-            $CallService = new CallService('signalwire');
-            $CallService->sendCall($phone, $content, $workflow_id, '20', $contact_id, $organisation_id);
-        } else {
+        $workflow = Workflow::find($workflow_id);
+        $calling_number = $workflow->calling_number;
+        $calling_number = Number::where('phone_number', $calling_number)->first();
+        $sending_server = SendingServer::find($calling_number->sending_server_id);
+        if ($sending_server) {
+            if ($sending_server->service_provider == 'signalwire') {
+                $CallService = new CallService('signalwire');
+                $CallService->sendCall($phone, $content, $workflow_id, '20', $contact_id, $organisation_id);
+            } else {
+            }
+        }else{
+            if ($organisation->calling_service == 'signalwire') {
+                $CallService = new CallService('signalwire');
+                $CallService->sendCall($phone, $content, $workflow_id, '20', $contact_id, $organisation_id);
+            } else {
+            }
         }
+        
     }
     private function send_VoiceCall($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $organisation = Organisation::find($organisation_id);
-        if ($organisation->calling_service == 'signalwire') {
-            $CallService = new CallService('signalwire'); // Change provider as needed
-            $CallService->sendCall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
-        } else {
-            Log::info("Call Provider unsupported");
+        $workflow = Workflow::find($workflow_id);
+        $calling_number = $workflow->calling_number;
+        $calling_number = Number::where('phone_number', $calling_number)->first();
+        $sending_server = SendingServer::find($calling_number->sending_server_id);
+        if ($sending_server) {
+            if ($sending_server->service_provider == 'signalwire') {
+                $CallService = new CallService('signalwire'); // Change provider as needed
+                $CallService->sendCall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
+            } else {
+                Log::info("Call Provider unsupported");
+            }
+        }else{
+            if ($organisation->calling_service == 'signalwire') {
+                $CallService = new CallService('signalwire'); // Change provider as needed
+                $CallService->sendCall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
+            } else {
+                Log::info("Call Provider unsupported");
+            }
         }
+        
     }
     public function handleCall(Request $request) // this can move to their own controller
     {

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('provider');
             $table->string('purpose');
             $table->string('organisation_id');
+            $table->string('sending_server_id')->nullable();
+
 
         });
     }

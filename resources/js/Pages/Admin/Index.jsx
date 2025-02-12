@@ -16,6 +16,7 @@ import {
 import ViewOrgPopup from "@/Components/ViewOrgPopup";
 import ViewSendingServerPopup from "@/Components/ViewSendingServerPopup";
 import UpdateOrgPopup from "@/Components/UpdateOrgPopup";
+import UpdateSendingServerPopup from "@/Components/UpdateSendingServerPopup";
 
 export default function Index({
     auth,
@@ -28,11 +29,13 @@ export default function Index({
     sendingServers,
     organisation,
 }) {
+    const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const [message, setMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
     const [showOrgPopup, setShowOrgPopup] = useState(false);
     const [showSendingServerPopup, setShowSendingServerPopup] = useState(false);
     const [showUpdateOrgPopup, setShowUpdateOrgPopup] = useState(false);
+    const [showUpdateSendingServerPopup, setShowUpdateSendingServerPopup] = useState(false);
     const [contact, setContact] = useState(null);
     const [orgData, setOrgData] = useState({
         organisation_id: organisation.id,
@@ -56,6 +59,21 @@ export default function Index({
         api_url: organisation.api_url,
         auth_token: organisation.auth_token,
         device_id: organisation.device_id,
+    });
+    const [sendingServerData, setSendingServerData] = useState({
+        sending_server_id: "",
+        server_name: "",
+        purpose: "",
+        service_provider: "",
+        signalwire_space_url: "",
+        signalwire_api_token: "",
+        signalwire_project_id: "",
+        twilio_auth_token: "",
+        twilio_account_sid: "",
+        user_id: organisation.user_id,
+        websockets_api_url: "",
+        websockets_auth_token: "",
+        websockets_device_id: "",
     });
 
 
@@ -97,17 +115,17 @@ export default function Index({
         phone_number: "",
         phone_number_provider: "",
         number_purpose: "",
-        purpose:"",
+        purpose: "",
         calling_service: "",
         signalwire_space_url: "",
-        signalwire_texting_api_token: "",
+        signalwire_api_token: "",
         signalwire_project_id: "",
         twilio_auth_token: "",
         twilio_account_sid: "",
         texting_service: "",
         organisation_name: "",
         org_id: "",
-        sending_server_id:"",
+        sending_server_id: "",
         api_key: "",
         user_id: "",
         openAI: "",
@@ -116,8 +134,8 @@ export default function Index({
         websockets_api_url: "",
         websockets_auth_token: "",
         websockets_device_id: "",
-        server_name:"",
-        service_provider:""
+        server_name: "",
+        service_provider: ""
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -188,7 +206,7 @@ export default function Index({
         });
         setShowOrgPopup(true);
     };
-    const  handleViewSendingServer=(sendingServer)=>{
+    const handleViewSendingServer = (sendingServer) => {
         setData({
             sending_server_id: sendingServer.id,
         });
@@ -199,6 +217,14 @@ export default function Index({
             org_id: org.id,
         });
         setShowUpdateOrgPopup(true);
+    };
+    const handleUpdateSendingServer = (sendingServer) => {
+        setSendingServerData(prevData => ({
+            ...prevData,  // Spread existing data
+            sending_server_id: sendingServer.id  // Update specific field
+        }));
+        console.log({ ...data, sending_server_id: sendingServer.id });  // Log updated value
+        setShowUpdateSendingServerPopup(true);
     };
     const submitOrganisationUpdate = async (e) => {
         e.preventDefault();
@@ -215,6 +241,21 @@ export default function Index({
             console.error('Error updating org', error);
         }
     };
+    const submitServerUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            console.log(sendingServerData)
+            const response = await axios.post('/update-server', sendingServerData);
+            setMessage(`Server update  successfull`);
+            setShowUpdateSendingServerPopup(false)
+            setTimeout(() => { window.location.reload() }, 2000);
+            console.log('Response:', response.data);
+        } catch (error) {
+            setErrorMessage("Error updating server");
+            setShowUpdateOrgPopup(false)
+            console.error('Error updating org', error);
+        }
+    };
     const switchOrg = (orgId) => {
         axios
             .get(`/switch-organisation/${orgId}`)
@@ -225,7 +266,6 @@ export default function Index({
                     response.data
                 );
                 window.location.reload();
-                // Handle success, e.g., refresh the page or update UI
             })
             .catch((error) => {
                 setErrorMessage("Error switching to org");
@@ -477,8 +517,8 @@ export default function Index({
                             <Pagination links={users.meta.links} />
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div class="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
                                 <h1 className="text-2xl font-bold mb-4">
                                     Add a spintax
@@ -514,7 +554,7 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -554,8 +594,8 @@ export default function Index({
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div class="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
                                 <h1 className="text-2xl font-bold mb-4">
                                     Add a phone number
@@ -616,6 +656,25 @@ export default function Index({
                                     </div>
                                     <div>
                                         <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Choose Server
+                                        </InputLabel>
+                                        <select
+                                            name="sending_server_id"
+                                            value={data.sending_server_id}
+                                            onChange={(e) => setData({ ...data, sending_server_id: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            required
+                                        >
+                                            <option value="">Select Sending Server</option>
+                                            {sendingServers.data.map((server) => (
+                                                <option key={server.id} value={server.id}>
+                                                    {server.server_name} {'-'} {server.service_provider}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
                                             Calling or Texting
                                         </InputLabel>
                                         <select
@@ -653,7 +712,7 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -663,6 +722,9 @@ export default function Index({
                                             </th>
                                             <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Purpose
+                                            </th>
+                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Sending Server
                                             </th>
                                             <th className="px-6 py-3 bg-gray-50">
                                                 Provider
@@ -680,6 +742,9 @@ export default function Index({
                                                 </td>
                                                 <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                                     {number.purpose}
+                                                </td>
+                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                    {serverLookup[number.sending_server_id] || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                                     {number.provider}
@@ -704,8 +769,8 @@ export default function Index({
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div class="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
                                 <h1 className="text-2xl font-bold mb-4">
                                     Add an Organisation
@@ -801,7 +866,7 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -877,8 +942,8 @@ export default function Index({
                         </div>
                     </div>
 
-                    <div class="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div class="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
                                 <h1 className="text-2xl font-bold mb-4">
                                     Add A Sending Server
@@ -915,7 +980,7 @@ export default function Index({
                                                                 "",
                                                             websockets_api_url: "",
                                                             websockets_auth_token: "",
-                                                            server_name:""
+                                                            server_name: ""
                                                         });
                                                     }}
                                                     className="form-radio"
@@ -931,7 +996,7 @@ export default function Index({
                                                     name="service_provider"
                                                     value="signalwire"
                                                     checked={
-                                                        data.service_provider===
+                                                        data.service_provider ===
                                                         "signalwire"
                                                     }
                                                     onChange={(e) => {
@@ -946,7 +1011,7 @@ export default function Index({
                                                                 "",
                                                             websockets_api_url: "",
                                                             websockets_auth_token: "",
-                                                            server_name:""
+                                                            server_name: ""
                                                         });
                                                     }}
                                                     className="form-radio"
@@ -981,7 +1046,7 @@ export default function Index({
                                                                 "",
                                                             signalwire_space_url:
                                                                 "",
-                                                                server_name:""
+                                                            server_name: ""
                                                         });
                                                     }}
                                                     className="form-radio"
@@ -996,7 +1061,7 @@ export default function Index({
 
                                     {data.service_provider === "twilio" && (
                                         <>
-                                         <div>
+                                            <div>
                                                 <InputLabel className="block text-sm font-medium text-gray-700">
                                                     Server Name
                                                 </InputLabel>
@@ -1089,7 +1154,7 @@ export default function Index({
 
                                     {data.service_provider === "signalwire" && (
                                         <>
-                                         <div>
+                                            <div>
                                                 <InputLabel className="block text-sm font-medium text-gray-700">
                                                     Server Name
                                                 </InputLabel>
@@ -1328,7 +1393,7 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead>
@@ -1339,7 +1404,7 @@ export default function Index({
                                             <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Service Provider
                                             </th>
-                                        
+
                                             <th className="px-6 py-3 bg-gray-50">
                                                 Actions
                                             </th>
@@ -1359,7 +1424,7 @@ export default function Index({
                                                             sendingServer.service_provider
                                                         }
                                                     </td>
-                                                    
+
                                                     <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
                                                         <button
                                                             onClick={() =>
@@ -1387,7 +1452,7 @@ export default function Index({
                                                                 className="fa-xs"
                                                             />
                                                         </button>
-                                                    
+
                                                     </td>
                                                 </tr>
                                             )
@@ -1399,8 +1464,8 @@ export default function Index({
                         </div>
                     </div>
 
-                    <div class="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div class="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
                                 <h1 className="text-2xl font-bold mb-4">
                                     Search By Contact
@@ -1439,7 +1504,7 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <div class="bg-white p-2 rounded-lg shadow-md w-full lg:w-1/2">
+                        <div className="bg-white p-2 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className=" bg-white border-b border-gray-200 overflow-x-auto">
                                 {contact && (
                                     <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg ">
@@ -1534,6 +1599,15 @@ export default function Index({
                 submitOrganisationUpdate={submitOrganisationUpdate}
                 handleChange={handleFormChange}
                 organisation={organisation}
+            />
+            <UpdateSendingServerPopup
+                isOpen={showUpdateSendingServerPopup}
+                onClose={() => setShowUpdateSendingServerPopup(false)}
+                showUpdateSendingServerPopup={showUpdateSendingServerPopup}
+                setShowUpdateSendingServerPopup={setShowUpdateSendingServerPopup}
+                data={sendingServerData}
+                setData={setSendingServerData}
+                submitServerUpdate={submitServerUpdate}
             />
         </AuthenticatedLayout>
     );

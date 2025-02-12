@@ -12,6 +12,7 @@ class Number extends Model
         'phone_number',
         'purpose',
         'provider',
-        'organisation_id'
+        'organisation_id',
+        'sending_server_id'
     ];
 }

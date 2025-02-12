@@ -80,6 +80,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/no-godspeedoffers-apikey', [AdminController::class, 'no_godspeedoffers_apikey'])->name('no-godspeedoffers-apikey');
     Route::get('/get_server/{id}', [AdminController::class, 'get_server'])->name('get-server');
     Route::post('/store-server', [AdminController::class, 'store_server'])->name('store-server');
+    Route::post('/update-server', [AdminController::class, 'update_server'])->name('update-server');
 
     //WORKFLOW CONTROLLER
     Route::get('/create-workflow', [WorkflowController::class, 'create'])->name('create-workflow');

@@ -15,7 +15,6 @@ import {
 import { Link } from "@inertiajs/react";
 const ViewSendingServerPopup = ({ showSendingServerPopup, setShowSendingServerPopup, data }) => {
     const [sendingServerData, setSendingServerData] = useState(null);
-    console.log(sendingServerData);
     useEffect(() => {
         // Define the URL of the route
         const url = `/get_server/${data.sending_server_id}`;

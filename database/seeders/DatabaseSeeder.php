@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             'is_admin' => 1,
         ]);
         $this->call([
+            SendingServerSeeder::class,
             AssistantSeeder::class,
         ]);
         $this->call([
@@ -52,7 +53,6 @@ class DatabaseSeeder extends Seeder
             FolderSeeder::class,
             AICallSeeder::class,
             CsvFileSeeder::class,
-            SendingServerSeeder::class
 
         ]);
         $this->call([

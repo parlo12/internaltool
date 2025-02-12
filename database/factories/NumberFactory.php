@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Organisation;
+use App\Models\SendingServer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,6 +23,7 @@ class NumberFactory extends Factory
             'purpose' => $this->faker->randomElement(['calling', 'texting']),
             'provider' => $this->faker->randomElement(['twilio', 'signalwire']),
             'organisation_id' => Organisation::inRandomOrder()->first()->id,
+            'sending_server_id' => SendingServer::inRandomOrder()->first()->id,
 
         ];
     }

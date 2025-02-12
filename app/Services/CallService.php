@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\CallsSent;
 use App\Models\Contact;
+use App\Models\Number;
 use App\Models\Organisation;
+use App\Models\SendingServer;
 use App\Models\Workflow;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -57,9 +59,19 @@ class CallService
         $workflow = Workflow::find($contact->workflow_id);
         $organisation = Organisation::find($organisation_id);
         $calling_number = $workflow->calling_number;
-        $signalwire_space_url = $organisation->signalwire_calling_space_url;
-        $project_id = $organisation->signalwire_calling_project_id;
-        $api_token = $organisation->signalwire_calling_api_token;
+        $calling_number = Number::where('phone_number', $calling_number)->first();
+        $sending_server = SendingServer::find($calling_number->sending_server_id);
+        if ($sending_server) {
+            $signalwire_space_url = $sending_server->signalwire_space_url;
+            $project_id = $sending_server->signalwire_project_id;
+            $api_token = $sending_server->signalwire_api_token;    
+        }
+        else{
+            $signalwire_space_url = $organisation->signalwire_calling_space_url;
+            $project_id = $organisation->signalwire_calling_project_id;
+            $api_token = $organisation->signalwire_calling_api_token;
+        }
+        $calling_number = $workflow->calling_number;
         $to_number = $phone;
         $from_number = $calling_number;
         $api_url = "https://$signalwire_space_url/api/laml/2010-04-01/Accounts/$project_id/Calls.json";
