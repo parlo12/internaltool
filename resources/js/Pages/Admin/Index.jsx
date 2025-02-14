@@ -88,7 +88,7 @@ export default function Index({
             if (response.data.status === 'success') {
                 console.log(response.data.contact);
                 setContact(response.data.contact);
-                setErrorMessage(null); // Clear any previous error
+                setErrorMessage(null); 
             } else {
                 setContact(null);
                 setErrorMessage(response.data.message);
