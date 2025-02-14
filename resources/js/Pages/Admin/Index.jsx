@@ -103,7 +103,6 @@ export default function Index({
         router.post(route("users.toggle-admin", { user: userId }), {
             preserveScroll: true,
             onSuccess: () => {
-                // Handle success (e.g., show a success message)
             },
         });
     };
