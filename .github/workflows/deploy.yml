@@ -26,3 +26,8 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             npm run build
+            sudo chown -R www-data:www-data /home/support/web/workflowtoolstaging.godspeedoffers.com/public_html/storage
+            sudo chown -R www-data:www-data /home/support/web/workflowtoolstaging.godspeedoffers.com/public_html/bootstrap/cache
+            sudo chmod -R 775 /home/support/web/workflowtoolstaging.godspeedoffers.com/public_html/storage
+            sudo chmod -R 775 /home/support/web/workflowtoolstaging.godspeedoffers.com/public_html/bootstrap/cache
+
