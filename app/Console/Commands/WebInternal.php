@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Support\Facades\Cache;
@@ -7,25 +6,25 @@ use Illuminate\Console\Command;
 use ElephantIO\Client;
 use Illuminate\Support\Facades\Log;
 
-class WebSocketInternal1 extends Command
+class WebInternal extends Command
 {
     /**
-     * The name and signature of the console comman.
-     *
-     * @var string
-     */
-    protected $signature = 'app:web-socket-internal1';
+    * The name and signature of the console command.
+    *
+    * @var string
+    */
+    protected $signature = 'app:websocket-internal';
 
     /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+    * The console command description.
+    *
+    * @var string
+    */
+    protected $description = 'Connects to WebSocket API and handles outgoing messages';
 
     /**
-     * Execute the console command.
-     */
+    * Execute the console command.
+    */
     public function handle()
     {
         $url = 'https://coral-app-cazak.ondigitalocean.app/?apiKey=07c457bace117bc59709c69644821394';
@@ -83,7 +82,8 @@ class WebSocketInternal1 extends Command
             }
         }
     }
-        /**
+
+    /**
      * Checks if WebSocket client is still connected
      */
     private function isClientConnected($client)
@@ -95,5 +95,4 @@ class WebSocketInternal1 extends Command
             return false;
         }
     }
-
 }
