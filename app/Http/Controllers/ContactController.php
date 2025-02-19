@@ -449,6 +449,7 @@ class ContactController extends Controller
         $sending_server = SendingServer::find($texting_number->sending_server_id);
         if ($sending_server) { //if the number is attached to a sending server
             Log::info("The workflow texting number $texting_number->phone_number is attached to a sending server");
+            Log::info($sending_server);
             if ($sending_server->service_provider == 'twilio') {
                 $SMSService = new SMSService('twilio');
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
