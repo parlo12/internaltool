@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client as TwilioClient;
 use SignalWire\Rest\Client as SignalWireClient;
 use ElephantIO\Client as ElephantClient;
+use Twilio\Exceptions\TwilioException;
 
 class SMSService
 {
@@ -53,7 +54,6 @@ class SMSService
             ->first();
             $sending_server=SendingServer::find($texting_number->sending_server_id);
             if($sending_server){
-                Log::info("Twilio account sid $sending_server->twilio_account_sid");
                 //if the number is attached to a sending server
                 $sid = $sending_server->twilio_account_sid;
                 $token = $sending_server->twilio_auth_token;
@@ -63,13 +63,31 @@ class SMSService
             }
             $texting_number = $workflow->texting_number;
             $twilio = new TwilioClient($sid, $token);
-            $message = $twilio->messages->create(
-                $phone,
-                [
-                    'from' => $texting_number,
-                    'body' => $content
-                ]
-            );
+            try {
+                $message = $twilio->messages->create(
+                    $phone,
+                    [
+                        'from' => $texting_number,
+                        'body' => $content
+                    ]
+                );
+            
+                Log::info("Message sent successfully to {$phone}", [
+                    'message_sid' => $message->sid
+                ]);
+            } catch (TwilioException $e) {
+                Log::error("Twilio API error: " . $e->getMessage(), [
+                    'phone' => $phone,
+                    'texting_number' => $texting_number,
+                    'content' => $content
+                ]);
+            } catch (\Exception $e) {
+                Log::error("Unexpected error while sending SMS: " . $e->getMessage(), [
+                    'phone' => $phone,
+                    'texting_number' => $texting_number,
+                    'content' => $content
+                ]);
+            }
             $contact = Contact::find($contact_id);
             if ($contact) {
                 $communication_ids_array = [];
