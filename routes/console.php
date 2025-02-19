@@ -261,7 +261,6 @@ Schedule::call(function () {
     // Absolute path to the uploads directory
     $directory = '/home/support/web/internaltools.godspeedoffers.com/public_html/uploads';
 
-    // Get all MP3 files in the directory
     $files = File::files($directory);
 
     // Iterate through each file
