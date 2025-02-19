@@ -442,7 +442,9 @@ class ContactController extends Controller
         $organisation = Organisation::find($organisation_id);
         $workflow = Workflow::find($workflow_id);
         $texting_number = $workflow->texting_number;
-        $texting_number = Number::where('phone_number', $texting_number)->first();
+        $texting_number = Number::where('phone_number', $texting_number)
+        ->where('organisation_id', $organisation_id)
+        ->first();
         Log::info($texting_number);
         $sending_server = SendingServer::find($texting_number->sending_server_id);
         if ($sending_server) { //if the number is attached to a sending server
