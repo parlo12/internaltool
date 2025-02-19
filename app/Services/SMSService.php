@@ -50,6 +50,7 @@ class SMSService
             $texting_number=$workflow->texting_number;
             $texting_number=Number::where('phone_number',$texting_number)->first();
             $sending_server=SendingServer::find($texting_number->sending_server_id);
+            Log::info($sending_server);
             if($sending_server){//if the number is attached to a sending server
                 $sid = $sending_server->twilio_account_sid;
                 $token = $sending_server->twilio_auth_token;
@@ -99,9 +100,7 @@ class SMSService
                 }
             } else {
                 Log::error("Contact with ID $contact_id not found.");
-            }
-            return ['success' => true, 'provider' => 'twilio'];
-        
+            }        
     }
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
