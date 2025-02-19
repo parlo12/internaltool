@@ -47,12 +47,14 @@ class MMSService
         $organisation = Organisation::find($organisation_id);
         $workflow = Workflow::find($workflow_id);
         $texting_number = $workflow->texting_number;
-        $texting_number=Number::where('phone_number',$texting_number)->first();
-        $sending_server=SendingServer::find($texting_number->sending_server_id);
-        if($sending_server){//if the number is attached to a sending server
+        $texting_number = Number::where('phone_number', $texting_number)
+            ->where('organisation_id', $organisation_id)
+            ->first();
+        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        if ($sending_server) { //if the number is attached to a sending server
             $sid = $sending_server->twilio_account_sid;
             $token = $sending_server->twilio_auth_token;
-        }else{
+        } else {
             $sid = $organisation->twilio_texting_account_sid;
             $token = $organisation->twilio_texting_auth_token;
         }
@@ -123,14 +125,15 @@ class MMSService
         $organisation = Organisation::find($organisation_id);
         $workflow = Workflow::find($workflow_id);
         $texting_number = $workflow->texting_number;
-        $texting_number=Number::where('phone_number',$texting_number)->first();
-        $sending_server=SendingServer::find($texting_number->sending_server_id);
-        if($sending_server){//if the number is attached to a sending server
+        $texting_number = Number::where('phone_number', $texting_number)
+            ->where('organisation_id', $organisation_id)
+            ->first();
+        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        if ($sending_server) { //if the number is attached to a sending server
             $projectID = $sending_server->signalwire_project_id;
             $authToken = $sending_server->signalwire_api_token;
-            $signalwireSpaceUrl = $sending_server->signalwire_space_url; 
-        }
-        else{
+            $signalwireSpaceUrl = $sending_server->signalwire_space_url;
+        } else {
             $projectID = $organisation->signalwire_texting_project_id;
             $authToken = $organisation->signalwire_texting_api_token;
             $signalwireSpaceUrl = $organisation->signalwire_texting_space_url;

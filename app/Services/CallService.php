@@ -59,7 +59,9 @@ class CallService
         $workflow = Workflow::find($contact->workflow_id);
         $organisation = Organisation::find($organisation_id);
         $calling_number = $workflow->calling_number;
-        $calling_number = Number::where('phone_number', $calling_number)->first();
+        $calling_number = Number::where('phone_number', $calling_number)
+        ->where('organisation_id', $organisation_id)
+        ->first();
         $sending_server = SendingServer::find($calling_number->sending_server_id);
         if ($sending_server) {
             $signalwire_space_url = $sending_server->signalwire_space_url;
