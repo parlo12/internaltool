@@ -158,7 +158,9 @@ class SMSService
         $workflow = Workflow::find($workflow_id);
         $organisation = Organisation::find($organisation_id);
         $texting_number = $workflow->texting_number;
-        $texting_number=Number::where('phone_number',$texting_number)->first();
+        $texting_number = Number::where('phone_number', $texting_number)
+        ->where('organisation_id', $organisation_id)
+        ->first();
         $sending_server=SendingServer::find($texting_number->sending_server_id);
         Log::info("Associated with sending server $sending_server");
         if($sending_server){//if the number is attached to a sending server
