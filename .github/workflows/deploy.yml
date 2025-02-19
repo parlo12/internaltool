@@ -22,7 +22,6 @@ jobs:
             git rm --cached routes/console.php  # Remove it from tracking while keeping it locally
             git commit -m "Ignore config.php"
             git pull
-            git reset --hard origin/main
             composer install --no-interaction --no-dev --prefer-dist
             php artisan config:cache
             php artisan route:cache
