@@ -155,6 +155,7 @@ class SMSService
     }
     private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
+        Log::info("sending with signalwire");
         $workflow = Workflow::find($workflow_id);
         $organisation = Organisation::find($organisation_id);
         $texting_number = $workflow->texting_number;
