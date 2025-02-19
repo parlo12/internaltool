@@ -177,8 +177,9 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
     });
 
 Schedule::call(function () {
+    $url = env('APP_URL');
     $urls = [
-        'https://internaltools.godspeedoffers.com/process-workflows',
+        $url.'/process-workflows',
 
     ];
 
@@ -203,8 +204,9 @@ Schedule::call(function () {
 })->everyThreeMinutes();
 
 Schedule::call(function () {
+    $url = env('APP_URL');
     $urls = [
-        'https://internaltools.godspeedoffers.com/calculate-cost',
+        $url.'/calculate-cost',
     ];
 
     foreach ($urls as $url) {
@@ -227,9 +229,10 @@ Schedule::call(function () {
     }
 })->hourly();
 Schedule::call(function () {
+    $url = env('APP_URL');
     $urls = [
 
-        'https://internaltools.godspeedoffers.com/queaue-workflows-contacts',
+        $url.'/queaue-workflows-contacts',
 
     ];
 
