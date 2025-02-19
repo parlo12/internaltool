@@ -177,7 +177,7 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
     });
 
 Schedule::call(function () {
-    $url = env('APP_URL');
+    $url = config('app.url'); // Uses the value from config/app.php
     $urls = [
         $url.'/process-workflows',
 
@@ -204,7 +204,7 @@ Schedule::call(function () {
 })->everyThreeMinutes();
 
 Schedule::call(function () {
-    $url = env('APP_URL');
+    $url = config('app.url'); // Uses the value from config/app.php
     $urls = [
         $url.'/calculate-cost',
     ];
@@ -229,7 +229,7 @@ Schedule::call(function () {
     }
 })->hourly();
 Schedule::call(function () {
-    $url = env('APP_URL');
+    $url = config('app.url'); // Uses the value from config/app.php
     $urls = [
 
         $url.'/queaue-workflows-contacts',
