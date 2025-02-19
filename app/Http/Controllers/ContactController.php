@@ -133,9 +133,8 @@ class ContactController extends Controller
         $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
         $now = Carbon::now();
         foreach ($contacts as $contact) {
-            // Initialize current step if it's not set
+            // Initializ current step if it's not set
             $workflow = Workflow::find($contact->workflow_id);
-            if (empty($workflow && $contact->current_step)) {
                  Log::info("first_step is empty for $contact->id");
                 if ($workflow && $workflow->active) {
                     $steps_flow_array = explode(',', $workflow->steps_flow);
@@ -151,7 +150,7 @@ class ContactController extends Controller
                         }
                     }
                 }
-            }
+            
         }
     }
 
