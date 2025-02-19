@@ -270,7 +270,6 @@ Schedule::call(function () {
             if ($file->getExtension() == 'mp3') {
                 $lastModified = \Carbon\Carbon::createFromTimestamp(File::lastModified($file));
 
-                // Check if the file is older than 4 days
                 if ($lastModified->lt(\Carbon\Carbon::now()->subHours(3))) {
                     File::delete($file);  // Delete the file
                     //Log::info('Deleted MP3 file: ' . $file->getFilename());
