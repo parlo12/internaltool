@@ -201,7 +201,7 @@ Schedule::call(function () {
             Log::error("Exception occurred while calling URL: $url. Message: " . $e->getMessage());
         }
     }
-})->everyThreeMinutes();
+})->everyMinute();
 
 Schedule::call(function () {
     $url = config('app.url'); // Uses the value from config/app.php
