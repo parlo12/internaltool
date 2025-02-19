@@ -136,7 +136,7 @@ class ContactController extends Controller
             // Initialize current step if it's not set
             $workflow = Workflow::find($contact->workflow_id);
             if (empty($workflow && $contact->current_step)) {
-                // Log::info("first_step is empty for $contact->id");
+                 Log::info("first_step is empty for $contact->id");
                 if ($workflow && $workflow->active) {
                     $steps_flow_array = explode(',', $workflow->steps_flow);
                     $first_step = $steps_flow_array[0] ?? null;
