@@ -60,7 +60,7 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.state}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.city}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.address}</td>
-                                        <td className="border border-gray-300 px-4 py-2">${wrongnumber.offer}</td>
+                                        <td className="border border-gray-300 px-4 py-2">{wrongnumber.offer}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.email}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.age}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.gender}</td>
@@ -69,9 +69,9 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                                         <td className="border border-gray-300 px-4 py-2">
                                             {wrongnumber.novation ? "Yes" : "No"}
                                         </td>
-                                        <td className="border border-gray-300 px-4 py-2">${wrongnumber.creative_price}</td>
-                                        <td className="border border-gray-300 px-4 py-2">${wrongnumber.monthly}</td>
-                                        <td className="border border-gray-300 px-4 py-2">${wrongnumber.downpayment}</td>
+                                        <td className="border border-gray-300 px-4 py-2">{wrongnumber.creative_price}</td>
+                                        <td className="border border-gray-300 px-4 py-2">{wrongnumber.monthly}</td>
+                                        <td className="border border-gray-300 px-4 py-2">{wrongnumber.downpayment}</td>
                                         
                                     </tr>
                                 ))

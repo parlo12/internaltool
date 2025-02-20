@@ -22,7 +22,7 @@ class WrongNumberController extends Controller
         if($contact){
             WrongNumber::create([
                 'phone' => $to,
-                'contact_name' => $contact->contact_name,
+                'contact_name' => $contact->contact_name??"N/a",
                 'workflow_id' => $contact->workflow_id,
                 'organisation_id' => $contact->organisation_id,
                 'user_id' => $contact->user_id,
