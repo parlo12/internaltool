@@ -21,11 +21,7 @@ export default function Authenticated({ user, header, children }) {
                             </div>
 
                             
-                            {/* <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('reports.index')} active={route().current('reports.index')}>
-                                    Call Reports
-                                </NavLink>
-                            </div> */}
+                            
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('create-workflow')} active={route().current('create-workflow')}>
                                     Workflow
