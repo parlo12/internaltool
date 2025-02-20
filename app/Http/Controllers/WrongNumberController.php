@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
 use App\Models\WrongNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,20 +18,40 @@ class WrongNumberController extends Controller
             'to' => $to,
             'message' => $message
         ]);
-
-        // Example: Update a database record if needed
-        // Contact::where('phone', $to)->update(['is_wrong_number' => true]);
-
+        $contact = Contact::where('phone', $to)->first();
+        if($contact){
+            WrongNumber::create([
+                'phone' => $to,
+                'contact_name' => $contact->contact_name,
+                'workflow_id' => $contact->workflow_id,
+                'organisation_id' => $contact->organisation_id,
+                'user_id' => $contact->user_id,
+                'zipcode' => $contact->zipcode,
+                'state' => $contact->state,
+                'city' => $contact->city,
+                'address' => $contact->address,
+                'offer' => $contact->offer,
+                'email' => $contact->email,
+                'age' => $contact->age,
+                'gender' => $contact->gender,
+                'lead_score' => $contact->lead_score,
+                'agent' => $contact->agent,
+                'novation' => $contact->novation,
+                'creative_price' => $contact->creative_price,
+                'monthly' => $contact->monthly,
+                'downpayment' => $contact->downpayment,
+            ]);
+        }
         return response()->json([
             'success' => true,
-            'message' => "Received wrong number report for {$to}"
+            'message' => "wrong number for {$to} saved"
         ]);
     }
     public function index()
     {
         $wrongNumbers = WrongNumber::all();
         return inertia("WrongNumbers/Index", [
-            "wrongNumbers" =>$wrongNumbers,
+            "wrongNumbers" => $wrongNumbers,
             'success' => session('success'),
         ]);
     }
