@@ -44,7 +44,6 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                                 <th className="border border-gray-300 px-4 py-2 text-left">Creative Price</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left">Monthly</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left">Downpayment</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
