@@ -47,10 +47,16 @@ export default function Authenticated({ user, header, children }) {
                                 </NavLink>
                             </div>
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink href={route('wrong-numbers.index')} active={route().current('wrong-numbers.index')}>
+                                    Wrong Numbers
+                                </NavLink>
+                            </div>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('admin.index')} active={route().current('admin.index')}>
                                     Admin
                                 </NavLink>
                             </div>
+
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
@@ -131,14 +137,18 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('create')} active={route().current('create')} as="button">
-                                    Make Calls
+                            <ResponsiveNavLink href={route('create-workflow')} active={route().current('create-workflow')} as="button">
+                                    Workflows
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink href={route('reports.index')} active={route().current('reports.index')}>
-                                    Reports
-                            </ResponsiveNavLink>
+                            
                             <ResponsiveNavLink href={route('workflow-reports.index')} active={route().current('workflow-reports.index')}>
                                     Workflow Reports
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('upload.csv')} active={route().current('upload.csv')}>
+                                    Process Csv
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('wrong-numbers.index')} active={route().current('wrong-numbers.index')}>
+                                    Wrong numbers
                             </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
                                     Admin

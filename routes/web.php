@@ -13,6 +13,7 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\WorkflowController;
 use App\Http\Controllers\WorkflowReportsController;
+use App\Http\Controllers\WrongNumberController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Redirect;
 
@@ -123,6 +124,10 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/assistants/create', [AISalesPersonController::class, 'create'])->name('assistants.create');
     Route::post('/assistants', [AISalesPersonController::class, 'store'])->name('assistants.store');
     Route::get('/assistant/delete/{id}', [AISalesPersonController::class, 'destroy'])->name('assistant.destroy');
+
+    //WRONGNUMBERCONTROLLER
+    Route::get('/wrong-numbers', [WrongNumberController::class, 'index'])->name('wrong-numbers.index');
+
 });
 
 require __DIR__ . '/auth.php';

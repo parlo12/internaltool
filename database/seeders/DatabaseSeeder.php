@@ -31,9 +31,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SendingServerSeeder::class,
             AssistantSeeder::class,
-        ]);
-        $this->call([
-            
             OrganisationSeeder::class,
             WorkflowSeeder::class,
             StepSeeder::class,
@@ -45,18 +42,14 @@ class DatabaseSeeder extends Seeder
             OffersSeeder::class,
             ValidLeadSeeder::class,
             TextSentSeeder::class,
-            CallsSentSeeder::class
-        ]);
-        $this->call([
+            CallsSentSeeder::class,
             SpintaxSeeder::class,
             NumberSeeder::class,
             FolderSeeder::class,
             AICallSeeder::class,
             CsvFileSeeder::class,
-
-        ]);
-        $this->call([
             KnowledgeBaseSeeder::class,
+            WrongNumberSeeder::class
         ]);
     }
 }
