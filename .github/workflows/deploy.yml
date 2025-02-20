@@ -21,6 +21,7 @@ jobs:
             cd /home/support/web/workflowtoolstaging.godspeedoffers.com/public_html
             git pull
             git reset --hard origin/main
+            composer install --no-interaction --no-dev --prefer-dist
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
