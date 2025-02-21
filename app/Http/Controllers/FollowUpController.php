@@ -10,7 +10,7 @@ class FollowUpController extends Controller
 {
     public function index()
     {
-        $followUp =FollowUp::all();
+        $followUp =FollowUp::where('user_id',auth()->user()->id)->get();
         return inertia("FollowUp/Index", [
             "followUps" => $followUp,
             'success' => session('success'),
