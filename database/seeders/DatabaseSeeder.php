@@ -49,7 +49,9 @@ class DatabaseSeeder extends Seeder
             AICallSeeder::class,
             CsvFileSeeder::class,
             KnowledgeBaseSeeder::class,
-            WrongNumberSeeder::class
+            WrongNumberSeeder::class,
+            UnderContractSeeder::class,
+            FollowUpSeeder::class
         ]);
     }
 }

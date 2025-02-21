@@ -10,9 +10,11 @@ use App\Models\Contact;
 use App\Models\executedContracts;
 use App\Models\TextSent;
 use App\Models\CallsSent;
+use App\Models\FollowUp;
 use App\Models\offers;
 use App\Models\Step;
 use App\Models\Thread;
+use App\Models\UnderContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -38,6 +40,7 @@ class ApiController extends Controller
         $userAndOrgs = $users->map(function ($user) {
             // Check if the user has an organization
             return [
+                'user_id' => $user->id,
                 'user_name' => $user->name,
                 'organisation_name' => $user->organisation ? $user->organisation->organisation_name : 'No Organisation',
                 'organisation_id' => $user->organisation ? $user->organisation->id : null
@@ -160,6 +163,78 @@ class ApiController extends Controller
 
         // Return a success message
         return response()->json(['message' => 'Lead status updated successfully.']);
+    }
+
+    public function under_contract(Request $request)
+    {
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'phone'      => 'required|string|max:20',
+            'user_id'    => 'required|integer|exists:users,id',
+            'messages'   => 'required|json',
+        ]);
+
+        // Store data in the database
+        $contact = Contact::where('phone', $validatedData['phone']);
+        $underContract = UnderContract::create([
+            'phone' => $contact->phone,
+            'contact_name' => $contact->contact_name,
+            'workflow_id' => $contact->workflow_id,
+            'organisation_id' => $contact->organisation_id,
+            'user_id' => $contact->user_id,
+            'zipcode' => $contact->zipcode,
+            'state' => $contact->state,
+            'city' => $contact->city,
+            'address' => $contact->address,
+            'offer' => $contact->offer,
+            'email' => $contact->email,
+            'age' => $contact->age,
+            'gender' => $contact->gender,
+            'lead_score' => $contact->lead_score,
+            'agent' => $contact->agent,
+            'novation' => $contact->novation,
+            'creative_price' => $contact->creative_price,
+            'monthly' => $contact->monthly,
+            'downpayment' => $contact->downpayment,
+            'messages'   => json_decode($validatedData['messages'], true), // Store as JSON
+        ]);
+    }
+
+    public function follow_up(Request $request)
+    {
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'phone'      => 'required|string|max:20',
+            'user_id'    => 'required|integer|exists:users,id',
+            'messages'   => 'required|json',
+        ]);
+
+        // Store data in the database
+        $contact = Contact::where('phone', $validatedData['phone']);
+        $followup = FollowUp::create([
+            'phone' => $contact->phone,
+            'contact_name' => $contact->contact_name,
+            'workflow_id' => $contact->workflow_id,
+            'organisation_id' => $contact->organisation_id,
+            'user_id' => $contact->user_id,
+            'zipcode' => $contact->zipcode,
+            'state' => $contact->state,
+            'city' => $contact->city,
+            'address' => $contact->address,
+            'offer' => $contact->offer,
+            'email' => $contact->email,
+            'age' => $contact->age,
+            'gender' => $contact->gender,
+            'lead_score' => $contact->lead_score,
+            'agent' => $contact->agent,
+            'novation' => $contact->novation,
+            'creative_price' => $contact->creative_price,
+            'monthly' => $contact->monthly,
+            'downpayment' => $contact->downpayment,
+            'messages'   => json_decode($validatedData['messages'], true), // Store as JSON
+         ]);
     }
 
     public function save_response($phone)
@@ -286,15 +361,15 @@ class ApiController extends Controller
 
         $sending_number = $request->sending_number;
         $phone = $request->phone;
-        $workflow_message=$this->get_workflow_message($phone);
+        $workflow_message = $this->get_workflow_message($phone);
         $workflow_message = $workflow_message ?? "N/A";
         $userInput = $request->message;
         Log::info("user input is $userInput");
-        if($this->containsKeywords($userInput)){
+        if ($this->containsKeywords($userInput)) {
             Log::info("$userInput is an invalid keyword. Ceasing operation immediately");
             return;
         }
-        if($this->containsEmoji($userInput)){
+        if ($this->containsEmoji($userInput)) {
             Log::info("$userInput has an emoji. Ceasing operation immediately");
             return;
         }
@@ -372,20 +447,16 @@ class ApiController extends Controller
                 } else if (stripos($answer,  "offensive language") !== false) {
                     Log::info("$phone made a offensive reply");
                     return;
-                } 
-                else if (stripos($answer,  "“irrelevant reply”") !== false) {
+                } else if (stripos($answer,  "“irrelevant reply”") !== false) {
                     Log::info("$phone made an irrelevant reply");
                     return;
-                }
-                else if (stripos($answer,  "No further action needed. Archive this lead") !== false) {
+                } else if (stripos($answer,  "No further action needed. Archive this lead") !== false) {
                     Log::info("$phone made a disinterested reply");
                     return;
-                } 
-                else if (stripos($answer,  "Out of Topic") !== false) {
+                } else if (stripos($answer,  "Out of Topic") !== false) {
                     Log::info("$phone made a Out of Topic reply");
                     return;
-                }
-                else if (stripos($answer, 'qualified lead') !== false) {
+                } else if (stripos($answer, 'qualified lead') !== false) {
                     Log::info("$phone is a qualified lead");
                     AI_Lead::Create($contactContext);
                     $this->star_lead($phone, $sending_number);
@@ -407,7 +478,7 @@ class ApiController extends Controller
                 ]);
             } else {
                 // Create a new thread if none exist
-                $thread = $this->createAndRunThread($userInput, $assistant_id, $contactContext, $api_key,$workflow_message);
+                $thread = $this->createAndRunThread($userInput, $assistant_id, $contactContext, $api_key, $workflow_message);
                 // Log::info($thread);
                 $data = [
                     'phone' => $phone,
@@ -427,16 +498,13 @@ class ApiController extends Controller
                 } else if (stripos($answer,  "offensive language") !== false) {
                     Log::info("$phone made a offensive reply");
                     return;
-                } 
-                else if (stripos($answer,  "Out of Topic") !== false) {
+                } else if (stripos($answer,  "Out of Topic") !== false) {
                     Log::info("$phone made a Out of Topic reply");
                     return;
-                }
-                else if (stripos($answer,  "“irrelevant reply”") !== false) {
+                } else if (stripos($answer,  "“irrelevant reply”") !== false) {
                     Log::info("$phone made an irrelevant reply");
                     return;
-                }
-                else if (stripos($answer,  "No further action needed. Archive this lead") !== false) {
+                } else if (stripos($answer,  "No further action needed. Archive this lead") !== false) {
                     Log::info("$phone made a disinterested reply");
                     return;
                 } else if (stripos($answer, 'qualified lead') !== false) {
@@ -444,7 +512,7 @@ class ApiController extends Controller
                     AI_Lead::Create($contactContext);
                     $this->star_lead($phone, $sending_number);
                 } else {
-                    $delay=now()->addMinutes($delay);
+                    $delay = now()->addMinutes($delay);
                     //$delay = $this->checkDateTime(now()->addMinutes($delay));
                     SendSmsReplyJob::dispatch($phone, $answer, $sending_number)
                         ->delay($delay);
@@ -506,7 +574,7 @@ class ApiController extends Controller
      * @return ThreadRunResponse
      * @throws Exception If the API call fails.
      */
-    private function createAndRunThread(string $question, string $assistant_id, array $contactContext, string $api_key,string $workflow_message): ThreadRunResponse
+    private function createAndRunThread(string $question, string $assistant_id, array $contactContext, string $api_key, string $workflow_message): ThreadRunResponse
     {
         // Ensure the script doesn't timeout
         set_time_limit(0);
@@ -527,7 +595,7 @@ class ApiController extends Controller
                         ],
                         [
                             'role' => 'assistant',
-                            'content' => 'This is the workflow message that we sent to the homeowner. use it to determine if the homeowner reply is out of topic. The message is'.$workflow_message.'if the reply is out of topic strictly reply with."Out of Topic".',
+                            'content' => 'This is the workflow message that we sent to the homeowner. use it to determine if the homeowner reply is out of topic. The message is' . $workflow_message . 'if the reply is out of topic strictly reply with."Out of Topic".',
                         ],
                         [
                             'role' => 'user',
@@ -853,28 +921,28 @@ class ApiController extends Controller
         $carbonDate = Carbon::parse($dateTime);
         logger("Input DateTime: {$dateTime}");
         logger("Parsed Carbon DateTime: {$carbonDate}");
-    
+
         // Define Monday as the start of the week
         $carbonDate->settings([
             'week_starts_at' => Carbon::MONDAY,
         ]);
-    
+
         // Define Monday to Saturday range
         $startOfWeek = $carbonDate->copy()->startOfWeek(); // Monday at 00:00
         $endOfWeek = $startOfWeek->copy()->addDays(5)->endOfDay(); // Saturday at 23:59
         logger("Start of Week (Monday 00:00): {$startOfWeek}");
         logger("End of Week (Saturday 23:59): {$endOfWeek}");
-    
+
         // Check if the date is between Monday and Saturday
         if ($carbonDate->between($startOfWeek, $endOfWeek)) {
             logger("Date is within Monday to Saturday range.");
-    
+
             // Check if the time is between 9 AM and 8 PM
             $validStartTime = $carbonDate->copy()->setTime(9, 0);
             $validEndTime = $carbonDate->copy()->setTime(20, 0);
             logger("Valid Start Time (9 AM): {$validStartTime}");
             logger("Valid End Time (8 PM): {$validEndTime}");
-    
+
             if (!$carbonDate->between($validStartTime, $validEndTime)) {
                 logger("Time is outside the valid range. Adjusting to next valid time.");
                 // Adjust to the next valid time in the range
@@ -883,15 +951,15 @@ class ApiController extends Controller
             } else {
                 logger("Time is within the valid range.");
             }
-    
+
             return $carbonDate; // Return the adjusted date/time
         }
-    
+
         // If the day is not between Monday and Saturday, move to next Monday at 9 AM
         logger("Date is outside Monday to Saturday range. Adjusting to next Monday at 9 AM.");
         $adjustedDate = $carbonDate->next(Carbon::MONDAY)->setTime(9, 0);
         logger("Adjusted DateTime for Next Monday: {$adjustedDate}");
-    
+
         return $adjustedDate;
     }
 
@@ -963,15 +1031,16 @@ class ApiController extends Controller
 
         return false;
     }
-    private function containsEmoji($string) {
+    private function containsEmoji($string)
+    {
         // Regex pattern to match emojis
         $emojiPattern = '/[\x{1F600}-\x{1F64F}|\x{1F300}-\x{1F5FF}|\x{1F680}-\x{1F6FF}|\x{1F1E0}-\x{1F1FF}|\x{2600}-\x{26FF}|\x{2700}-\x{27BF}]/u';
-    
+
         // Check for emojis in the string
         return preg_match($emojiPattern, $string) ? true : false;
     }
-    
-    
+
+
     private function sendWakeTimeRequest($phone, $sending_number, $bearerToken)
     {
         try {

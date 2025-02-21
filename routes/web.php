@@ -9,12 +9,16 @@ use App\Http\Controllers\callController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CSVProcessorController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\UnderContractController;
 use App\Http\Controllers\WorkflowController;
 use App\Http\Controllers\WorkflowReportsController;
 use App\Http\Controllers\WrongNumberController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Models\FollowUp;
+use App\Models\UnderContract;
 use Illuminate\Support\Facades\Redirect;
 
 Route::get('/', function () {
@@ -57,8 +61,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-   
-   //REPORTS CONTROLLER
+
+    //REPORTS CONTROLLER
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
     //CALL CONTROLLER
@@ -109,7 +113,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/execute-contract/{id}', [ContactController::class, 'execute_contract'])->name('execute-contract');
     Route::get('/cancel-contract/{id}', [ContactController::class, 'cancel_contract'])->name('cancel-contract');
     Route::get('/close-deal/{id}', [ContactController::class, 'close_deal'])->name('close-deal');
-    
+
     //FOLDER CONTROLLER
     Route::post('/create-folder', [FolderController::class, 'create']);
     Route::delete('/delete-folder/{id}', [FolderController::class, 'delete']);
@@ -127,7 +131,13 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 
     //WRONGNUMBERCONTROLLER
     Route::get('/wrong-numbers', [WrongNumberController::class, 'index'])->name('wrong-numbers.index');
+    
+    //FOLLOWUPCONTROLLER
+    Route::get('/follow-up', [FollowUpController::class, 'index'])->name('follow-ups.index');
 
+    //UNDERCONTRACTCONTROLLER
+    Route::get('/under-contract', [UnderContractController::class, 'index'])->name('under-contracts.index');
+    
 });
 
 require __DIR__ . '/auth.php';
