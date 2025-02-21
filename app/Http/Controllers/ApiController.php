@@ -167,75 +167,138 @@ class ApiController extends Controller
 
     public function under_contract(Request $request)
     {
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'phone'      => 'required|string|max:20',
-            'user_id'    => 'required|integer|exists:users,id',
-            'messages'   => 'required|json',
-        ]);
-
-        // Store data in the database
-        $contact = Contact::where('phone', $validatedData['phone']);
-        $underContract = UnderContract::create([
-            'phone' => $contact->phone,
-            'contact_name' => $contact->contact_name,
-            'workflow_id' => $contact->workflow_id,
-            'organisation_id' => $contact->organisation_id,
-            'user_id' => $contact->user_id,
-            'zipcode' => $contact->zipcode,
-            'state' => $contact->state,
-            'city' => $contact->city,
-            'address' => $contact->address,
-            'offer' => $contact->offer,
-            'email' => $contact->email,
-            'age' => $contact->age,
-            'gender' => $contact->gender,
-            'lead_score' => $contact->lead_score,
-            'agent' => $contact->agent,
-            'novation' => $contact->novation,
-            'creative_price' => $contact->creative_price,
-            'monthly' => $contact->monthly,
-            'downpayment' => $contact->downpayment,
-            'messages'   => json_decode($validatedData['messages'], true), // Store as JSON
-        ]);
+        try {
+            // Validate incoming request data
+            $validatedData = $request->validate([
+                'phone'      => 'required|string|max:20',
+                'user_id'    => 'required|integer|exists:users,id',
+                'messages'   => 'required|json',
+            ]);
+    
+            // Log the incoming request data
+            Log::info('Processing under_contract request', [
+                'phone'    => $validatedData['phone'],
+                'user_id'  => $validatedData['user_id'],
+                'messages' => $validatedData['messages']
+            ]);
+    
+            // Retrieve contact information
+            $contact = Contact::where('phone', $validatedData['phone'])->first();
+    
+            if (!$contact) {
+                Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
+                return response()->json(['error' => 'Contact not found'], 404);
+            }
+    
+            // Create a new underContract record
+            $underContract = UnderContract::create([
+                'phone'            => $contact->phone,
+                'contact_name'     => $contact->contact_name,
+                'workflow_id'      => $contact->workflow_id,
+                'organisation_id'  => $contact->organisation_id,
+                'user_id'          => $validatedData['user_id'],
+                'zipcode'          => $contact->zipcode,
+                'state'            => $contact->state,
+                'city'             => $contact->city,
+                'address'          => $contact->address,
+                'offer'            => $contact->offer,
+                'email'            => $contact->email,
+                'age'              => $contact->age,
+                'gender'           => $contact->gender,
+                'lead_score'       => $contact->lead_score,
+                'agent'            => $contact->agent,
+                'novation'         => $contact->novation,
+                'creative_price'   => $contact->creative_price,
+                'monthly'          => $contact->monthly,
+                'downpayment'      => $contact->downpayment,
+                'messages'         => json_decode($validatedData['messages'], true),
+            ]);
+    
+            // Log success
+            Log::info('UnderContract record created successfully', ['id' => $underContract->id]);
+    
+            // Return JSON response
+            return response()->json([
+                'message' => 'UnderContract record created successfully',
+                'data'    => $underContract
+            ], 201);
+    
+        } catch (Exception $e) {
+            // Log error
+            Log::error('Error processing under_contract request', ['error' => $e->getMessage()]);
+    
+            // Return error response
+            return response()->json(['error' => 'An error occurred while processing the request'], 500);
+        }
     }
 
     public function follow_up(Request $request)
-    {
+{
+    Log::info("at follow up");
+    try {
+        // Validate incoming request data
         $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
             'phone'      => 'required|string|max:20',
             'user_id'    => 'required|integer|exists:users,id',
             'messages'   => 'required|json',
         ]);
 
-        // Store data in the database
-        $contact = Contact::where('phone', $validatedData['phone']);
+        // Log the incoming request
+        Log::info('Processing follow_up request', [
+            'phone'    => $validatedData['phone'],
+            'user_id'  => $validatedData['user_id'],
+            'messages' => $validatedData['messages']
+        ]);
+
+        // Retrieve contact information
+        $contact = Contact::where('phone', $validatedData['phone'])->first();
+
+        if (!$contact) {
+            Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
+            return response()->json(['error' => 'Contact not found'], 404);
+        }
+
+        // Create a new FollowUp record
         $followup = FollowUp::create([
-            'phone' => $contact->phone,
-            'contact_name' => $contact->contact_name,
-            'workflow_id' => $contact->workflow_id,
-            'organisation_id' => $contact->organisation_id,
-            'user_id' => $contact->user_id,
-            'zipcode' => $contact->zipcode,
-            'state' => $contact->state,
-            'city' => $contact->city,
-            'address' => $contact->address,
-            'offer' => $contact->offer,
-            'email' => $contact->email,
-            'age' => $contact->age,
-            'gender' => $contact->gender,
-            'lead_score' => $contact->lead_score,
-            'agent' => $contact->agent,
-            'novation' => $contact->novation,
-            'creative_price' => $contact->creative_price,
-            'monthly' => $contact->monthly,
-            'downpayment' => $contact->downpayment,
-            'messages'   => json_decode($validatedData['messages'], true), // Store as JSON
-         ]);
+            'phone'            => $contact->phone,
+            'contact_name'     => $contact->contact_name,
+            'workflow_id'      => $contact->workflow_id,
+            'organisation_id'  => $contact->organisation_id,
+            'user_id'          => $validatedData['user_id'],
+            'zipcode'          => $contact->zipcode,
+            'state'            => $contact->state,
+            'city'             => $contact->city,
+            'address'          => $contact->address,
+            'offer'            => $contact->offer,
+            'email'            => $contact->email,
+            'age'              => $contact->age,
+            'gender'           => $contact->gender,
+            'lead_score'       => $contact->lead_score,
+            'agent'            => $contact->agent,
+            'novation'         => $contact->novation,
+            'creative_price'   => $contact->creative_price,
+            'monthly'          => $contact->monthly,
+            'downpayment'      => $contact->downpayment,
+            'messages'         => json_decode($validatedData['messages'], true),
+        ]);
+
+        // Log success
+        Log::info('FollowUp record created successfully', ['id' => $followup->id]);
+
+        // Return JSON response
+        return response()->json([
+            'message' => 'FollowUp record created successfully',
+            'data'    => $followup
+        ], 201);
+
+    } catch (Exception $e) {
+        // Log error
+        Log::error('Error processing follow_up request', ['error' => $e->getMessage()]);
+
+        // Return error response
+        return response()->json(['error' => 'An error occurred while processing the request'], 500);
     }
+}
 
     public function save_response($phone)
     {
