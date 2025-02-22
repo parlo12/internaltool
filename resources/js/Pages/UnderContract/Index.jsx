@@ -112,7 +112,7 @@ export default function Index({ success, error, underContracts, auth }) {
                                 selectedMessages.map((msg, i) => (
                                     <div key={i} className="mb-2 p-2 border-b">
                                         <p><strong>Message:</strong> {msg.message}</p>
-                                        <p><strong>Sent By:</strong> {msg.send_by}</p>
+                                        <p><strong>Sent By:</strong> {msg.send_by=='to'?'Lead':'One of the team members'}</p>
                                         <p><strong>Time:</strong> {msg.created_at}</p>
                                     </div>
                                 ))
