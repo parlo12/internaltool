@@ -29,6 +29,9 @@ export default function Index({ success, error, followUps, auth }) {
                 )}
 
                 <div className="overflow-x-auto mx-auto my-4 w-full max-w-8xl p-6 bg-white rounded-lg shadow-md">
+                <div className="py-2 text-2xl">
+                        My Follow Ups
+                    </div>
                     <table className="min-w-full border-collapse border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
@@ -93,7 +96,7 @@ export default function Index({ success, error, followUps, auth }) {
                             ) : (
                                 <tr>
                                     <td colSpan="21" className="border border-gray-300 px-4 py-2 text-center">
-                                        No wrong numbers found.
+                                        No follow ups found.
                                     </td>
                                 </tr>
                             )}
@@ -111,7 +114,7 @@ export default function Index({ success, error, followUps, auth }) {
                                 selectedMessages.map((msg, i) => (
                                     <div key={i} className="mb-2 p-2 border-b">
                                         <p><strong>Message:</strong> {msg.message}</p>
-                                        <p><strong>Sent By:</strong> {msg.send_by=='to'?'Lead':'One of the team members'}</p>
+                                        <p><strong>Sent By:</strong> {msg.send_by=='to'?'Home Owner':'One of the team members'}</p>
                                         <p><strong>Time:</strong> {msg.created_at}</p>
                                     </div>
                                 ))

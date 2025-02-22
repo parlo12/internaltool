@@ -52,8 +52,6 @@ class WrongNumberController extends Controller
     public function index()
     {
         $wrongNumbers = WrongNumber::where('user_id',auth()->user()->id);
-        $wrongNumbers = WrongNumber::all();
-
         return inertia("WrongNumbers/Index", [
             "wrongNumbers" => $wrongNumbers,
             'success' => session('success'),

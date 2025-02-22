@@ -21,6 +21,9 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                 )}
 
                 <div className="overflow-x-auto mx-auto my-4 w-full max-w-8xl p-6 bg-white rounded-lg shadow-md">
+                <div className="py-2 text-2xl">
+                        My Wrong Numbers
+                    </div>
                     <table className="min-w-full border-collapse border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
