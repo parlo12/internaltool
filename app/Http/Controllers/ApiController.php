@@ -187,12 +187,17 @@ class ApiController extends Controller
     
             if (!$contact) {
                 $contact=Contact::create([
-                    'phone'            => $validatedData['phone'],
-                    'contact_name'     => 'N/A',
-                    'workflow_id'      => 'N/A',
-                    'organisation_id'  => 'N/A',
-                    'user_id'          => $validatedData['user_id'],
-    
+                    'phone' => $validatedData['phone'],
+                    'contact_name'=> 'N/A',
+                    'workflow_id'=> 'N/A',
+                    'organisation_id' => 'N/A',
+                    'user_id'=> $validatedData['user_id'],
+                    'cost'=>0,
+                    'subscribed'=>0,
+                    'uuid'=>'xxxx',
+                    'can_send'=>0,
+                    'status'=>0,
+                    'response'=>0
                 ]);
                 $underContract = UnderContract::create([
                     'phone'            => $contact->phone,
@@ -285,7 +290,12 @@ class ApiController extends Controller
                 'workflow_id'      => 'N/A',
                 'organisation_id'  => 'N/A',
                 'user_id'          => $validatedData['user_id'],
-
+                'cost'=>0,
+                'subscribed'=>0,
+                'uuid'=>'xxxx',
+                'can_send'=>0,
+                'status'=>0,
+                'response'=>0
             ]);
             $followup = FollowUp::create([
                 'phone'            => $contact->phone,
