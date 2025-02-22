@@ -31,7 +31,7 @@ class CSVProcessorController extends Controller
     //     $file_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
     //     $uploadDirectory = '/home/customer/www/internaltools.godspeedoffers.com/public_html/uploads/';
     //     $columnName = 'Phone type 1';
-    //     $keywords = ['wireless'];
+    //     $keywords
 
     //     // Step 1: Read and filter the CSV for wireless numbers
     //     $reader = Reader::createFromPath($file->getPathname(), 'r');
