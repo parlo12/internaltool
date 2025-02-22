@@ -4,6 +4,14 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ success, error, underContracts, auth }) {
     console.log(underContracts)
+    const [selectedMessages, setSelectedMessages] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Function to open the modal and set messages
+    const handleShowMessages = (messages) => {
+        setSelectedMessages(messages);
+        setIsModalOpen(true);
+    };
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Under Contracts" />
