@@ -1,5 +1,5 @@
 import { Link, Head } from "@inertiajs/react";
-import React from "react";
+import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ success, error, underContracts, auth }) {
