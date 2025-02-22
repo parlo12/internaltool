@@ -27,7 +27,7 @@ class CSVProcessorController extends Controller
     //         'csv_file' => 'required|file|mimes:csv,txt',
     //     ]);
 
-    //     $file = $request->file('csv_file');
+    //     $fil = $request->file('csv_file');
     //     $file_name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
     //     $uploadDirectory = '/home/customer/www/internaltools.godspeedoffers.com/public_html/uploads/';
     //     $columnName = 'Phone type 1';
