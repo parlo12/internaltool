@@ -131,7 +131,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 
     //WRONGNUMBERCONTROLLER
     Route::get('/wrong-numbers', [WrongNumberController::class, 'index'])->name('wrong-numbers.index');
-    
+    Route::get('/export-wrong-numbers', [WrongNumberController::class, 'export'])->name('wrongNumbers.export');
+
     //FOLLOWUPCONTROLLER
     Route::get('/follow-up', [FollowUpController::class, 'index'])->name('follow-ups.index');
 

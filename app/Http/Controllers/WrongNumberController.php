@@ -6,6 +6,8 @@ use App\Models\Contact;
 use App\Models\WrongNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Exports\WrongNumbersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class WrongNumberController extends Controller
 {
@@ -49,10 +51,18 @@ class WrongNumberController extends Controller
     }
     public function index()
     {
+        $wrongNumbers = WrongNumber::where('user_id',auth()->user()->id);
         $wrongNumbers = WrongNumber::all();
+
         return inertia("WrongNumbers/Index", [
             "wrongNumbers" => $wrongNumbers,
             'success' => session('success'),
         ]);
     }
+   
+
+public function export()
+{
+    return Excel::download(new WrongNumbersExport, 'wrong_numbers.xlsx');
+}
 }

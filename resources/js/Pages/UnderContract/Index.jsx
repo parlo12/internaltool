@@ -44,6 +44,8 @@ export default function Index({ success, error, underContracts, auth }) {
                                 <th className="border border-gray-300 px-4 py-2 text-left">Creative Price</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left">Monthly</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left">Downpayment</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left">messages</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -66,13 +68,19 @@ export default function Index({ success, error, underContracts, auth }) {
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.gender}</td>
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.lead_score}</td>
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.agent}</td>
-                                        <td className="border border-gray-300 px-4 py-2">
-                                            {undercontract.novation ? "Yes" : "No"}
-                                        </td>
+                                        <td className="border border-gray-300 px-4 py-2">{undercontract.novation}</td>
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.creative_price}</td>
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.monthly}</td>
                                         <td className="border border-gray-300 px-4 py-2">{undercontract.downpayment}</td>
-                                        
+                                        <td className="border border-gray-300 px-4 py-2">
+                                            <button
+                                                onClick={() => handleShowMessages(undercontract.messages)}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-800"
+                                            >
+                                                View Messages
+                                            </button>
+                                        </td>
+
                                     </tr>
                                 ))
                             ) : (
@@ -86,6 +94,33 @@ export default function Index({ success, error, underContracts, auth }) {
                     </table>
                 </div>
             </div>
+            {/* Message Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                        <h2 className="text-lg font-semibold mb-4">Message Trail</h2>
+                        <div className="max-h-60 overflow-y-auto">
+                            {selectedMessages.length > 0 ? (
+                                selectedMessages.map((msg, i) => (
+                                    <div key={i} className="mb-2 p-2 border-b">
+                                        <p><strong>Message:</strong> {msg.message}</p>
+                                        <p><strong>Sent By:</strong> {msg.send_by}</p>
+                                        <p><strong>Time:</strong> {msg.created_at}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No messages available.</p>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

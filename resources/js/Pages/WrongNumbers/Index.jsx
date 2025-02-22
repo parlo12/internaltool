@@ -72,9 +72,11 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.creative_price}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.monthly}</td>
                                         <td className="border border-gray-300 px-4 py-2">{wrongnumber.downpayment}</td>
-                                        
+
                                     </tr>
+
                                 ))
+
                             ) : (
                                 <tr>
                                     <td colSpan="21" className="border border-gray-300 px-4 py-2 text-center">
@@ -84,6 +86,13 @@ export default function Index({ success, error, wrongNumbers, auth }) {
                             )}
                         </tbody>
                     </table>
+                    <div className="flex justify-center my-4">
+                        <a href={route('wrongNumbers.export')} className="bg-blue-800 px-5 p-2 text-white rounded">
+                            Export to Excel
+                        </a>
+                    </div>
+
+
                 </div>
             </div>
         </AuthenticatedLayout>
