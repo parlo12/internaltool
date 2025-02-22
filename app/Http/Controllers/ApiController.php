@@ -186,38 +186,63 @@ class ApiController extends Controller
             $contact = Contact::where('phone', $validatedData['phone'])->first();
     
             if (!$contact) {
+                $contact=Contact::create([
+                    'phone'            => $validatedData['phone'],
+                    'contact_name'     => 'N/A',
+                    'workflow_id'      => 'N/A',
+                    'organisation_id'  => 'N/A',
+                    'user_id'          => $validatedData['user_id'],
+    
+                ]);
+                $underContract = UnderContract::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);
+    
                 Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
-                return response()->json(['error' => 'Contact not found'], 404);
+            }else{
+                $underContract = UnderContract::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);    
             }
-    
-            // Create a new underContract record
-            $underContract = UnderContract::create([
-                'phone'            => $contact->phone,
-                'contact_name'     => $contact->contact_name,
-                'workflow_id'      => $contact->workflow_id,
-                'organisation_id'  => $contact->organisation_id,
-                'user_id'          => $validatedData['user_id'],
-                'zipcode'          => $contact->zipcode,
-                'state'            => $contact->state,
-                'city'             => $contact->city,
-                'address'          => $contact->address,
-                'offer'            => $contact->offer,
-                'email'            => $contact->email,
-                'age'              => $contact->age,
-                'gender'           => $contact->gender,
-                'lead_score'       => $contact->lead_score,
-                'agent'            => $contact->agent,
-                'novation'         => $contact->novation,
-                'creative_price'   => $contact->creative_price,
-                'monthly'          => $contact->monthly,
-                'downpayment'      => $contact->downpayment,
-                'messages'         => json_decode($validatedData['messages'], true),
-            ]);
-    
-            // Log success
             Log::info('UnderContract record created successfully', ['id' => $underContract->id]);
-    
-            // Return JSON response
             return response()->json([
                 'message' => 'UnderContract record created successfully',
                 'data'    => $underContract
@@ -254,38 +279,62 @@ class ApiController extends Controller
         $contact = Contact::where('phone', $validatedData['phone'])->first();
 
         if (!$contact) {
-            Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
-            return response()->json(['error' => 'Contact not found'], 404);
+            $contact=Contact::create([
+                'phone'            => $validatedData['phone'],
+                'contact_name'     => 'N/A',
+                'workflow_id'      => 'N/A',
+                'organisation_id'  => 'N/A',
+                'user_id'          => $validatedData['user_id'],
+
+            ]);
+            $followup = FollowUp::create([
+                'phone'            => $contact->phone,
+                'contact_name'     => $contact->contact_name,
+                'workflow_id'      => $contact->workflow_id,
+                'organisation_id'  => $contact->organisation_id,
+                'user_id'          => $validatedData['user_id'],
+                'zipcode'          => $contact->zipcode,
+                'state'            => $contact->state,
+                'city'             => $contact->city,
+                'address'          => $contact->address,
+                'offer'            => $contact->offer,
+                'email'            => $contact->email,
+                'age'              => $contact->age,
+                'gender'           => $contact->gender,
+                'lead_score'       => $contact->lead_score,
+                'agent'            => $contact->agent,
+                'novation'         => $contact->novation,
+                'creative_price'   => $contact->creative_price,
+                'monthly'          => $contact->monthly,
+                'downpayment'      => $contact->downpayment,
+                'messages'         => json_decode($validatedData['messages'], true),
+            ]);
+            Log::warning('Contact not found creating a new record', ['phone' => $validatedData['phone']]);
+        }else{
+            $followup = FollowUp::create([
+                'phone'            => $contact->phone,
+                'contact_name'     => $contact->contact_name,
+                'workflow_id'      => $contact->workflow_id,
+                'organisation_id'  => $contact->organisation_id,
+                'user_id'          => $validatedData['user_id'],
+                'zipcode'          => $contact->zipcode,
+                'state'            => $contact->state,
+                'city'             => $contact->city,
+                'address'          => $contact->address,
+                'offer'            => $contact->offer,
+                'email'            => $contact->email,
+                'age'              => $contact->age,
+                'gender'           => $contact->gender,
+                'lead_score'       => $contact->lead_score,
+                'agent'            => $contact->agent,
+                'novation'         => $contact->novation,
+                'creative_price'   => $contact->creative_price,
+                'monthly'          => $contact->monthly,
+                'downpayment'      => $contact->downpayment,
+                'messages'         => json_decode($validatedData['messages'], true),
+            ]);
         }
-
-        // Create a new FollowUp record
-        $followup = FollowUp::create([
-            'phone'            => $contact->phone,
-            'contact_name'     => $contact->contact_name,
-            'workflow_id'      => $contact->workflow_id,
-            'organisation_id'  => $contact->organisation_id,
-            'user_id'          => $validatedData['user_id'],
-            'zipcode'          => $contact->zipcode,
-            'state'            => $contact->state,
-            'city'             => $contact->city,
-            'address'          => $contact->address,
-            'offer'            => $contact->offer,
-            'email'            => $contact->email,
-            'age'              => $contact->age,
-            'gender'           => $contact->gender,
-            'lead_score'       => $contact->lead_score,
-            'agent'            => $contact->agent,
-            'novation'         => $contact->novation,
-            'creative_price'   => $contact->creative_price,
-            'monthly'          => $contact->monthly,
-            'downpayment'      => $contact->downpayment,
-            'messages'         => json_decode($validatedData['messages'], true),
-        ]);
-
-        // Log success
         Log::info('FollowUp record created successfully', ['id' => $followup->id]);
-
-        // Return JSON response
         return response()->json([
             'message' => 'FollowUp record created successfully',
             'data'    => $followup
