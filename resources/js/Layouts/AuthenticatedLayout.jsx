@@ -20,51 +20,60 @@ export default function Authenticated({ user, header, children }) {
                                 </Link>
                             </div>
 
-                            
-                            
+                            {/* Desktop Navigation */}
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('create-workflow')} active={route().current('create-workflow')}>
                                     Workflow
                                 </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('workflow-reports.index')} active={route().current('workflow-reports.index')}>
                                     Workflow Reports
                                 </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('ai.index')} active={route().current('ai.index')}>
                                     Assistants
                                 </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('upload.csv')} active={route().current('upload.csv')}>
                                     Process CSV
                                 </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('wrong-numbers.index')} active={route().current('wrong-numbers.index')}>
-                                    Wrong Numbers
-                                </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('follow-ups.index')} active={route().current('follow-ups.index')}>
-                                    Follow Ups
-                                </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink href={route('under-contracts.index')} active={route().current('under-contracts.index')}>
-                                    Under Contracts
-                                </NavLink>
-                            </div>
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+
+                                {/* Pipelines Dropdown - Desktop */}
+                                <Dropdown>
+                                    <Dropdown.Trigger>
+                                        <span className="inline-flex rounded-md">
+                                            <button
+                                                type="button"
+                                                className="inline-flex items-center px-3 py-6 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                            >
+                                                Pipelines
+                                                <svg
+                                                    className="ms-2 -me-0.5 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </Dropdown.Trigger>
+
+                                    <Dropdown.Content>
+                                        <Dropdown.Link href={route('follow-ups.index')}>Follow Ups</Dropdown.Link>
+                                        <Dropdown.Link href={route('wrong-numbers.index')}>Wrong Numbers</Dropdown.Link>
+                                        <Dropdown.Link href={route('under-contracts.index')}>Under Contracts</Dropdown.Link>
+                                    </Dropdown.Content>
+                                </Dropdown>
+
                                 <NavLink href={route('admin.index')} active={route().current('admin.index')}>
                                     Admin
                                 </NavLink>
                             </div>
-
                         </div>
 
+                        {/* Profile Dropdown */}
                         <div className="hidden sm:flex sm:items-center sm:ms-6">
                             <div className="ms-3 relative">
                                 <Dropdown>
@@ -75,7 +84,6 @@ export default function Authenticated({ user, header, children }) {
                                                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                                             >
                                                 {user.name}
-
                                                 <svg
                                                     className="ms-2 -me-0.5 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -102,9 +110,10 @@ export default function Authenticated({ user, header, children }) {
                             </div>
                         </div>
 
+                        {/* Mobile Menu Button */}
                         <div className="-me-2 flex items-center sm:hidden">
                             <button
-                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
+                                onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
                                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
                             >
                                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -128,51 +137,38 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
-                        
-                    </div>
-
-                    <div className="pt-4 pb-1 border-t border-gray-200">
-                        <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('create-workflow')} active={route().current('create-workflow')} as="button">
-                                    Workflows
+                {/* Mobile Navigation Menu */}
+                {showingNavigationDropdown && (
+                    <div className="sm:hidden">
+                        <div className="pt-2 pb-3 space-y-1">
+                            <ResponsiveNavLink href={route('create-workflow')} active={route().current('create-workflow')}>
+                                Workflow
                             </ResponsiveNavLink>
-                            
                             <ResponsiveNavLink href={route('workflow-reports.index')} active={route().current('workflow-reports.index')}>
-                                    Workflow Reports
+                                Workflow Reports
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('ai.index')} active={route().current('ai.index')}>
+                                Assistants
                             </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('upload.csv')} active={route().current('upload.csv')}>
-                                    Process Csv
+                                Process CSV
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink href={route('wrong-numbers.index')} active={route().current('wrong-numbers.index')}>
-                                    Wrong numbers
-                            </ResponsiveNavLink>
+
+                            {/* Pipelines Dropdown - Mobile */}
+                            <div className="px-4 py-2 font-medium text-gray-500">Pipelines</div>
+                            <ResponsiveNavLink href={route('follow-ups.index')}>Follow Ups</ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('wrong-numbers.index')}>Wrong Numbers</ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('under-contracts.index')}>Under Contracts</ResponsiveNavLink>
+
                             <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
-                                    Admin
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
+                                Admin
                             </ResponsiveNavLink>
                         </div>
                     </div>
-                </div>
+                )}
             </nav>
 
-            {header && (
-                <header className="bg-white shadow">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-                </header>
-            )}
+            {header && <header className="bg-white shadow"><div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div></header>}
 
             <main>{children}</main>
         </div>
