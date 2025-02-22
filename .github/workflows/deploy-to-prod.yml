@@ -1,0 +1,52 @@
+name: Remote Deployment
+
+on:
+  push:
+    branches:
+      - deploy # Deploy only when pushing to the deploy branch
+
+jobs:
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute deployment via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e # Exit immediately on error
+            
+            # Define the production path
+            DEPLOY_PATH="/home/support/web/internaltools.godspeedoffers.com/public_html"
+            
+            # Navigate to the project directory
+            cd $DEPLOY_PATH
+
+            # Fetch latest code and reset
+            git fetch --all
+            git reset --hard origin/deploy
+            git pull origin deploy
+
+            # Install dependencies
+            composer install --no-interaction --no-dev --prefer-dist
+
+            # Optimize Laravel application
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan optimize
+            
+            # Build frontend assets
+            npm install
+            npm run build
+
+            # Ensure proper permissions
+            sudo chown -R www-data:www-data /home/support/web/internaltools.godspeedoffers.com/public_html/storage
+            sudo chown -R www-data:www-data /home/support/web/internaltools.godspeedoffers.com/public_html/bootstrap/cache
+            sudo chmod -R 775 /home/support/web/internaltools.godspeedoffers.com/public_html/storage
+            sudo chmod -R 775 /home/support/web/internaltools.godspeedoffers.com/public_html/bootstrap/cache
+
