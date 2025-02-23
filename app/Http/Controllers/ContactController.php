@@ -150,7 +150,7 @@ class ContactController extends Controller
                     }
                 }
             
-        }
+        } 
     }
 
     //here get all contacts whose can_send=1
