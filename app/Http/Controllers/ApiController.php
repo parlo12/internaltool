@@ -167,6 +167,7 @@ class ApiController extends Controller
 
     public function under_contract(Request $request)
     {
+        Log::info("at under contract");
         try {
             // Validate incoming request data
             $validatedData = $request->validate([
