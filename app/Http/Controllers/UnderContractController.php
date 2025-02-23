@@ -9,7 +9,8 @@ class UnderContractController extends Controller
 {
     public function index()
     {
-        $underContract = UnderContract::where('user_id',auth()->user()->id)->get();;
+        $underContract = UnderContract::where('user_id',auth()->user()->id)->get();
+        $underContract = UnderContract::all();
         return inertia("UnderContract/Index", [
             "underContracts" => $underContract,
             'success' => session('success'),
