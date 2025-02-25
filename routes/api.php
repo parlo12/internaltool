@@ -15,6 +15,7 @@ Route::get('/wake-time/{id}', [ApiController::class, 'get_wake_time']);
 Route::get('/wrong-number/{to}', [WrongNumberController::class, 'saveWrongNumber']);
 Route::get('follow_up/', [ApiController::class, 'follow_up'])->name('follow_up');
 Route::get('under_contract/', [ApiController::class, 'under_contract'])->name('under_contract');
+Route::get('fresh_lead/', [ApiController::class, 'fresh_lead'])->name('fresh_lead');
 
 
 Route::get('/user', function (Request $request) {
