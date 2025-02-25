@@ -9,6 +9,7 @@ use App\Models\TextSent;
 use App\Models\User;
 use App\Models\ValidLead;
 use App\Models\AI_Lead;
+use App\Models\Freshlead;
 use App\Models\SendingServer;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -51,7 +52,8 @@ class DatabaseSeeder extends Seeder
             KnowledgeBaseSeeder::class,
             WrongNumberSeeder::class,
             UnderContractSeeder::class,
-            FollowUpSeeder::class
+            FollowUpSeeder::class,
+            FreshleadSeeder::class
         ]);
     }
 }

@@ -64,6 +64,7 @@ export default function Authenticated({ user, header, children }) {
                                         <Dropdown.Link href={route('follow-ups.index')}>Follow Ups</Dropdown.Link>
                                         <Dropdown.Link href={route('wrong-numbers.index')}>Wrong Numbers</Dropdown.Link>
                                         <Dropdown.Link href={route('under-contracts.index')}>Under Contracts</Dropdown.Link>
+                                        <Dropdown.Link href={route('fresh-leads.index')}>Fresh Leads</Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
 

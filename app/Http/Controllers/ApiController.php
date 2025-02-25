@@ -11,6 +11,7 @@ use App\Models\executedContracts;
 use App\Models\TextSent;
 use App\Models\CallsSent;
 use App\Models\FollowUp;
+use App\Models\Freshlead;
 use App\Models\offers;
 use App\Models\Step;
 use App\Models\Thread;
@@ -175,30 +176,30 @@ class ApiController extends Controller
                 'user_id'    => 'required|integer|exists:users,id',
                 'messages'   => 'required|json',
             ]);
-    
+
             // Log the incoming request data
             Log::info('Processing under_contract request', [
                 'phone'    => $validatedData['phone'],
                 'user_id'  => $validatedData['user_id'],
                 'messages' => $validatedData['messages']
             ]);
-    
+
             // Retrieve contact information
             $contact = Contact::where('phone', $validatedData['phone'])->first();
-    
+
             if (!$contact) {
-                $contact=Contact::create([
+                $contact = Contact::create([
                     'phone' => $validatedData['phone'],
-                    'contact_name'=> 'N/A',
-                    'workflow_id'=> 'N/A',
+                    'contact_name' => 'N/A',
+                    'workflow_id' => 'N/A',
                     'organisation_id' => '0',
-                    'user_id'=> $validatedData['user_id'],
-                    'cost'=>0,
-                    'subscribed'=>0,
-                    'uuid'=>'xxxx',
-                    'can_send'=>0,
-                    'status'=>0,
-                    'response'=>0
+                    'user_id' => $validatedData['user_id'],
+                    'cost' => 0,
+                    'subscribed' => 0,
+                    'uuid' => 'xxxx',
+                    'can_send' => 0,
+                    'status' => 0,
+                    'response' => 0
                 ]);
                 $underContract = UnderContract::create([
                     'phone'            => $contact->phone,
@@ -222,9 +223,9 @@ class ApiController extends Controller
                     'downpayment'      => $contact->downpayment,
                     'messages'         => json_decode($validatedData['messages'], true),
                 ]);
-    
+
                 Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
-            }else{
+            } else {
                 $underContract = UnderContract::create([
                     'phone'            => $contact->phone,
                     'contact_name'     => $contact->contact_name,
@@ -246,119 +247,212 @@ class ApiController extends Controller
                     'monthly'          => $contact->monthly,
                     'downpayment'      => $contact->downpayment,
                     'messages'         => json_decode($validatedData['messages'], true),
-                ]);    
+                ]);
             }
             Log::info('UnderContract record created successfully', ['id' => $underContract->id]);
             return response()->json([
                 'message' => 'UnderContract record created successfully',
                 'data'    => $underContract
             ], 201);
-    
         } catch (Exception $e) {
             // Log error
             Log::error('Error processing under_contract request', ['error' => $e->getMessage()]);
-    
+
             // Return error response
             return response()->json(['error' => 'An error occurred while processing the request'], 500);
         }
     }
 
     public function follow_up(Request $request)
-{
-    Log::info("at follow up");
-    try {
-        // Validate incoming request data
-        $validatedData = $request->validate([
-            'phone'      => 'required|string|max:20',
-            'user_id'    => 'required|integer|exists:users,id',
-            'messages'   => 'required|json',
-        ]);
-
-        // Log the incoming request
-        Log::info('Processing follow_up request', [
-            'phone'    => $validatedData['phone'],
-            'user_id'  => $validatedData['user_id'],
-            'messages' => $validatedData['messages']
-        ]);
-
-        // Retrieve contact information
-        $contact = Contact::where('phone', $validatedData['phone'])->first();
-
-        if (!$contact) {
-            $contact=Contact::create([
-                'phone'            => $validatedData['phone'],
-                'contact_name'     => 'N/A',
-                'workflow_id'      => 'N/A',
-                'organisation_id'  => 0,
-                'user_id'          => $validatedData['user_id'],
-                'cost'=>0,
-                'subscribed'=>0,
-                'uuid'=>'xxxx',
-                'can_send'=>0,
-                'status'=>0,
-                'response'=>0
+    {
+        Log::info("at follow up");
+        try {
+            // Validate incoming request data
+            $validatedData = $request->validate([
+                'phone'      => 'required|string|max:20',
+                'user_id'    => 'required|integer|exists:users,id',
+                'messages'   => 'required|json',
             ]);
-            $followup = FollowUp::create([
-                'phone'            => $contact->phone,
-                'contact_name'     => $contact->contact_name,
-                'workflow_id'      => $contact->workflow_id,
-                'organisation_id'  => $contact->organisation_id,
-                'user_id'          => $validatedData['user_id'],
-                'zipcode'          => $contact->zipcode,
-                'state'            => $contact->state,
-                'city'             => $contact->city,
-                'address'          => $contact->address,
-                'offer'            => $contact->offer,
-                'email'            => $contact->email,
-                'age'              => $contact->age,
-                'gender'           => $contact->gender,
-                'lead_score'       => $contact->lead_score,
-                'agent'            => $contact->agent,
-                'novation'         => $contact->novation,
-                'creative_price'   => $contact->creative_price,
-                'monthly'          => $contact->monthly,
-                'downpayment'      => $contact->downpayment,
-                'messages'         => json_decode($validatedData['messages'], true),
+
+            // Log the incoming request
+            Log::info('Processing follow_up request', [
+                'phone'    => $validatedData['phone'],
+                'user_id'  => $validatedData['user_id'],
+                'messages' => $validatedData['messages']
             ]);
-            Log::warning('Contact not found creating a new record', ['phone' => $validatedData['phone']]);
-        }else{
-            $followup = FollowUp::create([
-                'phone'            => $contact->phone,
-                'contact_name'     => $contact->contact_name,
-                'workflow_id'      => $contact->workflow_id,
-                'organisation_id'  => $contact->organisation_id,
-                'user_id'          => $validatedData['user_id'],
-                'zipcode'          => $contact->zipcode,
-                'state'            => $contact->state,
-                'city'             => $contact->city,
-                'address'          => $contact->address,
-                'offer'            => $contact->offer,
-                'email'            => $contact->email,
-                'age'              => $contact->age,
-                'gender'           => $contact->gender,
-                'lead_score'       => $contact->lead_score,
-                'agent'            => $contact->agent,
-                'novation'         => $contact->novation,
-                'creative_price'   => $contact->creative_price,
-                'monthly'          => $contact->monthly,
-                'downpayment'      => $contact->downpayment,
-                'messages'         => json_decode($validatedData['messages'], true),
-            ]);
+
+            // Retrieve contact information
+            $contact = Contact::where('phone', $validatedData['phone'])->first();
+
+            if (!$contact) {
+                $contact = Contact::create([
+                    'phone'            => $validatedData['phone'],
+                    'contact_name'     => 'N/A',
+                    'workflow_id'      => 'N/A',
+                    'organisation_id'  => 0,
+                    'user_id'          => $validatedData['user_id'],
+                    'cost' => 0,
+                    'subscribed' => 0,
+                    'uuid' => 'xxxx',
+                    'can_send' => 0,
+                    'status' => 0,
+                    'response' => 0
+                ]);
+                $followup = FollowUp::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);
+                Log::warning('Contact not found creating a new record', ['phone' => $validatedData['phone']]);
+            } else {
+                $followup = FollowUp::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);
+            }
+            Log::info('FollowUp record created successfully', ['id' => $followup->id]);
+            return response()->json([
+                'message' => 'FollowUp record created successfully',
+                'data'    => $followup
+            ], 201);
+        } catch (Exception $e) {
+            // Log error
+            Log::error('Error processing follow_up request', ['error' => $e->getMessage()]);
+
+            // Return error response
+            return response()->json(['error' => 'An error occurred while processing the request'], 500);
         }
-        Log::info('FollowUp record created successfully', ['id' => $followup->id]);
-        return response()->json([
-            'message' => 'FollowUp record created successfully',
-            'data'    => $followup
-        ], 201);
-
-    } catch (Exception $e) {
-        // Log error
-        Log::error('Error processing follow_up request', ['error' => $e->getMessage()]);
-
-        // Return error response
-        return response()->json(['error' => 'An error occurred while processing the request'], 500);
     }
-}
+    public function fresh_lead(Request $request)
+    {
+        Log::info("at fresh lead");
+        try {
+            // Validate incoming request data
+            $validatedData = $request->validate([
+                'phone'      => 'required|string|max:20',
+                'user_id'    => 'required|integer|exists:users,id',
+                'messages'   => 'required|json',
+            ]);
+
+            // Log the incoming request
+            Log::info('Processing follow_up request', [
+                'phone'    => $validatedData['phone'],
+                'user_id'  => $validatedData['user_id'],
+                'messages' => $validatedData['messages']
+            ]);
+
+            // Retrieve contact information
+            $contact = Contact::where('phone', $validatedData['phone'])->first();
+
+            if (!$contact) {
+                $contact = Contact::create([
+                    'phone'            => $validatedData['phone'],
+                    'contact_name'     => 'N/A',
+                    'workflow_id'      => 'N/A',
+                    'organisation_id'  => 0,
+                    'user_id'          => $validatedData['user_id'],
+                    'cost' => 0,
+                    'subscribed' => 0,
+                    'uuid' => 'xxxx',
+                    'can_send' => 0,
+                    'status' => 0,
+                    'response' => 0
+                ]);
+                $followup = Freshlead::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);
+                Log::warning('Contact not found creating a new record', ['phone' => $validatedData['phone']]);
+            } else {
+                $followup = Freshlead::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $validatedData['user_id'],
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'email'            => $contact->email,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'messages'         => json_decode($validatedData['messages'], true),
+                ]);
+            }
+            Log::info('Fresh lead record created successfully', ['id' => $followup->id]);
+            return response()->json([
+                'message' => 'Fresh lead record created successfully',
+                'data'    => $followup
+            ], 201);
+        } catch (Exception $e) {
+            // Log error
+            Log::error('Error processing follow_up request', ['error' => $e->getMessage()]);
+
+            // Return error response
+            return response()->json(['error' => 'An error occurred while processing the request'], 500);
+        }
+    }
 
     public function save_response($phone)
     {

@@ -10,6 +10,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CSVProcessorController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FollowUpController;
+use App\Http\Controllers\FreshleadController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\UnderContractController;
@@ -138,6 +139,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 
     //UNDERCONTRACTCONTROLLER
     Route::get('/under-contract', [UnderContractController::class, 'index'])->name('under-contracts.index');
+    //UNDERCONTRACTCONTROLLER
+    Route::get('/fresh-lead', [FreshleadController::class, 'index'])->name('fresh-leads.index');
     
 });
 
