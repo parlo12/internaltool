@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\ValidLead;
 use App\Models\Workflow;
+use App\Services\DynamicTagsService;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -538,6 +539,7 @@ class ApiController extends Controller
     }
     public function get_message(string $phone)
     {
+        
         // Retrieve the contact based on the phone number
         $contact = DB::table('contacts')->where('phone', $phone)->first();
 
@@ -561,7 +563,9 @@ class ApiController extends Controller
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-        $content = $this->composeMessage($contact_info, $content);
+        $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
+        $message =  $DynamicTagsService->composeMessage($contact_info, $content);
+        $content =  $DynamicTagsService->spintax($message);
         // Return the content in the response
         return response()->json(['message' => $content]);
     }
@@ -777,7 +781,10 @@ class ApiController extends Controller
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-        $content = $this->composeMessage($contact_info, $content);
+        $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
+        $message =  $DynamicTagsService->composeMessage($contact_info, $content);
+        $content =  $DynamicTagsService->spintax($message);
+        //$content = $this->composeMessage($contact_info, $content);
         // Return the content in the response
         return $content;
     }
