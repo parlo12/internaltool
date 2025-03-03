@@ -48,20 +48,23 @@ class DynamicTagsService
             'downpayment',
             'offer'
         ];
-
+    
         $placeholders = [];
-
+    
         // Build placeholder map from standard fields
         foreach ($standardFields as $field) {
             $placeholder = '{{' . $field . '}}';
             $placeholders[$placeholder] = $contact->$field ?? '';
         }
-        $processed = str_replace(
-            array_keys($placeholders),
-            array_values($placeholders),
-            $template
-        );
-        return preg_replace('/{{\w+}}/', '', $processed);
+    
+        // Use preg_replace for case-insensitive replacement
+        foreach ($placeholders as $placeholder => $value) {
+            $pattern = '/' . preg_quote($placeholder, '/') . '/i'; // 'i' modifier for case-insensitive
+            $template = preg_replace($pattern, $value, $template);
+        }
+    
+        // Remove any remaining placeholders
+        return preg_replace('/{{\w+}}/i', '', $template);
     }
     public function get_placeholders($group_id)
     {
