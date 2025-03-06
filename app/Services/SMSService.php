@@ -127,7 +127,6 @@ class SMSService
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
-        Log::info("Trying to send with websockets");
         $organisation = Organisation::find($organisation_id);
         $contact = Contact::find($contact_id);
         if ($contact) {
@@ -138,6 +137,7 @@ class SMSService
             ->first();
             $sending_server=SendingServer::find($texting_number->sending_server_id);
             if($sending_server){//if the number is attached to a sending server
+                Log::info("Trying to send with device id $sending_server->websockets_device_id");
                 $api_url = $sending_server->websockets_api_url;
                 $auth_token = $sending_server->websockets_auth_token;
                 $device_id = $sending_server->websockets_device_id;
