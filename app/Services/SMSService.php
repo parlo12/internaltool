@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client as TwilioClient;
 use SignalWire\Rest\Client as SignalWireClient;
 use ElephantIO\Client as ElephantClient;
+use Illuminate\Support\Facades\Http;
 use Twilio\Exceptions\TwilioException;
 
 class SMSService
@@ -145,14 +146,16 @@ class SMSService
                 $device_id = $organisation->device_id;
             }
             
-            $client = ElephantClient::create('https://coral-app-cazak.ondigitalocean.app/?apiKey=692c2be16f7cb78700c969da90002582');
-            $client->connect();
-            Log::info('Connected to Websocket API');
-            $client->emit('outgoingSMS', [
-                'deviceId' => $device_id,
-                'receiver' => $phone,
-                'content' => $content,
+            $response = Http::post($api_url.'/messages/sendOutgoingMessage', [
+                "apiKey"    => "cbd0f2c1c8d39d832cd23ef668d1d6cb",
+                "deviceId"  => $device_id,
+                "receiver"  => $phone,
+                "content"   => $content
             ]);
+            
+            // Get response
+            $data = $response->json();
+            Log::info("Data returned by websockets API".$data);
             //if ($packet = $client->wait(null, 1)) {
             Log::info("Message sent with websockets to: $phone");
             $text_sent = TextSent::create([
