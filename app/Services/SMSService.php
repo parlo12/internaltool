@@ -127,6 +127,7 @@ class SMSService
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
+        Log::info("Trying to send with websockets");
         $organisation = Organisation::find($organisation_id);
         $contact = Contact::find($contact_id);
         if ($contact) {

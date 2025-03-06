@@ -449,6 +449,7 @@ class ContactController extends Controller
                 $SMSService = new SMSService('twilio');
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
             } elseif ($sending_server->service_provider == 'websockets-api') {
+                Log::info("sending server is websockets");
                 $SMSService = new SMSService('websockets-api');
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
             } else {
