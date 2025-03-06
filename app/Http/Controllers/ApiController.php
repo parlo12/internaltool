@@ -781,7 +781,9 @@ class ApiController extends Controller
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
+        Log::info($contact);
         $message =  $DynamicTagsService->composeMessage($contact, $content);
+        Log::info($message);
         $content =  $DynamicTagsService->spintax($message);
         //$content = $this->composeMessage($contact_info, $content);
         // Return the content in the response
