@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\ValidLead;
 use App\Models\Workflow;
+use App\Services\CRMAPIRequestsService;
 use App\Services\DynamicTagsService;
 use Carbon\Carbon;
 use Exception;
@@ -758,34 +759,22 @@ class ApiController extends Controller
     }
     private function get_workflow_message(string $phone)
     {
-        // Retrieve the contact based on the phone number
         $contact = DB::table('contacts')->where('phone', $phone)->first();
-
-        // Check if the contact exists
         if (!$contact) {
             return '';
         }
-
-        // Get the current step from the contact
         $current_step = $contact->current_step;
-
-        // Find the corresponding step
         $step = Step::find($current_step);
-
-        // Check if the step exists
         if (!$step) {
             return '';
         }
-
-        // Get the content of the step
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
-        $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
+        $CRMAPIRequestsService = new CRMAPIRequestsService($workflow->godspeedoffers_api);
+        $contact_info = $CRMAPIRequestsService->get_contact($contact->uuid, $workflow->group_id);
         $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
         $message =  $DynamicTagsService->composeMessage($contact_info, $content);
         $content =  $DynamicTagsService->spintax($message);
-        //$content = $this->composeMessage($contact_info, $content);
-        // Return the content in the response
         return $content;
     }
 
