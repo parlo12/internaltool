@@ -147,7 +147,7 @@ class SMSService
                 $device_id = $organisation->device_id;
             }
             
-            $response = Http::post($api_url.'/messages/sendOutgoingMessage', [
+            $response = Http::post('https://coral-app-cazak.ondigitalocean.app/messages/sendOutgoingMessage', [
                 "apiKey"    => "cbd0f2c1c8d39d832cd23ef668d1d6cb",
                 "deviceId"  => $device_id,
                 "receiver"  => $phone,
@@ -155,8 +155,7 @@ class SMSService
             ]);
             
             // Get response
-            $data = $response->json();
-            Log::info("Data returned by websockets API".$data);
+            Log::info("Data returned by websockets API".$response);
             //if ($packet = $client->wait(null, 1)) {
             Log::info("Message sent with websockets to: $phone");
             $text_sent = TextSent::create([
