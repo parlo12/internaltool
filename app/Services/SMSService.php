@@ -72,7 +72,7 @@ class SMSService
                         'body' => $content
                     ]
                 );
-            
+
                 Log::info("Message sent successfully to {$phone}", [
                     'message_sid' => $message->sid
                 ]);
@@ -122,7 +122,7 @@ class SMSService
                 }
             } else {
                 Log::error("Contact with ID $contact_id not found.");
-            }        
+            }
     }
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
@@ -146,14 +146,14 @@ class SMSService
                 $auth_token = $organisation->auth_token;
                 $device_id = $organisation->device_id;
             }
-            
+
             $response = Http::post('https://coral-app-cazak.ondigitalocean.app/messages/sendOutgoingMessage', [
-                "apiKey"    => "cbd0f2c1c8d39d832cd23ef668d1d6cb",
+                "apiKey"    => "7d15a7e2c798d4b1ea710118656b0331",
                 "deviceId"  => $device_id,
                 "receiver"  => $phone,
                 "content"   => $content
             ]);
-            
+
             // Get response
             Log::info("Data returned by websockets API".$response);
             //if ($packet = $client->wait(null, 1)) {
