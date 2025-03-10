@@ -7,7 +7,7 @@
 // use Illuminate\Support\Facades\Log;
 
 // class WebInternal extends Command
-{
+//{
     /**
     * The name and signature of the console command.
     *
