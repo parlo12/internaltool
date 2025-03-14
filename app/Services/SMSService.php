@@ -52,7 +52,6 @@ class SMSService
         $number = Number::where('phone_number', $texting_number)
             ->where('organisation_id', $organisation_id)
             ->first();
-<<<<<<< HEAD
         $sending_server = SendingServer::find($number->sending_server_id);
         if ($sending_server) {
             //if the number is attached to a sending server
@@ -81,7 +80,6 @@ class SMSService
                 'texting_number' => $texting_number,
                 'content' => $content
             ]);
-=======
             $sending_server=SendingServer::find($texting_number->sending_server_id);
             if($sending_server){
                 //if the number is attached to a sending server
@@ -118,7 +116,6 @@ class SMSService
                     'content' => $content
                 ]);
             }
->>>>>>> 9dc6b1c48831935428dabc2b7ee26cbc31dfcec2
             $contact = Contact::find($contact_id);
 
             if ($contact) {
@@ -164,17 +161,12 @@ class SMSService
                     'response' => 'No'
                 ]);
             } else {
-<<<<<<< HEAD
                 $contact->status = "SMS FAILED";
                 $contact->save();
             }
         } else {
             Log::error("Contact with ID $contact_id not found.");
         }
-=======
-                Log::error("Contact with ID $contact_id not found.");
-            }
->>>>>>> 9dc6b1c48831935428dabc2b7ee26cbc31dfcec2
     }
 
     private function sendWithWebsocketsAPI($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
@@ -198,26 +190,17 @@ class SMSService
                 $device_id = $organisation->device_id;
             }
 
-<<<<<<< HEAD
-            $response = Http::post($api_url . '/messages/sendOutgoingMessage', [
-                "apiKey"    => "cbd0f2c1c8d39d832cd23ef668d1d6cb",
-=======
             $response = Http::post('https://coral-app-cazak.ondigitalocean.app/messages/sendOutgoingMessage', [
                 "apiKey"    => "7d15a7e2c798d4b1ea710118656b0331",
->>>>>>> 9dc6b1c48831935428dabc2b7ee26cbc31dfcec2
                 "deviceId"  => $device_id,
                 "receiver"  => $phone,
                 "content"   => $content
             ]);
-<<<<<<< HEAD
             $contact = Contact::find($contact_id);
 
             if ($contact) {
                 $contact->update(['status' => 'SMS SENT']);
             }
-=======
-
->>>>>>> 9dc6b1c48831935428dabc2b7ee26cbc31dfcec2
             // Get response
             Log::info("Data returned by websockets API" . $response);
             //if ($packet = $client->wait(null, 1)) {
