@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Models\Number;
+use App\Models\NumberPool;
 use App\Models\Organisation;
 use App\Models\SendingServer;
 use App\Models\Spintax;
@@ -43,6 +44,12 @@ class AdminController extends Controller
         $numbers = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
+            $query = NumberPool::where('organisation_id', $organisationId);
+            $sortField = request("sort_field", 'created_at');
+            $sortDirection = request("sort_direction", "desc");
+            $number_pools = $query->orderBy($sortField, $sortDirection)
+                ->paginate(50)
+                ->onEachSide(1);
         $query = Organisation::query(); // Select all organisations
         $sortField = request()->get("sort_field", 'created_at');
         $sortDirection = request()->get("sort_direction", "desc");
@@ -63,6 +70,7 @@ class AdminController extends Controller
             'error' => session('error'),
             "spintaxes" => $spintaxes,
             'numbers' => $numbers,
+            'numberPools' => $number_pools,
             'organisations' => $organisations,
             'sendingServers' => $sending_servers,
             'organisation' => $current_org
@@ -114,16 +122,35 @@ class AdminController extends Controller
             'number_purpose' => 'required|string|max:255',
             'phone_number_provider' => 'required|string|max:255',
             'sending_server_id' => 'required|string|max:255',
-
+            'number_pool_id' => 'string|max:255',
         ]);
         $number = number::create([
             'phone_number' => $validated_data['phone_number'],
             'purpose' => $validated_data['number_purpose'],
             'provider' => $validated_data['phone_number_provider'],
             'sending_server_id' => $validated_data['sending_server_id'],
-            'organisation_id' => $organisationId
+            'organisation_id' => $organisationId,
+            'number_pool_id'=>$validated_data['number_pool_id'],
         ]);
         return redirect()->route('admin.index')->with('success', "Number saved successfully");
+    }
+    public function store_number_pool(Request $request)
+    {        
+        $organisationId = auth()->user()->organisation_id;
+        $validated_data = $request->validate([
+            'pool_name' => 'required|string|max:255',
+            'pool_messages' => 'required|string|max:255',
+            'pool_time' => 'required|string|max:255',
+            'pool_time_units' => 'required|string|max:255',
+        ]);
+        NumberPool::create([
+            'pool_name' => $validated_data['pool_name'],
+            'pool_messages' => $validated_data['pool_messages'],
+            'pool_time' => $validated_data['pool_time'],
+            'pool_time_units' => $validated_data['pool_time_units'],
+            'organisation_id' => $organisationId
+        ]);
+        return redirect()->route('admin.index')->with('success', "Number pool saved successfully");
     }
     public function delete_number($id)
     {
@@ -131,6 +158,15 @@ class AdminController extends Controller
         $number->delete();
         return response()->json([
             'number' => $number
+        ], 200);
+    }
+    public function delete_number_pool($id)
+    {
+        $number_pool = NumberPool::find($id);
+        $number_pool->delete();
+        Number::where('number_pool_id', $number_pool->id)->update(['number_pool_id' => null]);
+        return response()->json([
+            'number_pool' => $number_pool
         ], 200);
     }
     public function store_organisation(Request $request)
@@ -195,6 +231,15 @@ class AdminController extends Controller
             'sendingServer' => $sending_server
         ], 200);
     }
+    public function get_number_pool($id)
+    {
+        $number_pool = NumberPool::find($id);
+        $numbers=Number::where('number_pool_id',$number_pool->id)->get();
+        return response()->json([
+            'numberPool' => $number_pool,
+            'numbers'=>$numbers
+        ], 200);
+    }
     public function update_organisation(Request $request)
     {
         $validatedData = $request->validate([
@@ -234,6 +279,16 @@ class AdminController extends Controller
         return response()->json([
             'message' => "server updated successfully",
             'server' => $server
+        ], 200);
+    }
+    public function update_number_pool(Request $request)
+    {
+        $number_pool = NumberPool::findOrFail( $request->input('id'));
+        $number_pool->update($request->input());
+        return response()->json([
+            'message' => "number_pool updated successfully",
+            'number_pool' => $number_pool,
+            'request'=>$request->input('id')
         ], 200);
     }
     public function update_user_organisation(Request $request)

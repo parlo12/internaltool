@@ -15,8 +15,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ViewOrgPopup from "@/Components/ViewOrgPopup";
 import ViewSendingServerPopup from "@/Components/ViewSendingServerPopup";
+import ViewNumberPoolPopup from "@/Components/ViewNumberPoolPopup";
 import UpdateOrgPopup from "@/Components/UpdateOrgPopup";
 import UpdateSendingServerPopup from "@/Components/UpdateSendingServerPopup";
+import UpdateNumberPoolPopup from "@/Components/UpdateNumberPoolPopup";
 
 export default function Index({
     auth,
@@ -28,14 +30,18 @@ export default function Index({
     organisations,
     sendingServers,
     organisation,
+    numberPools
 }) {
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
+    const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
     const [showOrgPopup, setShowOrgPopup] = useState(false);
     const [showSendingServerPopup, setShowSendingServerPopup] = useState(false);
+    const [showNumberPoolPopup, setShowNumberPoolPopup] = useState(false);
     const [showUpdateOrgPopup, setShowUpdateOrgPopup] = useState(false);
     const [showUpdateSendingServerPopup, setShowUpdateSendingServerPopup] = useState(false);
+    const [showUpdateNumberPoolPopup, setShowUpdateNumberPoolPopup] = useState(false);
     const [contact, setContact] = useState(null);
     const [orgData, setOrgData] = useState({
         organisation_id: organisation.id,
@@ -75,6 +81,13 @@ export default function Index({
         websockets_auth_token: "",
         websockets_device_id: "",
     });
+    const [numberPoolData, setNumberPoolData] = useState({
+        pool_messages: "",
+        pool_name: "",
+        pool_time: "",
+        pool_time_units: "",
+        number_pool_id: ""
+    });
 
 
     const handleSearch = async (e) => {
@@ -88,7 +101,7 @@ export default function Index({
             if (response.data.status === 'success') {
                 console.log(response.data.contact);
                 setContact(response.data.contact);
-                setErrorMessage(null); 
+                setErrorMessage(null);
             } else {
                 setContact(null);
                 setErrorMessage(response.data.message);
@@ -134,7 +147,12 @@ export default function Index({
         websockets_auth_token: "",
         websockets_device_id: "",
         server_name: "",
-        service_provider: ""
+        service_provider: "",
+        pool_messages: "",
+        pool_name: "",
+        pool_time: "",
+        pool_time_units: "",
+        number_pool_id: ""
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -163,6 +181,11 @@ export default function Index({
     const submitNumber = (e) => {
         e.preventDefault();
         post("/store-number");
+        reset();
+    };
+    const submitNumberPool = (e) => {
+        e.preventDefault();
+        post("/store-number-pool");
         reset();
     };
     const deleteSpintax = (deletedSpintaxId) => {
@@ -199,6 +222,23 @@ export default function Index({
                 );
             });
     };
+    const deleteNumberPool = (deletedPoolId) => {
+        axios
+            .delete(`/delete-number-pool/${deletedPoolId}`, {})
+            .then((response) => {
+                console.log(response);
+                console.log(`Number pool deleted successfully`);
+                setMessage(`Number pool deleted successfully`);
+                location.reload();
+            })
+            .catch((error) => {
+                setErrorMessage("Error Deleting Number Pool");
+                console.error(
+                    "Error Deleting Number Pool",
+                    error.response?.data || error.message
+                );
+            });
+    };
     const handleViewOrg = (org) => {
         setData({
             org_id: org.id,
@@ -224,6 +264,20 @@ export default function Index({
         }));
         console.log({ ...data, sending_server_id: sendingServer.id });  // Log updated value
         setShowUpdateSendingServerPopup(true);
+    };
+    const handleViewNumberPool = (numberPool) => {
+        setData({
+            number_pool_id: numberPool.id,
+        });
+        setShowNumberPoolPopup(true);
+    }
+    const handleUpdateNumberPool = (numberPool) => {
+        setNumberPoolData(prevData => ({
+            ...prevData,  // Spread existing data
+            number_pool_id: numberPool.id  // Update specific field
+        }));
+        console.log({ ...data, number_pool_id: numberPool.id });  // Log updated value
+        setShowUpdateNumberPoolPopup(true);
     };
     const submitOrganisationUpdate = async (e) => {
         e.preventDefault();
@@ -251,7 +305,22 @@ export default function Index({
             console.log('Response:', response.data);
         } catch (error) {
             setErrorMessage("Error updating server");
-            setShowUpdateOrgPopup(false)
+            setShowUpdateSendingServerPopup(false)
+            console.error('Error updating org', error);
+        }
+    };
+    const submitNumberPoolUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            console.log(numberPoolData)
+            const response = await axios.post('/update-number-pool', numberPoolData);
+            setMessage(`Number Pool update  successfull`);
+            setShowUpdateNumberPoolPopup(false)
+            setTimeout(() => { window.location.reload() }, 2000);
+            console.log('Response:', response.data);
+        } catch (error) {
+            setErrorMessage("Error updating number pool");
+            setShowUpdateNumberPoolPopup(false)
             console.error('Error updating org', error);
         }
     };
@@ -653,6 +722,8 @@ export default function Index({
                                             </option>
                                         </select>
                                     </div>
+
+                                    {/* cccccccccccccccccccccccccccccc */}
                                     <div>
                                         <InputLabel className="block text-sm font-medium text-gray-700">
                                             Choose Server
@@ -701,6 +772,25 @@ export default function Index({
                                         </select>
                                     </div>
                                     <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Assign To Pool
+                                        </InputLabel>
+                                        <select
+                                            name="number_pool_id"
+                                            value={data.number_pool_id}
+                                            onChange={(e) => setData({ ...data, number_pool_id: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            required
+                                        >
+                                            <option value="">Add To A Pool</option>
+                                            {numberPools.data.map((numberPool) => (
+                                                <option key={numberPool.id} value={numberPool.id}>
+                                                    {numberPool.pool_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
                                         <PrimaryButton
                                             type="submit"
                                             className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -725,6 +815,9 @@ export default function Index({
                                             <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Sending Server
                                             </th>
+                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Number Pool
+                                            </th>
                                             <th className="px-6 py-3 bg-gray-50">
                                                 Provider
                                             </th>
@@ -744,6 +837,9 @@ export default function Index({
                                                 </td>
                                                 <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                                     {serverLookup[number.sending_server_id] || 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                    {NumberPoolLookup[number.number_pool_id] || 'N/A'}
                                                 </td>
                                                 <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                                     {number.provider}
@@ -768,6 +864,185 @@ export default function Index({
                             </div>
                         </div>
                     </div>
+                    {/* ****************************** */}
+                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                            <div className="max-w-md mx-auto mt-10">
+                                <h1 className="text-2xl font-bold mb-4">
+                                    Create A Number Pool
+                                </h1>
+                                <form
+                                    onSubmit={submitNumberPool}
+                                    className="space-y-4"
+                                >
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Pool Name
+                                        </InputLabel>
+                                        <TextInput
+                                            name="pool_name"
+                                            value={data.pool_name}
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    pool_name:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Pool Name"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div className="flex items-center mb-4">
+                                        <div className="mr-2 w-2/3">
+                                            <InputLabel
+                                                forInput="pool_messages"
+                                                value="Send"
+                                            />
+                                            <input
+                                                type="number"
+                                                min="1" // Enforce minimum wait time limit
+                                                name="pool_messages"
+                                                value={data.pool_messages}
+                                                required
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        pool_messages:
+                                                            e.target.value,
+                                                    })} className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                            />
+                                        </div>
+                                        <div className="mr-2 w-2/3">
+                                            <InputLabel
+                                                forInput="pool"
+                                                value="Every"
+                                            />
+                                            <input
+                                                type="number"
+                                                min="1" // Enforce minimum wait time limit
+                                                name="pool_time"
+                                                value={data.pool_time}
+                                                required
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        pool_time:
+                                                            e.target.value,
+                                                    })}
+                                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputLabel
+                                                forInput="pool_time_units"
+                                                value="Units"
+                                            />
+                                            <select
+                                                name="pool_time_units"
+                                                required
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        pool_time_units:
+                                                            e.target.value,
+                                                    })}
+                                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                                value={data.pool_time_units}
+                                            >
+                                                <option value="">Select</option>
+                                                <option value="minutes">Minutes</option>
+                                                <option value="hours">Hours</option>
+                                                <option value="days">Days</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <PrimaryButton
+                                            type="submit"
+                                            className=" text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        >
+                                            Create Numbers Pool
+                                        </PrimaryButton>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Pool Name
+                                            </th>
+                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Instructions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {numberPools.data.map((numberPool) => (
+                                            <tr key={numberPool.id}>
+                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                    {numberPool.pool_name}
+                                                </td>
+                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                    {"send "}{numberPool.pool_messages}{" Message(s) Every "}{numberPool.pool_time}{' '}{numberPool.pool_time_units}
+                                                </td>
+                                                <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button
+                                                        onClick={() =>
+                                                            handleUpdateNumberPool(
+                                                                numberPool
+                                                            )
+                                                        }
+                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={faPen}
+                                                            className="fa-xs"
+                                                        />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleViewNumberPool(
+                                                                numberPool
+                                                            )
+                                                        }
+                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={faEye}
+                                                            className="fa-xs"
+                                                        />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            deleteNumberPool(
+                                                                numberPool.id
+                                                            )
+                                                        }
+                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                    >
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faTrash
+                                                            }
+                                                            className="fa-xs"
+                                                        />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <Pagination links={users.meta.links} />
+                            </div>
+                        </div>
+                    </div>
+                    {/* ************************************* */}
                     <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
                         <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                             <div className="max-w-md mx-auto mt-10">
@@ -1588,6 +1863,11 @@ export default function Index({
                 setShowSendingServerPopup={setShowSendingServerPopup}
                 data={data}
             />
+            <ViewNumberPoolPopup
+                showNumberPoolPopup={showNumberPoolPopup}
+                setShowNumberPoolPopup={setShowNumberPoolPopup}
+                data={data}
+            />
             <UpdateOrgPopup
                 isOpen={showUpdateOrgPopup}
                 onClose={() => setShowUpdateOrgPopup(false)}
@@ -1607,6 +1887,15 @@ export default function Index({
                 data={sendingServerData}
                 setData={setSendingServerData}
                 submitServerUpdate={submitServerUpdate}
+            />
+            <UpdateNumberPoolPopup
+                isOpen={showUpdateNumberPoolPopup}
+                onClose={() => setShowUpdateNumberPoolPopup(false)}
+                showUpdateNumberPoolPopup={showUpdateNumberPoolPopup}
+                setShowUpdateNumberPoolPopup={setShowUpdateNumberPoolPopup}
+                data={numberPoolData}
+                setData={setNumberPoolData}
+                submitNumberPoolUpdate={submitNumberPoolUpdate}
             />
         </AuthenticatedLayout>
     );

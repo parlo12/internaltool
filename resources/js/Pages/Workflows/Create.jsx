@@ -26,6 +26,7 @@ export default function Create({
     voices,
     calling_numbers,
     texting_numbers,
+    numberPools,
     folders,
     error,
     organisation
@@ -43,6 +44,7 @@ export default function Create({
         workflow_name: "",
         folder_name: "",
         folder_id: "",
+        number_pool_id:""
     });
 
     const [showPopup, setShowPopup] = useState(false);
@@ -387,6 +389,44 @@ export default function Create({
                             </div>
                             <InputError
                                 message={errors.calling_number}
+                                className="mt-2"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <InputLabel
+                                htmlFor="texting_number"
+                                className=" text-sm font-medium flex"
+                            >
+                                Select a pool
+                            </InputLabel>
+                            <div className="flex">
+                                <select
+                                    id="number_pool_id"
+                                    name="number_pool_id"
+                                    value={data.number_pool_id}
+                                    onChange={(e) =>
+                                        setData(
+                                            "number_pool_id",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="ml-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                >
+                                    <option value="">
+                                        Select a number pool
+                                    </option>
+                                    {numberPools.map((numberPool) => (
+                                        <option
+                                            key={numberPool.id}
+                                            value={numberPool.id}
+                                        >
+                                            {numberPool.pool_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <InputError
+                                message={errors.number_pool_id}
                                 className="mt-2"
                             />
                         </div>

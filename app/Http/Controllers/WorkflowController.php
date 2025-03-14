@@ -8,6 +8,7 @@ use App\Models\CallsSent;
 use App\Models\Contact;
 use App\Models\Folder;
 use App\Models\Number;
+use App\Models\NumberPool;
 use App\Models\Organisation;
 use App\Models\Spintax;
 use App\Models\Step;
@@ -34,8 +35,9 @@ class WorkflowController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'contact_group' => 'required|string|max:255',
-            'calling_number' => 'required|string|max:255',
-            'texting_number' => 'required|string|max:255'
+            'calling_number' => 'max:255',
+            'texting_number' => 'max:255',
+            'number_pool_id' => 'max:255'
         ]);
         if (!$CRMAPIRequestsService->group_has_contacts($request->contact_group)) {
             return redirect()->route('create-workflow')
@@ -53,6 +55,7 @@ class WorkflowController extends Controller
                 'agent_number' => $request->agent_phone_number,
                 'texting_number' => $request->texting_number,
                 'calling_number' => $request->calling_number,
+                'number_pool_id' => $request->number_pool_id,
                 'organisation_id' => $organisationId,
                 'godspeedoffers_api' => auth()->user()->godspeedoffers_api,
                 'user_id' => auth()->user()->id,
@@ -121,6 +124,8 @@ class WorkflowController extends Controller
         $texting_numbers = Number::where('purpose', 'texting')
             ->where('organisation_id', $organisationId)
             ->get();
+        $number_pools = NumberPool::where('organisation_id', $organisationId)
+            ->get();
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
         return inertia("Workflows/Create", [
             'success' => session('success'),
@@ -130,7 +135,8 @@ class WorkflowController extends Controller
             'calling_numbers' => $calling_numbers,
             'texting_numbers' => $texting_numbers,
             'folders' => $folders,
-            'organisation' => $current_org
+            'organisation' => $current_org,
+            'numberPools'=>$number_pools
         ]);
     }
 
@@ -159,6 +165,7 @@ class WorkflowController extends Controller
             'agent_phone_number' => 'nullable|string|max:255',
             'calling_number' => 'nullable|string|max:255',
             'texting_number' => 'nullable|string|max:255',
+            'number_pool_id'=>'nullable|max:255'
         ]);
         $workflow = Workflow::findOrFail($id);
         $workflow->update($validatedData);
@@ -273,6 +280,7 @@ class WorkflowController extends Controller
                 'agent_number' => $old_workflow->agent_number,
                 'texting_number' => $old_workflow->texting_number,
                 'calling_number' => $old_workflow->calling_number,
+                'number_pool_id' => $old_workflow->number_pool_id,
                 'folder_id' => $old_workflow->folder_id,
                 'organisation_id' => $organisation_id,
                 'godspeedoffers_api' => $old_workflow->godspeedoffers_api,
@@ -333,8 +341,15 @@ class WorkflowController extends Controller
         $place_holders = $DynamicTagsService->get_placeholders($workflow->group_id);
         $spintaxes = Spintax::all();
         $voices = $this->getVoices();
-        $calling_numbers = Number::where('purpose', 'calling')->get();
-        $texting_numbers = Number::where('purpose', 'texting')->get();
+        $organisationId = auth()->user()->organisation_id;
+        $calling_numbers = Number::where('purpose', 'calling')
+            ->where('organisation_id', $organisationId)
+            ->get();
+        $texting_numbers = Number::where('purpose', 'texting')
+            ->where('organisation_id', $organisationId)
+            ->get();
+        $number_pools = NumberPool::where('organisation_id', $organisationId)
+            ->get();
         $steps = array();
         if (!empty($workflow->steps_flow)) {
             $steps_flow_array = explode(',', $workflow->steps_flow);
@@ -350,7 +365,8 @@ class WorkflowController extends Controller
             'spintaxes' => $spintaxes,
             'voices' => $voices,
             'calling_numbers' => $calling_numbers,
-            'texting_numbers' => $texting_numbers
+            'texting_numbers' => $texting_numbers,
+            'numberPools'=>$number_pools
         ]);
     }
 
@@ -377,5 +393,4 @@ class WorkflowController extends Controller
             return ['error' => 'Request failed with error: ' . $e->getMessage()];
         }
     }
-    
 }

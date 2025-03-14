@@ -22,7 +22,8 @@ class Workflow extends Model
         'folder_id',
         'godspeedoffers_api',
         'organisation_id',
-        'user_id'
+        'user_id',
+        'number_pool_id'
 
     ];
     public function contacts()

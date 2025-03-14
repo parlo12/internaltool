@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Folder;
+use App\Models\NumberPool;
 use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -36,6 +37,7 @@ class WorkflowFactory extends Factory
             'godspeedoffers_api' => 'api_key',
             'organisation_id' => Organisation::inRandomOrder()->first()->id,
             'user_id' => User::inRandomOrder()->first()->id,
+            'number_pool_id' => NumberPool::inRandomOrder()->first()->id,
         ];
     }
 }

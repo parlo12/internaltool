@@ -17,6 +17,7 @@ export default function Create({
     voices,
     calling_numbers,
     texting_numbers,
+    numberPools
 }) {
     console.log(steps)
     const [stepsState, setStepsState] = useState(steps);
@@ -468,6 +469,7 @@ export default function Create({
                 voices={voices}
                 callingNumbers={calling_numbers}
                 textingNumbers={texting_numbers}
+                numberPools={numberPools}
                 handleSubmit={handleFormSubmit}
                 handleChange={handleFormChange}
                 data={workflowData}

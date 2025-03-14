@@ -22,12 +22,13 @@ return new class extends Migration
             $table->boolean('active');
             $table->string('voice');
             $table->string('agent_number');
-            $table->string('texting_number');
-            $table->string('calling_number');
+            $table->string('texting_number')->nullable();
+            $table->string('calling_number')->nullable();
             $table->string('folder_id')->nullable();
             $table->string('godspeedoffers_api')->nullable();
             $table->string('user_id');
             $table->string('organisation_id');
+            $table->string('number_pool_id')->nullable();
         });
     }
 

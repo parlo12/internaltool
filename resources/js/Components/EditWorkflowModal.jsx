@@ -14,6 +14,7 @@ const EditWorkflowModal = ({
     voices,
     callingNumbers,
     textingNumbers,
+    numberPools,
     handleSubmit,
     handleChange,
     data,
@@ -190,7 +191,40 @@ const EditWorkflowModal = ({
                                 </select>
                             </div>
                         </div>
-
+                        <div className="mb-4">
+                            <InputLabel
+                                htmlFor="texting_number"
+                                className="text-sm font-medium flex"
+                            >
+                                Texting number
+                            </InputLabel>
+                            <div className="flex">
+                                <select
+                                    id="number_pool_id"
+                                    name="number_pool_id"
+                                    value={data.number_pool_id}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            number_pool_id: e.target.value,
+                                        })
+                                    }
+                                    className="ml-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                >
+                                    <option value="">
+                                        Select a Number Pool
+                                    </option>
+                                    {numberPools.map((numberPool) => (
+                                        <option
+                                            key={numberPool.id}
+                                            value={numberPool.id}
+                                        >
+                                            {numberPool.pool_name} 
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                         <div className="mt-4">
                             <PrimaryButton
                                 type="submit"

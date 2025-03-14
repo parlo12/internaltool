@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('numbers', function (Blueprint $table) {
+        Schema::create('number_pools', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('phone_number');
-            $table->string('provider');
-            $table->string('purpose');
+            $table->string('pool_name');
+            $table->string('pool_messages');
+            $table->string('pool_time');
+            $table->string('pool_time_units');
             $table->string('organisation_id');
-            $table->string('sending_server_id')->nullable();
-            $table->string('number_pool_id')->nullable();
-            $table->string('can_refill_on')->nullable();
-            $table->string('remaining_messages')->nullable();
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('numbers');
+        Schema::dropIfExists('number_pools');
     }
 };

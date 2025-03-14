@@ -28,14 +28,14 @@ class OfferService
         $this->provider = $provider;
     }
 
-    public function sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    public function sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
     {
         try { //You add a new MMS provider from here.
             switch ($this->provider) {
                 case 'twilio':
-                    return $this->sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+                    return $this->sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
                 case 'signalwire':
-                    return $this->sendWithSignalWire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+                    return $this->sendWithSignalWire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
                 default:
                     throw new Exception("MMS provider not supported.");
             }
@@ -44,15 +44,13 @@ class OfferService
         }
     }
 
-    private function sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    private function sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
     {
         $organisation = Organisation::find($organisation_id);
-        $workflow = Workflow::find($workflow_id);
-        $texting_number = $workflow->texting_number;
-        $texting_number = Number::where('phone_number', $texting_number)
+        $number = Number::where('phone_number', $texting_number)
             ->where('organisation_id', $organisation_id)
             ->first();
-        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        $sending_server = SendingServer::find($number->sending_server_id);
         if ($sending_server) { //if the number is attached to a sending server
             $sid = $sending_server->twilio_account_sid;
             $token = $sending_server->twilio_auth_token;
@@ -60,7 +58,6 @@ class OfferService
             $sid = $organisation->twilio_texting_account_sid;
             $token = $organisation->twilio_texting_auth_token;
         }
-        $texting_number = $workflow->texting_number;
         $twilio = new TwilioClient($sid, $token);
         $workflow = Workflow::find($workflow_id);
         $contact = Contact::find($contact_id);
@@ -84,6 +81,7 @@ class OfferService
             );
             Log::info("I sent an MMS with thi $message->sid");
             if ($contact) {
+                $contact->update(['status' => 'SMS SENT']);
                 $communication_ids_array = [];
                 $communication_ids = $contact->contact_communication_ids;
                 if (!empty($communication_ids)) {
@@ -123,15 +121,14 @@ class OfferService
         }
     }
 
-    private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
     {
         $organisation = Organisation::find($organisation_id);
         $workflow = Workflow::find($workflow_id);
-        $texting_number = $workflow->texting_number;
-        $texting_number = Number::where('phone_number', $texting_number)
+        $number = Number::where('phone_number', $texting_number)
             ->where('organisation_id', $organisation_id)
             ->first();
-        $sending_server = SendingServer::find($texting_number->sending_server_id);
+        $sending_server = SendingServer::find($number->sending_server_id);
         if ($sending_server) { //if the number is attached to a sending server
             $projectID = $sending_server->signalwire_project_id;
             $authToken = $sending_server->signalwire_api_token;
@@ -141,7 +138,6 @@ class OfferService
             $authToken = $organisation->signalwire_texting_api_token;
             $signalwireSpaceUrl = $organisation->signalwire_texting_space_url;
         }
-        $texting_number = $workflow->texting_number;
         // Create a new SignalWire Client
         $client = new SignalWireClient($projectID, $authToken, [
             'signalwireSpaceUrl' => $signalwireSpaceUrl
@@ -177,6 +173,8 @@ class OfferService
                 $contact->save();
                 Log::info("Message sent with SID: $message_sid");
                 if ($message_sid) {
+                    $contact = Contact::find($contact_id);
+                    $contact->update(['status' => 'SMS SENT']);
                     TextSent::create([
                         'name' => $contact->contact_name,
                         'contact_id' => $contact->id,

@@ -76,7 +76,9 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::post('/store-spintax', [AdminController::class, 'store_spintax'])->name('store-spintax');
     Route::delete('/delete-spintax/{id}', [AdminController::class, 'delete_spintax']);
     Route::post('/store-number', [AdminController::class, 'store_number'])->name('store-number');
+    Route::post('/store-number-pool', [AdminController::class, 'store_number_pool'])->name('store-number-pool');
     Route::delete('/delete-number/{id}', [AdminController::class, 'delete_number']);
+    Route::delete('/delete-number-pool/{id}', [AdminController::class, 'delete_number_pool']);
     Route::post('/store-organisation', [AdminController::class, 'store_organisation'])->name('store-organisation');
     Route::post('/update-organisation', [AdminController::class, 'update_organisation'])->name('update-organisation');
     Route::get('/get_org/{id}', [AdminController::class, 'get_org'])->name('get-orgs');
@@ -85,8 +87,10 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::post('/submit-api-key', [AdminController::class, 'submit_api_key']);
     Route::get('/no-godspeedoffers-apikey', [AdminController::class, 'no_godspeedoffers_apikey'])->name('no-godspeedoffers-apikey');
     Route::get('/get_server/{id}', [AdminController::class, 'get_server'])->name('get-server');
+    Route::get('/get_number_pool/{id}', [AdminController::class, 'get_number_pool'])->name('get-number-pool');
     Route::post('/store-server', [AdminController::class, 'store_server'])->name('store-server');
     Route::post('/update-server', [AdminController::class, 'update_server'])->name('update-server');
+    Route::post('/update-number-pool', [AdminController::class, 'update_number_pool'])->name('update-number-pool');
 
     //WORKFLOW CONTROLLER
     Route::get('/create-workflow', [WorkflowController::class, 'create'])->name('create-workflow');

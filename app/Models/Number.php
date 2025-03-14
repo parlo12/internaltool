@@ -13,6 +13,13 @@ class Number extends Model
         'purpose',
         'provider',
         'organisation_id',
-        'sending_server_id'
+        'sending_server_id',
+        'number_pool_id',
+        'can_refill_on',
+        'remaining_messages'
     ];
+    public function numberPool()
+    {
+        return $this->belongsTo(NumberPool::class);
+    }
 }
