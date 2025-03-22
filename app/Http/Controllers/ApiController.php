@@ -469,7 +469,7 @@ class ApiController extends Controller
                         $call->save();
                     }
                 } else {
-                    Log::info("No call sent records found with the phone number: $phone");
+                    //Log::info("No call sent records found with the phone number: $phone");
                 }
 
                 // Update the TextSents model
@@ -480,7 +480,7 @@ class ApiController extends Controller
                         $text->save();
                     }
                 } else {
-                    Log::info("No text sent records found with the phone number: $phone");
+                   // Log::info("No text sent records found with the phone number: $phone");
                 }
             }
         } else {
