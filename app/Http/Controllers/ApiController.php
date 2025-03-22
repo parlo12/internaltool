@@ -54,7 +54,6 @@ class ApiController extends Controller
     }
     public function update_lead_status(Request $request)
     {
-        Log::info('I am here');
         // Retrieve the query parameters
         $first_name = $request->query('first_name');
         $last_name = $request->query('last_name');
@@ -169,7 +168,6 @@ class ApiController extends Controller
 
     public function under_contract(Request $request)
     {
-        Log::info("at under contract");
         try {
             // Validate incoming request data
             $validatedData = $request->validate([
@@ -266,7 +264,7 @@ class ApiController extends Controller
 
     public function follow_up(Request $request)
     {
-        Log::info("at follow up");
+
         try {
             // Validate incoming request data
             $validatedData = $request->validate([
@@ -361,7 +359,7 @@ class ApiController extends Controller
     }
     public function fresh_lead(Request $request)
     {
-        Log::info("at fresh lead");
+
         try {
             // Validate incoming request data
             $validatedData = $request->validate([
@@ -463,14 +461,12 @@ class ApiController extends Controller
             foreach ($contacts as $contact) {
                 $contact->response = 'Yes';
                 $contact->save();
-                Log::info("I saved response for $contact->contact_name");
                 // Update the CallsSents model
                 $callsSents = CallsSent::where('contact_id', $contact->id)->get(); // Get all call sent records with the same phone number
                 if ($callsSents->isNotEmpty()) {
                     foreach ($callsSents as $call) {
                         $call->response = 'Yes';
                         $call->save();
-                        Log::info("I saved response for call sent record with ID: $call->id");
                     }
                 } else {
                     Log::info("No call sent records found with the phone number: $phone");
@@ -482,7 +478,6 @@ class ApiController extends Controller
                     foreach ($textSents as $text) {
                         $text->response = 'Yes';
                         $text->save();
-                        Log::info("I saved response for text sent record with ID: $text->id");
                     }
                 } else {
                     Log::info("No text sent records found with the phone number: $phone");
@@ -506,7 +501,6 @@ class ApiController extends Controller
         foreach ($placeholders as $key => $value) {
             $template = str_replace($key, $value, $template);
         }
-        Log::info('Final Template: ' . $template);
         return $template;
     }
     private function create_placeholders($contact)
@@ -584,7 +578,6 @@ class ApiController extends Controller
         $workflow_message = $this->get_workflow_message($phone);
         $workflow_message = $workflow_message ?? "N/A";
         $userInput = $request->message;
-        Log::info("user input is $userInput");
         if ($this->containsKeywords($userInput)) {
             Log::info("$userInput is an invalid keyword. Ceasing operation immediately");
             return;
@@ -757,35 +750,20 @@ class ApiController extends Controller
     }
     private function get_workflow_message(string $phone)
     {
-        // Retrieve the contact based on the phone number
         $contact = DB::table('contacts')->where('phone', $phone)->first();
-
-        // Check if the contact exists
         if (!$contact) {
             return '';
         }
-
-        // Get the current step from the contact
         $current_step = $contact->current_step;
-
-        // Find the corresponding step
         $step = Step::find($current_step);
-
-        // Check if the step exists
         if (!$step) {
             return '';
         }
-
-        // Get the content of the step
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
-        Log::info($contact);
         $message =  $DynamicTagsService->composeMessage($contact, $content);
-        Log::info($message);
         $content =  $DynamicTagsService->spintax($message);
-        //$content = $this->composeMessage($contact_info, $content);
-        // Return the content in the response
         return $content;
     }
 
