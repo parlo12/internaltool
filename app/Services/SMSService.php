@@ -196,9 +196,7 @@ class SMSService
             ->where('organisation_id', $organisation_id)
             ->first();
         $sending_server = SendingServer::find($number->sending_server_id);
-        Log::info("Associated with sending server $sending_server");
         if ($sending_server) { //if the number is attached to a sending server
-            Log::info("Associated with sending server $sending_server->service_provider");
             $projectID = $sending_server->signalwire_project_id;
             $authToken = $sending_server->signalwire_api_token;
             $signalwireSpaceUrl = $sending_server->signalwire_space_url; // Example: example.signalwire.com

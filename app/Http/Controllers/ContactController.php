@@ -473,7 +473,6 @@ class ContactController extends Controller
                 $contactModel->save();
             }
         } else { //Workflow is not being handled by a pool
-            Log::info("Workflow not being handled by pool");
             $texting_number = $workflow->texting_number;
             $number = Number::where('phone_number', $texting_number)
                 ->where('organisation_id', $organisation_id)
@@ -484,7 +483,6 @@ class ContactController extends Controller
                 $SMSService = new SMSService($sending_server->service_provider);
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             } else {
-                Log::info("Org texting with $organisation->texting_service");
                 $SMSService = new SMSService($organisation->texting_service);
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             }
@@ -538,7 +536,6 @@ class ContactController extends Controller
             $MMSService = new MMSService($sending_server->service_provider);
             $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
         } else {
-            Log::info("Org texting with $organisation->texting_service");
             $MMSService = new MMSService($organisation->texting_service);
             $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
         }
