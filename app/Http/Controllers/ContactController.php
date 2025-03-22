@@ -56,7 +56,7 @@ class ContactController extends Controller
         $contacts = $query->orderBy($sortField, $sortDirection)
             ->paginate(10)
             ->onEachSide(1);
-        $statuses = Contact::select('status')->distinct()->pluck('status')->toArray();
+        $statuses = Contact::where('workflow_id',$id)->select('status')->distinct()->pluck('status')->toArray();
         return inertia("Contacts/Index", [
             'success' => session('success'),
             'error' => session('error'),
