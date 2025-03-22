@@ -61,7 +61,6 @@ class UpdateContactStep implements ShouldQueue
                     ]);
                 }
             } elseif ($current_step_key === count($steps_flow_array) - 1) {
-                Log::info("{$current_step} is the last step for contact {$contact->id}.");
             } else {
                 Log::info("Step {$current_step} is not available in workflow {$workflow->id}.");
             }

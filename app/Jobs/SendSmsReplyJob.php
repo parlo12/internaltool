@@ -37,15 +37,8 @@ class SendSmsReplyJob implements ShouldQueue
         $endpoint = 'https://godspeedoffers.com/api/v3/sms/reply';
 
         try {
-            // Log the start of the SMS reply process
-            Log::info('Starting sendSmsReply process', [
-                'endpoint' => $endpoint,
-                'phone'    => $this->phone,
-                'message'  => $this->message,
-                'sending_number' => $this->sendingNumber,
-            ]);
+           
             $is_awake=$this->sendWakeTimeRequest($this->phone, $this->sendingNumber,'4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0')['wake_time'];
-            Log::info($is_awake);
             if($is_awake){
                 if (Carbon::now()->lessThan($is_awake)) {
                     // Still sleeping
@@ -63,12 +56,7 @@ class SendSmsReplyJob implements ShouldQueue
                     'sending_number' => $this->sendingNumber,
                 ]);
 
-            // Log the response from the API
-            Log::info('Received response from SMS reply API', [
-                'status'  => $response->status(),
-                'success' => $response->successful(),
-                'data'    => $response->json(),
-            ]);
+            
 
         } catch (\Exception $e) {
             // Log the exception details

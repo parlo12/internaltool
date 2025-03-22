@@ -192,7 +192,7 @@ Schedule::call(function () {
             ])->get($url);
 
             if ($response->successful()) {
-                Log::info("Successfully called URL: $url");
+                //Log::info("Successfully called URL: $url");
                 sleep(5);
             } else {
                 Log::error("Failed to call URL: $url. Status: " . $response->status());
@@ -218,7 +218,7 @@ Schedule::call(function () {
             ])->get($url);
 
             if ($response->successful()) {
-                Log::info("Successfully called URL: $url");
+              //  Log::info("Successfully called URL: $url");
                 sleep(5);
             } else {
                 Log::error("Failed to call URL: $url. Status: " . $response->status());
@@ -245,7 +245,7 @@ Schedule::call(function () {
             ])->get($url);
 
             if ($response->successful()) {
-                Log::info("Successfully called URL: $url");
+               // Log::info("Successfully called URL: $url");
                 sleep(5);
             } else {
                 Log::error("Failed to call URL: $url. Status: " . $response->status());
@@ -257,7 +257,7 @@ Schedule::call(function () {
 })->everyThreeMinutes();
 
 Schedule::call(function () {
-    Log::info('Trying to delete files');
+   // Log::info('Trying to delete files');
     // Absolute path to the uploads directory
     $directory = '/home/support/web/internaltools.godspeedoffers.com/public_html/uploads';
 
@@ -332,9 +332,7 @@ Schedule::call(function () {
                 }
 
                 $dispatchTime = $startTime->copy();
-                Log::info("here");
                 foreach ($chunk as $contact) {
-                    Log::info("Got $contact->id of workflow $contact->workflow_id");
                     $existingJob = DB::table('jobs')
                         ->where('payload', 'like', '%PrepareMessageJob%')
                         ->where('payload', 'like', "%{$contact->uuid}%")

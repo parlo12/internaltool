@@ -122,7 +122,7 @@ class AdminController extends Controller
             'number_purpose' => 'required|string|max:255',
             'phone_number_provider' => 'required|string|max:255',
             'sending_server_id' => 'required|string|max:255',
-            'number_pool_id' => 'string|max:255',
+            'number_pool_id' => 'nullable|string|max:255',
         ]);
         $number = number::create([
             'phone_number' => $validated_data['phone_number'],

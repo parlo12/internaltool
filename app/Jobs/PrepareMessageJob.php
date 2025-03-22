@@ -62,18 +62,13 @@ class PrepareMessageJob implements ShouldQueue
         $contactModel->save();
         if ($contactModel->can_send_after) {
             UpdateContactStep::dispatch($contactModel)->delay(Carbon::parse($contactModel->can_send_after));
-            Log::info("Dispatched UpdateContactStep", [
-                'contact_id' => $contactModel->id,
-                'can_send_after' => $contactModel->can_send_after
-            ]);
+            
         } else {
             Log::warning("Skipping UpdateContactStep due to missing can_send_after", [
                 'contact_id' => $contactModel->id
             ]);
         }
-        Log::info('Scheduled contact: ' . $contactModel->id . ' at ' . $this->dispatchTime);
-        Log::info("The contact will move to the next step on $next_step_after");
-        Log::info($message);
+        
     }
 }
 

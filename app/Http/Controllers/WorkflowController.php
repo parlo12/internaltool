@@ -181,23 +181,19 @@ class WorkflowController extends Controller
         $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
-        Log::info("This is the called  number $called_number");
-        Log::info("This is the calling  number $calling_number");
+      
         $contact = Contact::firstWhere('phone', ltrim($calling_number, '+'));
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
             $call_sent->save();
-            Log::info("call sent response for $calling_number set to $contact->response");
         }
         if ($contact) {
             $contact->response = 'yes';
             $contact->save();
-            Log::info("response for $calling_number set to $contact->response");
         }
 
         $numberToDial = $workflow->agent_number;
-        Log::info("This is the number to dial $numberToDial");
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');
@@ -209,25 +205,20 @@ class WorkflowController extends Controller
         $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
-        Log::info("This is the called  number $called_number");
-        Log::info("This is the calling  number $calling_number");
         $contact = Contact::firstWhere('phone', $calling_number);
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
             $call_sent->save();
-            Log::info("Call sent response for $calling_number set to $contact->response");
         }
         if ($contact) {
             $contact->response = 'Yes';
             $contact->save();
-            Log::info("response for $calling_number set to $contact->response");
         }
         if (!$workflow) {
             return response('Workflow not found', 404);
         }
         $numberToDial = $workflow->agent_number;
-        Log::info("This is the number to dial $numberToDial");
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');
@@ -256,7 +247,6 @@ class WorkflowController extends Controller
     public function copy(Request $request)
     {
         try {
-            Log::info("Trying to copy workflow");
             $organisation_id = auth()->user()->organisation_id;
             $validatedData = $request->validate([
                 'workflow_name' => 'required|string|max:255',
@@ -286,7 +276,6 @@ class WorkflowController extends Controller
                 'godspeedoffers_api' => $old_workflow->godspeedoffers_api,
                 'user_id' => auth()->user()->id
             ]);
-            Log::info("New workflow created successfully with ID: {$new_workflow->id}");
             foreach ($contacts as $contact) {
                 try {
                     CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $new_workflow->id, $contact['phone'], $organisation_id)
@@ -318,7 +307,6 @@ class WorkflowController extends Controller
                         $new_steps_flow[] = $new_step->id;
                         $new_workflow->steps_flow = implode(',', $new_steps_flow);
                         $new_workflow->save();
-                        Log::info("Step ID {$step_id} copied to new step ID {$new_step->id}");
                     } catch (\Exception $e) {
                         Log::error("Error copying step ID {$step_id}: {$e->getMessage()}");
                     }

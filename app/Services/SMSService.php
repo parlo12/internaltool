@@ -47,7 +47,6 @@ class SMSService
     private function sendWithTwilio($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
     {
         $organisation = Organisation::find($organisation_id);
-        Log::info("Texting service is twilio");
         $workflow = Workflow::find($workflow_id);
         $number = Number::where('phone_number', $texting_number)
             ->where('organisation_id', $organisation_id)
@@ -80,44 +79,7 @@ class SMSService
                 'texting_number' => $texting_number,
                 'content' => $content
             ]);
-            $sending_server=SendingServer::find($texting_number->sending_server_id);
-            if($sending_server){
-                //if the number is attached to a sending server
-                $sid = $sending_server->twilio_account_sid;
-                $token = $sending_server->twilio_auth_token;
-            }else{//use the org details
-                $sid = $organisation->twilio_texting_account_sid;
-                $token = $organisation->twilio_texting_auth_token;
-            }
-            $texting_number = $workflow->texting_number;
-            $twilio = new TwilioClient($sid, $token);
-            try {
-                $message = $twilio->messages->create(
-                    $phone,
-                    [
-                        'from' => $texting_number,
-                        'body' => $content
-                    ]
-                );
-
-                Log::info("Message sent successfully to {$phone}", [
-                    'message_sid' => $message->sid
-                ]);
-            } catch (TwilioException $e) {
-                Log::error("Twilio API error: " . $e->getMessage(), [
-                    'phone' => $phone,
-                    'texting_number' => $texting_number,
-                    'content' => $content
-                ]);
-            } catch (\Exception $e) {
-                Log::error("Unexpected error while sending SMS: " . $e->getMessage(), [
-                    'phone' => $phone,
-                    'texting_number' => $texting_number,
-                    'content' => $content
-                ]);
-            }
             $contact = Contact::find($contact_id);
-
             if ($contact) {
                 $contact->update(['status' => 'Twilio API error']);
             }
@@ -260,9 +222,9 @@ class SMSService
         );
         $contact = Contact::find($contact_id);
 
-            if ($contact) {
-                $contact->update(['status' => 'SMS SENT']);
-            }
+        if ($contact) {
+            $contact->update(['status' => 'SMS SENT']);
+        }
         if ($contact) {
             $communication_ids_array = [];
             $communication_ids = $contact->contact_communication_ids;

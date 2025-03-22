@@ -160,72 +160,70 @@ class ContactController extends Controller
     { //Keep the commented code for the purpose of local testing. 
         //Uncomment when testing workflows offline
         //production uses a copy in routes/console.php so comment when pushing to prod
-        // ini_set('max_execution_time', 0);
-        // ini_set('memory_limit', '256M');
-        // $steps = Step::where('created_at', '>=', now()->subMonth())->get();
-        // foreach ($steps as $step) {
-        //     $workflow = Workflow::find($step->workflow_id);
-        //     $days_of_week = json_decode($step->days_of_week, true);
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '256M');
+        $steps = Step::where('created_at', '>=', now()->subMonth())->get();
+        foreach ($steps as $step) {
+            $workflow = Workflow::find($step->workflow_id);
+            $days_of_week = json_decode($step->days_of_week, true);
 
-        //     if ($workflow != null && $workflow->active) {
-        //         $contacts = DB::table('contacts')
-        //             ->where('response', 'No')
-        //             ->where('can_send', 1)
-        //             ->where('subscribed', 1)
-        //             ->where('current_step', $step->id)
-        //             ->get();
-        //         $start_time = $step->start_time ?: '08:00';
-        //         $end_time = $step->end_time ?: '20:00';
-        //         $chunk_size = $step->batch_size ?: '20';
-        //         $interval = (int) $step->batch_delay * 60;
-        //         $contactsChunks = $contacts->chunk($chunk_size);
-        //         $now = Carbon::now();
-        //         $startTime = Carbon::today()->setTimeFromTimeString($start_time);
-        //         $endTime = Carbon::today()->setTimeFromTimeString($end_time);
-        //         if ($now->between($startTime, $endTime)) {
-        //             $startTime = $now;
-        //         } elseif ($now->isAfter($endTime)) {
-        //             $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
-        //             $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
-        //         }
-        //         while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-        //             $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //             $endTime = $endTime->addDay();
-        //         }
-        //         foreach ($contactsChunks as $chunk) {
-        //             if ($startTime->greaterThanOrEqualTo($endTime)) {
-        //                 do {
-        //                     $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //                     $endTime = $endTime->addDay();
-        //                 } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
-        //             }
+            if ($workflow != null && $workflow->active) {
+                $contacts = DB::table('contacts')
+                    ->where('response', 'No')
+                    ->where('can_send', 1)
+                    ->where('subscribed', 1)
+                    ->where('current_step', $step->id)
+                    ->get();
+                $start_time = $step->start_time ?: '08:00';
+                $end_time = $step->end_time ?: '20:00';
+                $chunk_size = $step->batch_size ?: '20';
+                $interval = (int) $step->batch_delay * 60;
+                $contactsChunks = $contacts->chunk($chunk_size);
+                $now = Carbon::now();
+                $startTime = Carbon::today()->setTimeFromTimeString($start_time);
+                $endTime = Carbon::today()->setTimeFromTimeString($end_time);
+                if ($now->between($startTime, $endTime)) {
+                    $startTime = $now;
+                } elseif ($now->isAfter($endTime)) {
+                    $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
+                    $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
+                }
+                while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                    $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                    $endTime = $endTime->addDay();
+                }
+                foreach ($contactsChunks as $chunk) {
+                    if ($startTime->greaterThanOrEqualTo($endTime)) {
+                        do {
+                            $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                            $endTime = $endTime->addDay();
+                        } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
+                    }
 
-        //             $dispatchTime = $startTime->copy();
-        //             Log::info("here");
-        //             foreach ($chunk as $contact) {
-        //                 Log::info("Got $contact->id of workflow $contact->workflow_id");
-        //                 // Dispatch a job to prepare the message without making third-party requests here
-        //                 PrepareMessageJob::dispatch(
-        //                     $contact->uuid,
-        //                     $workflow->group_id,
-        //                     $workflow->godspeedoffers_api,
-        //                     $step,
-        //                     $contact,
-        //                     $dispatchTime
-        //                 );
-        //                 $contact = Contact::find($contact->id);
-        //                 $contact->can_send = 0;
-        //                 $contact->status = 'Waiting_For_Queau_Job';
-        //                 $contact->save();
-        //             }
-        //             $startTime->addSeconds($interval);
-        //             while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-        //                 $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //                 $endTime = $endTime->addDay();
-        //             }
-        //         }
-        //     }
-        // }
+                    $dispatchTime = $startTime->copy();
+                    foreach ($chunk as $contact) {
+                        // Dispatch a job to prepare the message without making third-party requests here
+                        PrepareMessageJob::dispatch(
+                            $contact->uuid,
+                            $workflow->group_id,
+                            $workflow->godspeedoffers_api,
+                            $step,
+                            $contact,
+                            $dispatchTime
+                        );
+                        $contact = Contact::find($contact->id);
+                        $contact->can_send = 0;
+                        $contact->status = 'Waiting_For_Queau_Job';
+                        $contact->save();
+                    }
+                    $startTime->addSeconds($interval);
+                    while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                        $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                        $endTime = $endTime->addDay();
+                    }
+                }
+            }
+        }
     }
 
     public function send_message($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
@@ -475,19 +473,20 @@ class ContactController extends Controller
                 $contactModel->save();
             }
         } else { //Workflow is not being handled by a pool
+            Log::info("Workflow not being handled by pool");
             $texting_number = $workflow->texting_number;
-            $texting_number = Number::where('phone_number', $texting_number)
+            $number = Number::where('phone_number', $texting_number)
                 ->where('organisation_id', $organisation_id)
                 ->first();
-            $sending_server = SendingServer::find($texting_number->sending_server_id);
+            $sending_server = SendingServer::find($number->sending_server_id);
 
             if ($sending_server) { //if the number is attached to a sending server
                 $SMSService = new SMSService($sending_server->service_provider);
-                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             } else {
                 Log::info("Org texting with $organisation->texting_service");
                 $SMSService = new SMSService($organisation->texting_service);
-                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+                $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             }
         }
     }
@@ -530,23 +529,22 @@ class ContactController extends Controller
             }
         } else { //mms not being handled by a pool
             $texting_number = $workflow->texting_number;
-            $texting_number = Number::where('phone_number', $texting_number)
+            $number = Number::where('phone_number', $texting_number)
                 ->where('organisation_id', $organisation_id)
                 ->first();
-            $sending_server = SendingServer::find($texting_number->sending_server_id);
+            $sending_server = SendingServer::find($number->sending_server_id);
         }
         if ($sending_server) { //if the number is attached to a sending server
             $MMSService = new MMSService($sending_server->service_provider);
-            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
         } else {
             Log::info("Org texting with $organisation->texting_service");
             $MMSService = new MMSService($organisation->texting_service);
-            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+            $MMSService->sendMMS($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
         }
     }
     private function send_Offer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
-        Log::info("I  Reached Offer sending function");
         $contact = Contact::find($contact_id);
         if (!$contact || !$contact->offer) {
             $contact->status = "No Offer Amount";
@@ -591,14 +589,14 @@ class ContactController extends Controller
             }
         } else {
             $texting_number = $workflow->texting_number;
-            $texting_number = Number::where('phone_number', $texting_number)->first();
-            $sending_server = SendingServer::find($texting_number->sending_server_id);
+            $number = Number::where('phone_number', $texting_number)->first();
+            $sending_server = SendingServer::find($number->sending_server_id);
             if ($sending_server) {
                 $OfferService = new OfferService($sending_server->service_provider);
-                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             } else {
                 $OfferService = new OfferService($organisation->texting_service);
-                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number);
+                $OfferService->sendOffer($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             }
         }
     }
@@ -649,8 +647,6 @@ class ContactController extends Controller
     public function handleCall(Request $request) // this can move to their own controller
     {
         $agent_phone_number = $request->input('agent_phone_number');
-        Log::info("Reached handleCall");
-        Log::info($request->all());
         $amd_status = $request->input('AnsweredBy');
         $contact_id = $request->input('contact_id');
         $voice_recording = $request->input('voice_recording');
@@ -668,7 +664,6 @@ class ContactController extends Controller
             $response .= '<Play>' . htmlspecialchars($voice_recording) . '</Play>';
         }
         $response .= '</Response>';
-        Log::info("handleCall Response: " . $response);
         return response($response, 200)
             ->header('Content-Type', 'application/xml')
             ->header('Pragma', 'no-cache')
@@ -677,8 +672,7 @@ class ContactController extends Controller
     }
     public function transferCall(Request $request)
     {
-        Log::info('Reached transferCall');
-        Log::info('Digits received: ' . $request->input('Digits'));
+        
         $agent_phone_number = $request->input('agent_phone_number');
         $contact_id = $request->input('contact_id');
         $digits = $request->input('Digits');

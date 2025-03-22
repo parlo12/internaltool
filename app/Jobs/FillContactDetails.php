@@ -29,7 +29,6 @@ class FillContactDetails implements ShouldQueue
         $workflow = Workflow::find($this->contact->workflow_id); 
         $CRMAPIRequestsService = new CRMAPIRequestsService($workflow->godspeedoffers_api);
         $contact_info = $CRMAPIRequestsService->get_contact($this->contact->uuid, $workflow->group_id);
-        Log::info("contact info",$contact_info);
         $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
         $city = $contact_info['custom_fields']['CITY'] ?? null;
         $state = $contact_info['custom_fields']['STATE'] ?? null;
