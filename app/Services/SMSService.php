@@ -107,7 +107,7 @@ class SMSService
             $new_contact_communication_ids = implode(',', $communication_ids_array);
             $contact->contact_communication_ids = $new_contact_communication_ids;
             $contact->save();
-            Log::info("Message sent with SID: $message_sid");
+            Log::info("Message sent with SID: $message_sid to $phone");
             if ($message_sid) {
                 $text_sent = TextSent::create([
                     'name' => $contact->contact_name,
@@ -234,7 +234,7 @@ class SMSService
             $new_contact_communication_ids = implode(',', $communication_ids_array);
             $contact->contact_communication_ids = $new_contact_communication_ids;
             $contact->save();
-            Log::info("Message sent with SID: $message_sid");
+            Log::info("Message sent with SID: $message_sid to $phone");
             if ($message_sid) {
                 $text_sent = TextSent::create([
                     'name' => $contact->contact_name,
