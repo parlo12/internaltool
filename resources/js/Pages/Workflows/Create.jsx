@@ -316,7 +316,7 @@ export default function Create({
                                 className=" text-sm font-medium flex"
                             >
                                 Calling number
-                                <Tooltip text="Must be from signalWire">
+                                <Tooltip text="Should be from signalwire">
                                     <span className="ml-2 text-black cursor-pointer">
                                         &#x1F6C8;
                                     </span>
@@ -326,6 +326,7 @@ export default function Create({
                                 <select
                                     id="calling_number"
                                     name="calling_number"
+                                    required
                                     value={data.calling_number}
                                     onChange={(e) =>
                                         setData(
@@ -360,6 +361,11 @@ export default function Create({
                                 className=" text-sm font-medium flex"
                             >
                                 texting number
+                                <Tooltip text="Leave Empty  When Using A Number Pool">
+                                    <span className="ml-2 text-black cursor-pointer">
+                                        &#x1F6C8;
+                                    </span>
+                                </Tooltip>
                             </InputLabel>
                             <div className="flex">
                                 <select
