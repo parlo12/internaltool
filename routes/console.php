@@ -21,7 +21,7 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-        //Log::info('Starting InternalTools queue worker 1.');
+        Log::info('Starting InternalTools queue worker 1.');
     })
     ->after(function () {
         //Log::info('InternalTools queue worker 1 finished.');
@@ -281,9 +281,9 @@ Schedule::call(function () {
     }
 })->hourly();
 Schedule::call(function () {
+    Log::info("Scheduled Task Running: prepare-messages");
     ini_set('max_execution_time', 0);
     ini_set('memory_limit', '256M');
-    Log::info("I Tried to Queue");
     $steps = Step::where('created_at', '>=', now()->subMonth())->get();
 
     foreach ($steps as $step) {
@@ -367,4 +367,4 @@ Schedule::call(function () {
         }
     }
 })->name('prepare-messages')
-    ->everyThreeMinutes()->withoutOverlapping();
+    ->everyMinutes()->withoutOverlapping();
