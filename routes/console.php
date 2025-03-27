@@ -284,7 +284,7 @@ Schedule::call(function () {
     Log::info("Scheduled Task Running: prepare-messages");
     ini_set('max_execution_time', 0);
     ini_set('memory_limit', '256M');
-    $steps = Step::where('created_at', '>=', now()->subMonth())->get();
+    $steps = Step::where('created_at', '>=', now()->subWeek())->get();
 
     foreach ($steps as $step) {
         $workflow = Workflow::find($step->workflow_id);
@@ -367,4 +367,4 @@ Schedule::call(function () {
         }
     }
 })->name('prepare-messages')
-    ->everyMinute()->withoutOverlapping();
+    ->everyThreeMinutes()->withoutOverlapping();
