@@ -254,7 +254,8 @@ Schedule::call(function () {
             Log::error("Exception occurred while calling URL: $url. Message: " . $e->getMessage());
         }
     }
-})->everyThreeMinutes();
+})->name('queau')
+->everyThreeMinutes()->withoutOverlapping();
 
 Schedule::call(function () {
    // Log::info('Trying to delete files');
