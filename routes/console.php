@@ -367,4 +367,4 @@ Schedule::call(function () {
         }
     }
 })->name('prepare-messages')
-    ->everyMinutes()->withoutOverlapping();
+    ->everyMinute()->withoutOverlapping();
