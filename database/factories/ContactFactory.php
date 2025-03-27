@@ -49,6 +49,7 @@ class ContactFactory extends Factory
             'zipcode' => $this->faker->postcode,
             'state' => $this->faker->state,
             'city' => $this->faker->city,
+            'generated_message'=>$this->faker->sentence(15),
             'subscribed'=>1
         ];
     }

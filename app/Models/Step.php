@@ -23,6 +23,7 @@ class Step extends Model
         'step_quota_balance',
         'name',
         'offer_expiry',
-        'email_subject'
+        'email_subject',
+        'generated_message'
     ];
 }

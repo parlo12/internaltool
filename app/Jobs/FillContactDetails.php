@@ -43,7 +43,7 @@ class FillContactDetails implements ShouldQueue
         $creative_price = $contact_info['custom_fields']['CREATIVEPRICE'] ?? null;
         $down_payment = $contact_info['custom_fields']['DOWNPAYMENT'] ?? null;
         $monthly = $contact_info['custom_fields']['MONTHLY'] ?? null;
-
+        $generated_message = $contact_info['custom_fields']['GENERATED_MESSAGE'] ?? null;
         // Update the contact record
         $this->contact->update([
             'zipcode' => $zipcode,
@@ -59,7 +59,9 @@ class FillContactDetails implements ShouldQueue
             'novation'=>$novation,
             'creative_price'=>$creative_price,
             'monthly'=>$monthly,
-            'downpayment'=>$down_payment
+            'downpayment'=>$down_payment,
+            'generated_message'=>$generated_message
+
         ]);
     }
 }

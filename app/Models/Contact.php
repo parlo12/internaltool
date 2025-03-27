@@ -42,7 +42,8 @@ class Contact extends Model
         'novation',
         'creative_price',
         'monthly',
-        'downpayment'
+        'downpayment',
+        'generated_message'
     ];
     public function workflow()
     {

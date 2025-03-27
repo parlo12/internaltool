@@ -44,7 +44,8 @@ export default function Create({
         workflow_name: "",
         folder_name: "",
         folder_id: "",
-        number_pool_id:""
+        number_pool_id:"",
+        generated_message:'0'
     });
 
     const [showPopup, setShowPopup] = useState(false);
@@ -427,6 +428,37 @@ export default function Create({
                             </div>
                             <InputError
                                 message={errors.number_pool_id}
+                                className="mt-2"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <InputLabel
+                                htmlFor="generated_message"
+                                className=" text-sm font-medium flex"
+                            >
+                                Use Generated Message as First Step?                            </InputLabel>
+                            <div className="flex">
+                                <select
+                                    id="generated_message"
+                                    name="generated_message"
+                                    value={data.generated_message}
+                                    onChange={(e) =>
+                                        setData(
+                                            "generated_message",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="ml-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                >
+                                    <option value="">
+                                        Select An Option
+                                    </option>
+                                        <option value='0'>No</option>
+                                        <option value='1'>Yes</option>
+                                </select>
+                            </div>
+                            <InputError
+                                message={errors.generated_message}
                                 className="mt-2"
                             />
                         </div>

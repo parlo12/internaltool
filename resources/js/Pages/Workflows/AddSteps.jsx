@@ -19,7 +19,6 @@ export default function Create({
     texting_numbers,
     numberPools
 }) {
-    console.log(steps)
     const [stepsState, setStepsState] = useState(steps);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newStepData, setNewStepData] = useState({
@@ -28,9 +27,9 @@ export default function Create({
         delay: "",
         delayUnit: "minutes",
         type: "",
-        offerExpiry:"",
-        emailSubject:"",
-        emailMessage:"",
+        offerExpiry: "",
+        emailSubject: "",
+        emailMessage: "",
         startTime: "08:00",
         endTime: "20:00",
         batchSize: "20",
@@ -77,7 +76,6 @@ export default function Create({
         axios
             .put(`/workflows/${workflow.id}`, workflowData)
             .then((response) => {
-                console.log(response)
                 setEditWorkflowModalOpen(false);
                 setSuccess("Workflow Edited successfully!");
                 window.location.reload();
@@ -130,17 +128,15 @@ export default function Create({
                 ...newStepData,
                 id: stepsState.length + 1,
             };
-    
-            console.log(newStep);
-    
+
+
             axios
                 .post("/store-step", newStep)
                 .then((response) => {
-                    console.log(response.data); // Log the response for debugging
                     setStepsState(response.data.steps);
                     setIsModalOpen(false);
                     setSuccess("Step added successfully!");
-    
+
                     // Reset form data
                     setNewStepData({
                         stepName: "",
@@ -152,9 +148,9 @@ export default function Create({
                         endTime: "",
                         batchSize: "",
                         batchDelay: "",
-                        offerExpiry: "", 
-                        emailSubject:"",
-                        emailMessage:"", // Reset the offer expiry
+                        offerExpiry: "",
+                        emailSubject: "",
+                        emailMessage: "", // Reset the offer expiry
                         batchDelayUnit: "minutes",
                         isCustomSending: 0,
                         daysOfWeek: {
@@ -178,9 +174,10 @@ export default function Create({
             console.error("Please fill in all required fields.");
         }
     };
-    
+
 
     const openEditModal = (step) => {
+        
         setSelectedStep(step);
         setEditModalOpen(true);
     };
@@ -194,7 +191,6 @@ export default function Create({
         axios
             .post("/update-step", updatedStep)
             .then((response) => {
-                console.log(response.data);
                 setStepsState(response.data.steps);
                 setEditModalOpen(false);
                 setSuccess("Step updated successfully!");
@@ -210,7 +206,6 @@ export default function Create({
             .get(`/start-workflow/${workflow.id}`)
             .then((response) => {
                 setSuccess("Workflow started  successfully!");
-                console.log(response.data);
                 window.location.reload();
             })
             .catch((error) => {
@@ -248,7 +243,6 @@ export default function Create({
             .get(`/pause-workflow/${workflow.id}`)
             .then((response) => {
                 setSuccess("Workflow Paused  successfully!");
-                console.log(response.data);
                 window.location.reload();
             })
             .catch((error) => {
@@ -263,7 +257,6 @@ export default function Create({
                 data: { workflow: workflow.id },
             })
             .then((response) => {
-                console.log("Step deleted successfully");
                 setStepsState(response.data.steps);
                 setSuccess("Step deleted successfully!");
             })

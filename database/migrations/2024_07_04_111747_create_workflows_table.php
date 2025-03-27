@@ -29,6 +29,8 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('organisation_id');
             $table->string('number_pool_id')->nullable();
+            $table->string('generated_message')->nullable();
+
         });
     }
 

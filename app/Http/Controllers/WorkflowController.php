@@ -56,11 +56,49 @@ class WorkflowController extends Controller
                 'texting_number' => $request->texting_number,
                 'calling_number' => $request->calling_number,
                 'number_pool_id' => $request->number_pool_id,
+                'generated_message' => $request->generated_message,
                 'organisation_id' => $organisationId,
                 'godspeedoffers_api' => auth()->user()->godspeedoffers_api,
                 'user_id' => auth()->user()->id,
             ]
         );
+        // *******************************************
+        if ($request->generated_message) {
+            $step = Step::create([
+                'workflow_id' => $workflow->id,
+                'type' => 'SMS',
+                'content' => 'It is already generated',
+                'delay' => $this->convertToMinutes('1', 'days'),
+                'name' => 'Generated Step',
+                'custom_sending' => 0,
+                'start_time' => null,
+                'end_time' => null,
+                'batch_size' => null,
+                'offer_expiry' => null,
+                'email_subject' => null,
+                'batch_delay' => $this->convertToMinutes('2', 'hours'),
+                'step_quota_balance' => '20',
+                'days_of_week' => null,
+                'generated_message'=>1
+            ]);
+            if (!empty($workflow->steps_flow)) {
+                $steps_flow_array = explode(',', $workflow->steps_flow);
+            } else {
+                $steps_flow_array = [];
+            }
+            $new_step = $step->id;
+            array_push($steps_flow_array, $new_step);
+            $workflow->steps_flow = implode(',', $steps_flow_array);
+            $workflow->save();
+            $steps = array();
+            if (!empty($workflow->steps_flow)) {
+                $steps_flow_array = explode(',', $workflow->steps_flow);
+                foreach ($steps_flow_array as $step_flow_array) {
+                    array_push($steps, Step::findorfail($step_flow_array));
+                }
+            }
+        }
+        //****************************************8 */
         foreach ($contacts as $contact) {
             $organisationId = auth()->user()->organisation_id;
             CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $workflow->id, $contact['phone'], $organisationId)
@@ -136,7 +174,7 @@ class WorkflowController extends Controller
             'texting_numbers' => $texting_numbers,
             'folders' => $folders,
             'organisation' => $current_org,
-            'numberPools'=>$number_pools
+            'numberPools' => $number_pools
         ]);
     }
 
@@ -165,7 +203,8 @@ class WorkflowController extends Controller
             'agent_phone_number' => 'nullable|string|max:255',
             'calling_number' => 'nullable|string|max:255',
             'texting_number' => 'nullable|string|max:255',
-            'number_pool_id'=>'nullable|max:255'
+            'number_pool_id' => 'nullable|max:255',
+            'generated_message' => 'nullable|max:255'
         ]);
         $workflow = Workflow::findOrFail($id);
         $workflow->update($validatedData);
@@ -181,7 +220,7 @@ class WorkflowController extends Controller
         $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
-      
+
         $contact = Contact::firstWhere('phone', ltrim($calling_number, '+'));
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
@@ -274,6 +313,7 @@ class WorkflowController extends Controller
                 'folder_id' => $old_workflow->folder_id,
                 'organisation_id' => $organisation_id,
                 'godspeedoffers_api' => $old_workflow->godspeedoffers_api,
+                'generated_message' => $old_workflow->generated_message,
                 'user_id' => auth()->user()->id
             ]);
             foreach ($contacts as $contact) {
@@ -354,7 +394,7 @@ class WorkflowController extends Controller
             'voices' => $voices,
             'calling_numbers' => $calling_numbers,
             'texting_numbers' => $texting_numbers,
-            'numberPools'=>$number_pools
+            'numberPools' => $number_pools
         ]);
     }
 
@@ -379,6 +419,21 @@ class WorkflowController extends Controller
             }
         } catch (\Exception $e) {
             return ['error' => 'Request failed with error: ' . $e->getMessage()];
+        }
+    }
+    private function convertToMinutes($delay, $delay_units)
+    {
+        switch ($delay_units) {
+            case 'seconds':
+                return $delay / 60;
+            case 'minutes':
+                return $delay; // No conversion needed
+            case 'hours':
+                return $delay * 60; // Convert hours to minutes
+            case 'days':
+                return $delay * 1440; // Convert days to minutes (24 hours * 60 minutes)
+            default:
+                return $delay; // Default to returning original delay if units are unrecognized
         }
     }
 }

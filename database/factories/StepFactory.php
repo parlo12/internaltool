@@ -32,8 +32,7 @@ class StepFactory extends Factory
             'step_quota_balance'=>$this->faker->numberBetween(20,100),
             'offer_expiry' => $this->faker->dateTime()->format('l'),
             'email_subject' => $this->faker->text(10),
-
-
+            'generated_message' => random_int(0,1),
         ];
     }
 }

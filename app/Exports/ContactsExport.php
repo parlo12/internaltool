@@ -24,7 +24,7 @@ class ContactsExport implements FromQuery, WithHeadings
        return  Contact::where('workflow_id', $this->id)
             ->where('response', 'No')
             ->where('current_step', $this->last_step) // Ensure contact is in the last step
-            ->select('id', 'phone','contact_name',  'address','status', 'response', 'zipcode', 'city', 'state','email','age','gender','lead_score', 'offer','agent','novation','creative_price','downpayment','monthly','created_at', 'updated_at'); // Specify the columns to include
+            ->select('id', 'phone','contact_name',  'address','status', 'response', 'zipcode', 'city', 'state','email','age','gender','lead_score', 'offer','agent','novation','creative_price','downpayment','monthly','generated_message','created_at', 'updated_at'); // Specify the columns to include
     }
 
     public function headings(): array
@@ -49,6 +49,7 @@ class ContactsExport implements FromQuery, WithHeadings
             'creative_price',
             'downpayment',
             'monthly',
+            'generated_message',
             'Created At',
             'Updated At'
         ];

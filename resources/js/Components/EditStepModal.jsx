@@ -14,6 +14,7 @@ const EditStepModal = ({
     placeholders,
     spintaxes
 }) => {
+    console.log(stepData)
     const [validationMessage, setValidationMessage] = useState("");
     const inputJson = JSON.parse(stepData.days_of_week);
     // console.log(inputson);
@@ -40,7 +41,6 @@ const EditStepModal = ({
         delayUnit = "minutes";
         // return `${delayInMinutes} minute${delayInMinutes !== 1 ? 's' : ''}`;
     }
-    console.log(stepData.batch_delay);
     let batchDelay = "";
     let batchDelayUnit = "";
     if (stepData.batch_delay >= 1440) {
@@ -69,12 +69,12 @@ const EditStepModal = ({
         endTime: stepData.end_time,
         batchSize: stepData.batch_size,
         batchDelay: batchDelay,
-        offerExpiry:stepData.offer_expiry,
-        emailSubject:stepData.email_subject,
+        offerExpiry: stepData.offer_expiry,
+        emailSubject: stepData.email_subject,
         batchDelayUnit: batchDelayUnit,
+        generatedMessage:stepData.generated_message,
         daysOfWeek: daysOfWeek, // Parse JSON string to object
     });
-console.log(editedStep)
     // Update state if stepData changes (optional, depending on how you manage updates)
     useEffect(() => {
         setEditedStep({
@@ -89,14 +89,15 @@ console.log(editedStep)
             endTime: stepData.end_time,
             batchSize: stepData.batch_size,
             batchDelay: batchDelay,
-            offerExpiry:stepData.offer_expiry,
-            emailSubject:stepData.email_subject,
-            emailMessage:stepData.email_message,
+            offerExpiry: stepData.offer_expiry,
+            emailSubject: stepData.email_subject,
+            emailMessage: stepData.email_message,
             batchDelayUnit: batchDelayUnit,
+            generatedMessage:stepData.generated_message,
             daysOfWeek: daysOfWeek,
         });
     }, [stepData]);
-    console.log(editedStep);
+    console.log(editedStep)
     const validateTimes = () => {
         const { startTime, endTime, custom_sending } = editedStep;
         if (custom_sending === 1) {
@@ -198,9 +199,8 @@ console.log(editedStep)
 
     return (
         <div
-            className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 ${
-                isOpen ? "" : "hidden"
-            }`}
+            className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 ${isOpen ? "" : "hidden"
+                }`}
         >
             <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-md w-full h-full overflow-auto">
                 <button
@@ -309,13 +309,19 @@ console.log(editedStep)
                         </div>
                     </div>
                     <InputLabel forInput="content" value="Content" />
-                    <TextAreaInput
-                        type="text"
-                        name="content"
-                        value={editedStep.content}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                    />
+                    {editedStep.generatedMessage==1 ? (
+                           <div className="text-gray-500 italic">{editedStep.content}</div>      
+                            ) : (
+                        <TextAreaInput
+                            type="text"
+                            name="content"
+                            value={editedStep.content}
+                            onChange={handleChange}
+                            className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        />
+                    )}
+
+
                     <InputLabel forInput="editType" value="Message Type" />
                     <SelectInput
                         name="type"
@@ -347,7 +353,7 @@ console.log(editedStep)
                         onChange={handleChange}
                         className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
                     />
-                   
+
                     <div className="flex items-center mt-4">
                         <div className="mr-2 w-2/3">
                             <InputLabel

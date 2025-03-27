@@ -23,8 +23,8 @@ class Workflow extends Model
         'godspeedoffers_api',
         'organisation_id',
         'user_id',
-        'number_pool_id'
-
+        'number_pool_id',
+        'generated_message'
     ];
     public function contacts()
     {

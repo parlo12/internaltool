@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('step_quota_balance')->nullable();
             $table->string('offer_expiry')->nullable();
             $table->string('email_subject')->nullable();
-
+            $table->string('generated_message')->nullable();
         });
     }
 
