@@ -71,7 +71,9 @@ class SMSService
             );
 
             Log::info("Message sent successfully to {$phone}", [
-                'message_sid' => $message->sid
+                'message_sid' => $message->sid,
+                'organisation' => $organisation->organisation_name,
+                'texting_number' => $texting_number
             ]);
         } catch (TwilioException $e) {
             Log::error("Twilio API error: " . $e->getMessage(), [
@@ -107,7 +109,11 @@ class SMSService
             $new_contact_communication_ids = implode(',', $communication_ids_array);
             $contact->contact_communication_ids = $new_contact_communication_ids;
             $contact->save();
-            Log::info("Message sent with SID: $message_sid to $phone");
+            Log::info("Message sent successfully to {$phone}", [
+                'message_sid' => $message->sid,
+                'organisation' => $organisation->organisation_name,
+                'texting_number' => $texting_number
+            ]);
             if ($message_sid) {
                 $text_sent = TextSent::create([
                     'name' => $contact->contact_name,
@@ -166,7 +172,10 @@ class SMSService
             // Get response
             Log::info("Data returned by websockets API" . $response);
             //if ($packet = $client->wait(null, 1)) {
-            Log::info("Message sent with websockets to: $phone");
+            Log::info("Message sent successfully with websockets to {$phone}", [
+                'organisation' => $organisation->organisation_name,
+                'texting_number' => $texting_number
+            ]);
             $text_sent = TextSent::create([
                 'name' => $contact->contact_name,
                 'contact_id' => $contact->id,
@@ -234,7 +243,11 @@ class SMSService
             $new_contact_communication_ids = implode(',', $communication_ids_array);
             $contact->contact_communication_ids = $new_contact_communication_ids;
             $contact->save();
-            Log::info("Message sent with SID: $message_sid to $phone");
+            Log::info("Message sent successfully to {$phone}", [
+                'message_sid' => $message->sid,
+                'organisation' => $organisation->organisation_name,
+                'texting_number' => $texting_number
+            ]);
             if ($message_sid) {
                 $text_sent = TextSent::create([
                     'name' => $contact->contact_name,
