@@ -160,7 +160,7 @@ class ContactController extends Controller
     { //Keep the commented code for the purpose of local testing. 
         //Uncomment when testing workflows offline
         //production uses a copy in routes/console.php so comment when pushing to prod
-        Log::info("Scheduled Task Running: prepare-messages");
+       // Log::info("Scheduled Task Running: prepare-messages");
         // ini_set('max_execution_time', 0);
         // ini_set('memory_limit', '256M');
         // $steps = Step::where('created_at', '>=', now()->subWeek())->get();
