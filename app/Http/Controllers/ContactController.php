@@ -130,27 +130,27 @@ class ContactController extends Controller
     //here we check for such contacts and assign them to the first step of the workflow
     public function process_workflows()
     {
-        ini_set('memory_limit', '300M');
-        $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
-        $now = Carbon::now();
-        foreach ($contacts as $contact) {
-            // Initializ current step if it's not set
-            $workflow = Workflow::find($contact->workflow_id);
-            if ($workflow && $workflow->active) {
-                $steps_flow_array = explode(',', $workflow->steps_flow);
-                $first_step = $steps_flow_array[0] ?? null;
+        // ini_set('memory_limit', '300M');
+        // $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
+        // $now = Carbon::now();
+        // foreach ($contacts as $contact) {
+        //     // Initializ current step if it's not set
+        //     $workflow = Workflow::find($contact->workflow_id);
+        //     if ($workflow && $workflow->active) {
+        //         $steps_flow_array = explode(',', $workflow->steps_flow);
+        //         $first_step = $steps_flow_array[0] ?? null;
 
-                if ($first_step) {
-                    $step = Step::find($first_step);
-                    if ($step) {
-                        $contact->update([
-                            'current_step' => $first_step,
-                            'can_send_after' => $now->copy()->addSeconds($step->delay * 60)->toDateTimeString(),
-                        ]);
-                    }
-                }
-            }
-        }
+        //         if ($first_step) {
+        //             $step = Step::find($first_step);
+        //             if ($step) {
+        //                 $contact->update([
+        //                     'current_step' => $first_step,
+        //                     'can_send_after' => $now->copy()->addSeconds($step->delay * 60)->toDateTimeString(),
+        //                 ]);
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     //here get all contacts whose can_send=1
