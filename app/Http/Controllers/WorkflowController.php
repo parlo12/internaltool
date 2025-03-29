@@ -25,6 +25,7 @@ class WorkflowController extends Controller
 {
     public function store(Request $request)
     {
+        dd($request->generated_message);
         $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
         $organisationId = auth()->user()->organisation_id;
         if (!$organisationId) {
@@ -342,7 +343,8 @@ class WorkflowController extends Controller
                             'batch_size' => $step_to_copy->batch_size,
                             'batch_delay' => $step_to_copy->batch_delay,
                             'step_quota_balance' => $step_to_copy->step_quota_balance,
-                            'days_of_week' => $step_to_copy->days_of_week
+                            'days_of_week' => $step_to_copy->days_of_week,
+                            'generated_message' => $step_to_copy->generated_message,
                         ]);
                         $new_steps_flow = $new_workflow->steps_flow ? explode(',', $new_workflow->steps_flow) : [];
                         $new_steps_flow[] = $new_step->id;
