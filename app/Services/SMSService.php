@@ -73,7 +73,8 @@ class SMSService
             Log::info("Message sent successfully to {$phone}", [
                 'message_sid' => $message->sid,
                 'organisation' => $organisation->organisation_name,
-                'texting_number' => $texting_number
+                'texting_number' => $texting_number,
+                'content' => $content
             ]);
         } catch (TwilioException $e) {
             Log::error("Twilio API error: " . $e->getMessage(), [
