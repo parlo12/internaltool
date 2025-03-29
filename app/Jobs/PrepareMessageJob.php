@@ -37,6 +37,10 @@ class PrepareMessageJob implements ShouldQueue
     {
         if ($this->step->generated_message) {
             if ($this->contact->generated_message) {
+                Log::warning("Contact has a generated message", [
+                    'contact_id' => $this->contact->id,
+                    'generated_message' => $this->contact->generated_message
+                ]);
                 // Dispatch the QueaueMessagesJob with the composed message
                 QueaueMessagesJob::dispatch(
                     '+' . $this->contact->phone,
