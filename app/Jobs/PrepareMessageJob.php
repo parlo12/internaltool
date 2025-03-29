@@ -61,6 +61,13 @@ class PrepareMessageJob implements ShouldQueue
                     ]);
                 }
             } else {
+                $step_delay = (int)$this->step->delay;
+                $next_step_after = Carbon::parse($this->dispatchTime)->addSeconds($step_delay * 60);
+                $contactModel = Contact::find($this->contact->id);
+                $contactModel->can_send_after = $next_step_after;
+                $contactModel->status = "GENERATED MESSAGE IS EMPTY";
+                $contactModel->can_send = 0;
+                $contactModel->save();
                 Log::info('Skiiping queaue since this is a generated step and the contact has an empty generated step');
             }
         } else {
