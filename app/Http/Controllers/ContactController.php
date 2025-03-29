@@ -130,7 +130,9 @@ class ContactController extends Controller
     //here we check for such contacts and assign them to the first step of the workflow
     public function process_workflows()
     {
-        // ini_set('memory_limit', '300M');
+        // Keep the commented code for the purpose of local testing.
+        // Log::info("scheduled task running: process_workflows");
+        //             ini_set('memory_limit', '300M');
         // $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
         // $now = Carbon::now();
         // foreach ($contacts as $contact) {

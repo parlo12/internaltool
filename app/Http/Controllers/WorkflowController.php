@@ -70,7 +70,7 @@ class WorkflowController extends Controller
                 'content' => 'It is already generated',
                 'delay' => $this->convertToMinutes('1', 'days'),
                 'name' => 'Generated Step',
-                'custom_sending' => 0,
+                'custom_sending' => 1,
                 'start_time' => null,
                 'end_time' => null,
                 'batch_size' => null,
@@ -78,7 +78,7 @@ class WorkflowController extends Controller
                 'email_subject' => null,
                 'batch_delay' => $this->convertToMinutes('2', 'hours'),
                 'step_quota_balance' => '20',
-                'days_of_week' => null,
+                'days_of_week' => '{"Sunday":true,"Monday":true,"Tuesday":true,"Wednesday":true,"Thursday":true,"Friday":true,"Saturday":true}',
                 'generated_message'=>1
             ]);
             if (!empty($workflow->steps_flow)) {
