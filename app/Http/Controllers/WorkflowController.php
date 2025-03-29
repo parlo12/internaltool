@@ -316,6 +316,7 @@ class WorkflowController extends Controller
                 'generated_message' => $old_workflow->generated_message,
                 'user_id' => auth()->user()->id
             ]);
+            
             foreach ($contacts as $contact) {
                 try {
                     CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $new_workflow->id, $contact['phone'], $organisation_id)

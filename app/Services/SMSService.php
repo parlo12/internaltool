@@ -109,11 +109,6 @@ class SMSService
             $new_contact_communication_ids = implode(',', $communication_ids_array);
             $contact->contact_communication_ids = $new_contact_communication_ids;
             $contact->save();
-            Log::info("Message sent successfully to {$phone}", [
-                'message_sid' => $message->sid,
-                'organisation' => $organisation->organisation_name,
-                'texting_number' => $texting_number
-            ]);
             if ($message_sid) {
                 $text_sent = TextSent::create([
                     'name' => $contact->contact_name,
