@@ -69,7 +69,10 @@ class SMSService
                     'body' => $content
                 ]
             );
-
+            $contact = Contact::find($contact_id);
+            if ($contact) {
+                $contact->update(['status' => 'SMS SENT']);
+            }
             Log::info("Message sent successfully to {$phone}", [
                 'message_sid' => $message->sid,
                 'organisation' => $organisation->organisation_name,
