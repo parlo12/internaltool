@@ -25,7 +25,6 @@ class WorkflowController extends Controller
 {
     public function store(Request $request)
     {
-        dd($request->generated_message);
         $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
         $organisationId = auth()->user()->organisation_id;
         if (!$organisationId) {

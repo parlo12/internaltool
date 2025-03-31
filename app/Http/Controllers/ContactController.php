@@ -503,6 +503,7 @@ class ContactController extends Controller
             $sending_server = SendingServer::find($number->sending_server_id);
 
             if ($sending_server) { //if the number is attached to a sending server
+                Log::info("Senting with $sending_server->service_provider");
                 $SMSService = new SMSService($sending_server->service_provider);
                 $SMSService->sendSms($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $number->phone_number);
             } else {
