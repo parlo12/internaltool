@@ -156,7 +156,7 @@ class AISalesPersonController extends Controller
             'error' => session('error')
         ]);
     }
-    
+
     public function store(Request $request)
     {
         $baseDir = '/home/support/web/internaltools.godspeedoffers.com/public_html/uploads';
@@ -214,7 +214,7 @@ class AISalesPersonController extends Controller
             'instructions' => $request->input('prompt'),
             'model' => 'gpt-4-turbo',
         ]);
-        
+
 
         // Prepare to save in the database
         $data = [
@@ -227,8 +227,8 @@ class AISalesPersonController extends Controller
             'max_wait_time' => $request->input('max_wait_time'),
             'wait_time_units' => $request->input('wait_time_units'),
             'maximum_messages' => $request->input('maximum_messages'),
-            'openAI'=>$org->openAI,
-            'organisation_id'=>auth()->user()->organisation_id
+            'openAI' => $org->openAI,
+            'organisation_id' => auth()->user()->organisation_id
         ];
 
         // Ensure the directory exists
@@ -292,7 +292,7 @@ class AISalesPersonController extends Controller
         $client = OpenAI::client($org->openAI);
 
         $assistant = Assistant::findOrFail($id);
-      
+
         $client->assistants()->delete($assistant->openAI_id);
         if ($assistant->file1) {
             \Storage::delete($assistant->file1);
@@ -344,153 +344,134 @@ class AISalesPersonController extends Controller
             ];
         }
     }
+
     public function handleEndOfCallWebhook(Request $request)
-{
-    // Extract data from the incoming webhook
-    $call = $request->input('message.call');
-    $summary = $request->input('message.summary');
+    {
+        $event = $request->input('event'); // e.g., "call_ended"
+        $callId = $request->input('call_id');
+        $transcript = $request->input('transcript');
+        $analysis = $request->input('analysis'); // Sentiment, summary, etc.
+        Log::info("transcript: $transcript");
+        Log::info("analysis: $analysis");
+        Log::info("callId: $callId");
+        $this->processCallReport($callId, $transcript, $analysis);
+        return response()->json(['status' => 'success'], 200);
+    }
 
-    // Prepare the specific data to return
-    $responseData = [
-        'call_id' => $call['id'] ?? null,
-        'customer_number' => $call['orgId'] ?? null, // Assuming orgId represents the customer number
-        'call_summary' => $summary,
-    ];
-    $call_id =$call['id'];
-    $bearerToken = "475d199e-30a7-4d75-832b-d3c1b7794d76";
-  Log::info($this->get_call($call_id,$bearerToken));
-    // Log the response data
-    Log::info('End of Call Response Data:', $responseData);
+    private function processCallReport(string $callId, ?string $transcript, ?array $analysis)
+    {
+        // Save to database or trigger actions
+        // \App\Models\CallReport::create([
+        //     'call_id' => $callId,
+        //     'transcript' => $transcript,
+        //     'sentiment' => $analysis['sentiment'] ?? null,
+        //     'summary' => $analysis['summary'] ?? null,
+        // ]);
 
-    // Return the specific data as a JSON response
-    return response()->json($responseData, 200);
-}
-private function get_call(string $id, string $token)
-{
-    $url = "https://api.vapi.ai/call/{$id}";
+        Log::info("Processed Retell call report: $callId");
+    }
 
-    $client = new \GuzzleHttp\Client();
+    public function test()
+    {
+        $dateTime = "2024-12-29 11:43:03";
+        $th = $this->checkDateTime($dateTime);
+        echo $th;
+    }
 
-    try {
-        $response = $client->request('GET', $url, [
-            'headers' => [
-                'Authorization' => "Bearer {$token}",
-            ],
+    private function checkDateTime($dateTime)
+    {
+        // Parse the input datetime
+        $carbonDate = Carbon::parse($dateTime);
+        logger("Input DateTime: {$dateTime}");
+        logger("Parsed Carbon DateTime: {$carbonDate}");
+
+        // Define Monday as the start of the week
+        $carbonDate->settings([
+            'week_starts_at' => Carbon::MONDAY,
         ]);
 
-        return json_decode($response->getBody(), true);
-    } catch (\GuzzleHttp\Exception\RequestException $e) {
-        // Handle exceptions or errors
-        return [
-            'error' => true,
-            'message' => $e->getMessage(),
-        ];
-    }
-}
-public function test()
-{
-    $dateTime="2024-12-29 11:43:03";
-    $th = $this->checkDateTime($dateTime);
-    echo $th;
-}
+        // Define Monday to Saturday range
+        $startOfWeek = $carbonDate->copy()->startOfWeek(); // Monday at 00:00
+        $endOfWeek = $startOfWeek->copy()->addDays(5)->endOfDay(); // Saturday at 23:59
+        logger("Start of Week (Monday 00:00): {$startOfWeek}");
+        logger("End of Week (Saturday 23:59): {$endOfWeek}");
 
-private function checkDateTime($dateTime)
-{
-    // Parse the input datetime
-    $carbonDate = Carbon::parse($dateTime);
-    logger("Input DateTime: {$dateTime}");
-    logger("Parsed Carbon DateTime: {$carbonDate}");
+        // Check if the date is between Monday and Saturday
+        if ($carbonDate->between($startOfWeek, $endOfWeek)) {
+            logger("Date is within Monday to Saturday range.");
 
-    // Define Monday as the start of the week
-    $carbonDate->settings([
-        'week_starts_at' => Carbon::MONDAY,
-    ]);
+            // Check if the time is between 9 AM and 8 PM
+            $validStartTime = $carbonDate->copy()->setTime(9, 0);
+            $validEndTime = $carbonDate->copy()->setTime(20, 0);
+            logger("Valid Start Time (9 AM): {$validStartTime}");
+            logger("Valid End Time (8 PM): {$validEndTime}");
 
-    // Define Monday to Saturday range
-    $startOfWeek = $carbonDate->copy()->startOfWeek(); // Monday at 00:00
-    $endOfWeek = $startOfWeek->copy()->addDays(5)->endOfDay(); // Saturday at 23:59
-    logger("Start of Week (Monday 00:00): {$startOfWeek}");
-    logger("End of Week (Saturday 23:59): {$endOfWeek}");
+            if (!$carbonDate->between($validStartTime, $validEndTime)) {
+                logger("Time is outside the valid range. Adjusting to next valid time.");
+                // Adjust to the next valid time in the range
+                $carbonDate = $carbonDate->copy()->setTime(9, 0)->addDay();
+                logger("Adjusted DateTime: {$carbonDate}");
+            } else {
+                logger("Time is within the valid range.");
+            }
 
-    // Check if the date is between Monday and Saturday
-    if ($carbonDate->between($startOfWeek, $endOfWeek)) {
-        logger("Date is within Monday to Saturday range.");
-
-        // Check if the time is between 9 AM and 8 PM
-        $validStartTime = $carbonDate->copy()->setTime(9, 0);
-        $validEndTime = $carbonDate->copy()->setTime(20, 0);
-        logger("Valid Start Time (9 AM): {$validStartTime}");
-        logger("Valid End Time (8 PM): {$validEndTime}");
-
-        if (!$carbonDate->between($validStartTime, $validEndTime)) {
-            logger("Time is outside the valid range. Adjusting to next valid time.");
-            // Adjust to the next valid time in the range
-            $carbonDate = $carbonDate->copy()->setTime(9, 0)->addDay();
-            logger("Adjusted DateTime: {$carbonDate}");
-        } else {
-            logger("Time is within the valid range.");
+            return $carbonDate; // Return the adjusted date/time
         }
 
-        return $carbonDate; // Return the adjusted date/time
+        // If the day is not between Monday and Saturday, move to next Monday at 9 AM
+        logger("Date is outside Monday to Saturday range. Adjusting to next Monday at 9 AM.");
+        $adjustedDate = $carbonDate->next(Carbon::MONDAY)->setTime(9, 0);
+        logger("Adjusted DateTime for Next Monday: {$adjustedDate}");
+
+        return $adjustedDate;
     }
 
-    // If the day is not between Monday and Saturday, move to next Monday at 9 AM
-    logger("Date is outside Monday to Saturday range. Adjusting to next Monday at 9 AM.");
-    $adjustedDate = $carbonDate->next(Carbon::MONDAY)->setTime(9, 0);
-    logger("Adjusted DateTime for Next Monday: {$adjustedDate}");
+    private function createAndRunThread(string $question): ThreadRunResponse
+    {
+        set_time_limit(0);
+        $api_key = "";
+        $assistant_id = "asst_7qXPmiy2RwA7va56kl4Y3OJD";
 
-    return $adjustedDate;
-}
-
-private function createAndRunThread(string $question): ThreadRunResponse
-{
-    set_time_limit(0);
-    $api_key = "";
-    $assistant_id = "asst_7qXPmiy2RwA7va56kl4Y3OJD";
-    
-    $client = OpenAI::client($api_key);
-    try {
-        // Create and run the thread with OpenAI
-        return $client->threads()->createAndRun([
-            'assistant_id' => $assistant_id,
-            'thread' => [
-                'messages' => [
-                    [
-                        'role' => 'assistant',
-                        'content' => 'Here is the homeowner information and their property information: ',
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $question,
+        $client = OpenAI::client($api_key);
+        try {
+            // Create and run the thread with OpenAI
+            return $client->threads()->createAndRun([
+                'assistant_id' => $assistant_id,
+                'thread' => [
+                    'messages' => [
+                        [
+                            'role' => 'assistant',
+                            'content' => 'Here is the homeowner information and their property information: ',
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $question,
+                        ],
                     ],
                 ],
-            ],
-        ]);
-    } catch (\Exception $e) {
-        // Log the error for debugging
-        Log::error('Failed to create and run thread: ' . $e->getMessage());
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Failed to create and run thread: ' . $e->getMessage());
 
-        // Optionally, rethrow the exception or handle it
-        throw new Exception('Unable to create and run thread. Please check the logs for more details.');
+            // Optionally, rethrow the exception or handle it
+            throw new Exception('Unable to create and run thread. Please check the logs for more details.');
+        }
     }
-}
 
-public function handleQualifiedLead(Request $request)
-{
-    $leadId = $request->input('lead_id');
-    $qualifiedStatus = $request->input('qualified_status');
-    $notes = $request->input('notes');
+    public function handleQualifiedLead(Request $request)
+    {
+        $leadId = $request->input('lead_id');
+        $qualifiedStatus = $request->input('qualified_status');
+        $notes = $request->input('notes');
 
-    // Log the qualified lead
-    \Log::info("Lead ID: $leadId is qualified.", [
-        'qualified_status' => $qualifiedStatus,
-        'notes' => $notes
-    ]);
+        // Log the qualified lead
+        \Log::info("Lead ID: $leadId is qualified.", [
+            'qualified_status' => $qualifiedStatus,
+            'notes' => $notes
+        ]);
 
-    // Perform actions for the qualified lead
-    return response()->json(['message' => 'Lead processed successfully'], 200);
-}
-
-
-
+        // Perform actions for the qualified lead
+        return response()->json(['message' => 'Lead processed successfully'], 200);
+    }
 }
