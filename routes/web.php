@@ -18,8 +18,6 @@ use App\Http\Controllers\WorkflowController;
 use App\Http\Controllers\WorkflowReportsController;
 use App\Http\Controllers\WrongNumberController;
 use App\Http\Middleware\AdminMiddleware;
-use App\Models\FollowUp;
-use App\Models\UnderContract;
 use Illuminate\Support\Facades\Redirect;
 
 Route::get('/', function () {
@@ -37,6 +35,7 @@ Route::get('/make-call', [CallController::class, 'makeCall']);
 Route::post('/answer', [CallController::class, 'handleCall'])->name('answer');
 Route::post('/transfer', [CallController::class, 'transferCall'])->name('transfer');
 Route::post('/amdStatus', [CallController::class, 'amdStatus'])->name('amdStatus');
+Route::post('/end-of-call', [AISalesPersonController::class, 'handleEndOfCallWebhook'])->name('handleEndOfCallWebhook');
 
 //CONTACT CONTROLLER
 Route::get('/calculate-cost', [ContactController::class, 'calculate_cost'])->name('calculate-cost');
