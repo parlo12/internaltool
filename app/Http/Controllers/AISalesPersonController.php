@@ -347,6 +347,7 @@ class AISalesPersonController extends Controller
 
     public function handleEndOfCallWebhook(Request $request)
     {
+        Log::info("Webhook received: " . json_encode($request->all()));
         $event = $request->input('event'); // e.g., "call_ended"
         $callId = $request->input('call_id');
         $transcript = $request->input('transcript');
