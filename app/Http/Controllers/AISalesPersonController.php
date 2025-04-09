@@ -572,32 +572,81 @@ class AISalesPersonController extends Controller
             \Log::error("Failed to retrieve calls: " . $e->getMessage());
         }
     }
-    private function sendAiCallSummary($phone, $sending_number, $message, $note,)
+    private function sendAiCallSummary($phone, $sending_number, $message, $note)
     {
-
-
-        // Make the API call
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ',
-            '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0',
-            'Accept' => 'application/json',
-        ])
-            ->post('https://crmstaging.godspeedoffers.com/api/sms/ai-call-summary', [
-                'phone' => '+1234567890',
-                'sending_number' => '+1987654321',
-                'message' => 'AI call summary content here',
-                'note' => 'Important follow-up',
-                'sending_server_id' => 1,
-                // For file upload, you would use:
-                // 'file' => fopen('path/to/file.jpg', 'r')
+        $startTime = microtime(true);
+        
+        Log::info('Starting AI Call Summary API call', [
+            'phone' => $phone,
+            'sending_number' => $sending_number,
+            'message_length' => strlen($message),
+            'note_length' => strlen($note),
+            'initiated_at' => now()->toDateTimeString()
+        ]);
+    
+        try {
+            $token = '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0';
+            $url = 'https://crmstaging.godspeedoffers.com/api/sms/ai-call-summary';
+    
+            Log::debug('Preparing API request', [
+                'endpoint' => $url,
+                'token_truncated' => substr($token, 0, 5) . '...' // Log partial token for security
             ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            // Handle success
-        } else {
-            $error = $response->json();
-            // Handle error
+    
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Accept' => 'application/json',
+            ])
+            ->timeout(30) // Set timeout
+            ->post($url, [
+                'phone' => $phone,
+                'sending_number' => $sending_number,
+                'message' => $message,
+                'note' => $note,
+                'sending_server_id' => 1,
+            ]);
+    
+            $duration = round((microtime(true) - $startTime) * 1000, 2); // ms
+    
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                Log::info('AI Call Summary API call succeeded', [
+                    'status_code' => $response->status(),
+                    'response' => $data,
+                    'duration_ms' => $duration
+                ]);
+                
+                return $data;
+            } else {
+                $error = $response->json();
+                
+                Log::error('AI Call Summary API call failed', [
+                    'status_code' => $response->status(),
+                    'error' => $error,
+                    'duration_ms' => $duration,
+                    'request_payload' => [ // Redacted sensitive data
+                        'phone' => '***' . substr($phone, -4),
+                        'sending_number' => '***' . substr($sending_number, -4),
+                        'message_length' => strlen($message),
+                        'note_length' => strlen($note)
+                    ]
+                ]);
+                
+                throw new \Exception("API call failed: " . ($error['message'] ?? 'Unknown error'));
+            }
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::critical('API connection failed', [
+                'error' => $e->getMessage(),
+                'duration_ms' => round((microtime(true) - $startTime) * 1000, 2)
+            ]);
+            throw new \Exception("Connection to API failed: " . $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Unexpected error in AI Call Summary', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 }
