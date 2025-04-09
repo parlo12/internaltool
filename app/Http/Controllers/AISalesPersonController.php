@@ -347,34 +347,68 @@ class AISalesPersonController extends Controller
 
     public function handleEndOfCallWebhook(Request $request)
     {
-        $webhookData = $request->all();
-        Log::info("Webhook received: ", $webhookData);
-        
-        // Extract data from the nested 'call' object
-        $callData = $webhookData['call'] ?? [];
-        
-        $callId = $callData['call_id'] ?? null;
-        $transcript = $callData['transcript'] ?? null;
-        $analysis = $callData['call_analysis'] ?? null;
-        
-        Log::info("Call ID: " . $callId);
-        Log::info("Transcript: " . substr($transcript, 0, 100) . "..."); // Log first 100 chars
-        Log::info("Analysis: ", $analysis);
+        try {
+            $webhookData = $request->all();
+            Log::info("Webhook received", ['event' => $webhookData['event'] ?? 'unknown']);
     
-        if ($callId && $transcript) {
-            $this->processCallReport($callId, $transcript, $analysis);
+            // Extract data from the nested 'call' object
+            $callData = $webhookData['call'] ?? [];
+            
+            $requiredFields = [
+                'call_id' => $callData['call_id'] ?? null,
+                'transcript' => $callData['transcript'] ?? null,
+                'from_number' => $callData['from_number'] ?? null,
+                'to_number' => $callData['to_number'] ?? null,
+                'direction' => $callData['direction'] ?? null,
+                'call_analysis' => $callData['call_analysis'] ?? null
+            ];
+    
+            Log::info("Call details", [
+                'call_id' => $requiredFields['call_id'],
+                'from' => $requiredFields['from_number'],
+                'to' => $requiredFields['to_number'],
+                'direction' => $requiredFields['direction'],
+                'duration' => isset($callData['end_timestamp'], $callData['start_timestamp']) 
+                    ? round(($callData['end_timestamp'] - $callData['start_timestamp'])/1000) . 's' 
+                    : 'N/A',
+                'disconnection_reason' => $callData['disconnection_reason'] ?? 'N/A'
+            ]);
+    
+            // Validate required fields
+            if (empty($requiredFields['call_id']) || empty($requiredFields['transcript'])) {
+                throw new \RuntimeException("Missing required call data");
+            }
+    
+            // Process the call with all available information
+            $this->processCallReport(
+                $requiredFields['call_id'],
+                $requiredFields['transcript'],
+                $requiredFields['call_analysis'],
+                [
+                    'from_number' => $requiredFields['from_number'],
+                    'to_number' => $requiredFields['to_number'],
+                    'direction' => $requiredFields['direction'],
+                    'call_type' => $callData['call_type'] ?? null,
+                    'start_time' => isset($callData['start_timestamp']) 
+                        ? date('Y-m-d H:i:s', $callData['start_timestamp']/1000)
+                        : null
+                ]
+            );
+    
             return response()->json(['status' => 'success'], 200);
-        }
     
-        Log::error("Missing required call data in webhook", [
-            'call_id_present' => !empty($callId),
-            'transcript_present' => !empty($transcript)
-        ]);
-        
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Missing required call data'
-        ], 400);
+        } catch (\Exception $e) {
+            Log::error("Webhook processing failed", [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     private function processCallReport(string $callId, ?string $transcript, ?array $analysis)
