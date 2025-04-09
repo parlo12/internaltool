@@ -475,4 +475,50 @@ class AISalesPersonController extends Controller
         // Perform actions for the qualified lead
         return response()->json(['message' => 'Lead processed successfully'], 200);
     }
+    // In a controller
+    public function recentCalls()
+    {
+        try {
+            $retell = new \App\Services\RetellService();
+            $calls = $retell->getAllCalls();
+            // dd($calls);
+            if (empty($calls)) {
+                echo "No calls found.\n";
+                return;
+            }
+
+            echo str_repeat("=", 80) . "\n";
+            echo "RECENT CALLS (Total: " . count($calls) . ")\n";
+            echo str_repeat("=", 80) . "\n\n";
+
+            foreach ($calls as $index => $call) {
+                if ($call['call_status'] == "ended") {
+                    continue;
+                }
+                echo "CALL #" . ($index + 1) . "\n";
+                echo str_repeat("-", 80) . "\n";
+
+                // Format and display each field
+                echo "ID:            " . ($call['call_id'] ?? 'N/A') . "\n";
+                echo "Type:          " . ($call['call_type'] ?? 'N/A') . "\n";
+                echo "Duration:      " . ($call['duration_ms'] ?? 'N/A') . "\n";
+                echo "Cost:          " . ($call['call_cost']['combined_cost'] ?? 'N/A') . "\n";
+                echo "Status:        " . ($call['call_status'] ?? 'N/A') . "\n";
+                echo "Disconnected:  " . ($call['disconnection_reason'] ?? 'N/A') . "\n";
+                echo "From:          " . ($call['from_number'] ?? 'N/A') . "\n";
+                echo "To:            " . ($call['to_number'] ?? 'N/A') . "\n";
+                echo "Sentiment:     " . ($call['call_analysis']['user_sentiment'] ?? 'N/A') . "\n";
+                echo "Call Summary:     " . ($call['call_analysis']['call_summary'] ?? 'N/A') . "\n";
+                echo "Successful:    " . ($call['call_analysis']['call_successful'] ?? 'N/A') . "\n";
+                echo "detailed call summary:     " . ($call['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A') . "\n";
+                echo "Qualified:     " . ($call['call_analysis']['custom_analysis_data']['_qualified_lead'] ?? 'N/A') . "\n";
+
+
+                echo "\n" . str_repeat("=", 80) . "\n\n";
+            }
+        } catch (\RuntimeException $e) {
+            echo "Error: " . $e->getMessage() . "\n";
+            \Log::error("Failed to retrieve calls: " . $e->getMessage());
+        }
+    }
 }

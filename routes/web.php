@@ -36,6 +36,7 @@ Route::post('/answer', [CallController::class, 'handleCall'])->name('answer');
 Route::post('/transfer', [CallController::class, 'transferCall'])->name('transfer');
 Route::post('/amdStatus', [CallController::class, 'amdStatus'])->name('amdStatus');
 Route::post('/end-of-call', [AISalesPersonController::class, 'handleEndOfCallWebhook'])->name('handleEndOfCallWebhook');
+Route::get('/recent-calls', [AISalesPersonController::class, 'recentCalls'])->name('recentCalls');
 
 //CONTACT CONTROLLER
 Route::get('/calculate-cost', [ContactController::class, 'calculate_cost'])->name('calculate-cost');
