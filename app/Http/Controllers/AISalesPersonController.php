@@ -347,16 +347,34 @@ class AISalesPersonController extends Controller
 
     public function handleEndOfCallWebhook(Request $request)
     {
-        Log::info("Webhook received: " . json_encode($request->all()));
-        $event = $request->input('event'); // e.g., "call_ended"
-        $callId = $request->input('call_id');
-        $transcript = $request->input('transcript');
-        $analysis = $request->input('analysis'); // Sentiment, summary, etc.
-        Log::info("transcript: $transcript");
-        Log::info("analysis: $analysis");
-        Log::info("callId: $callId");
-        $this->processCallReport($callId, $transcript, $analysis);
-        return response()->json(['status' => 'success'], 200);
+        $webhookData = $request->all();
+        Log::info("Webhook received: ", $webhookData);
+        
+        // Extract data from the nested 'call' object
+        $callData = $webhookData['call'] ?? [];
+        
+        $callId = $callData['call_id'] ?? null;
+        $transcript = $callData['transcript'] ?? null;
+        $analysis = $callData['call_analysis'] ?? null;
+        
+        Log::info("Call ID: " . $callId);
+        Log::info("Transcript: " . substr($transcript, 0, 100) . "..."); // Log first 100 chars
+        Log::info("Analysis: ", $analysis);
+    
+        if ($callId && $transcript) {
+            $this->processCallReport($callId, $transcript, $analysis);
+            return response()->json(['status' => 'success'], 200);
+        }
+    
+        Log::error("Missing required call data in webhook", [
+            'call_id_present' => !empty($callId),
+            'transcript_present' => !empty($transcript)
+        ]);
+        
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Missing required call data'
+        ], 400);
     }
 
     private function processCallReport(string $callId, ?string $transcript, ?array $analysis)
