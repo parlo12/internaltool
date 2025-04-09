@@ -371,7 +371,8 @@ class AISalesPersonController extends Controller
                 'duration' => isset($callData['end_timestamp'], $callData['start_timestamp']) 
                     ? round(($callData['end_timestamp'] - $callData['start_timestamp'])/1000) . 's' 
                     : 'N/A',
-                'disconnection_reason' => $callData['disconnection_reason'] ?? 'N/A'
+                'disconnection_reason' => $callData['disconnection_reason'] ?? 'N/A',
+                'call_analysis' => $callData['call_analysis'] ?? 'N/A'
             ]);
     
             // Validate required fields
