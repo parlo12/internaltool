@@ -384,11 +384,11 @@ class AISalesPersonController extends Controller
                 throw new \RuntimeException("Missing required call data");
             }
             if ($requiredFields['direction'] == "outbound") {
-                $sending_number = $requiredFields['from_number'];
-                $phone = $requiredFields['to_number'];
+                $sending_number = ltrim($requiredFields['from_number'], '+');
+                $phone = ltrim($requiredFields['to_number'], '+');
             } else {
-                $sending_number = $requiredFields['to_number'];
-                $phone = $requiredFields['from_number'];
+                $sending_number = ltrim($requiredFields['to_number'], '+');
+                $phone = ltrim($requiredFields['from_number'], '+');
             }
             $note = "Call Summary: " .
                 ($callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A') .
