@@ -393,7 +393,9 @@ class AISalesPersonController extends Controller
             $note = "Call Summary: " .
                 ($callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A') .
                 "\nQualified Lead: " .
-                ($callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ?? 'N/A');
+                ($callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ? 'Qualified' : 'Not Qualified') .
+                "\nSentiment: " .
+                ($callData['call_analysis']['user_sentiment'] ?? 'N/A');
             $this->sendAiCallSummary($phone, $sending_number, $requiredFields['transcript'], $note,);
             return response()->json(['status' => 'success'], 200);
         } catch (\Exception $e) {
