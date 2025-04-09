@@ -350,10 +350,13 @@ class AISalesPersonController extends Controller
         try {
             $webhookData = $request->all();
             Log::info("Webhook received", ['event' => $webhookData['event'] ?? 'unknown']);
-    
+            if (($webhookData['event'] ?? null) !== 'call_analyzed') {
+                Log::info("Skipping non-call_analyzed event");
+                return response()->json(['status' => 'ignored'], 200);
+            }
             // Extract data from the nested 'call' object
             $callData = $webhookData['call'] ?? [];
-            
+
             $requiredFields = [
                 'call_id' => $callData['call_id'] ?? null,
                 'transcript' => $callData['transcript'] ?? null,
@@ -362,49 +365,44 @@ class AISalesPersonController extends Controller
                 'direction' => $callData['direction'] ?? null,
                 'call_analysis' => $callData['call_analysis'] ?? null
             ];
-    
+
             Log::info("Call details", [
                 'call_id' => $requiredFields['call_id'],
                 'from' => $requiredFields['from_number'],
                 'to' => $requiredFields['to_number'],
                 'direction' => $requiredFields['direction'],
-                'duration' => isset($callData['end_timestamp'], $callData['start_timestamp']) 
-                    ? round(($callData['end_timestamp'] - $callData['start_timestamp'])/1000) . 's' 
+                'duration' => isset($callData['end_timestamp'], $callData['start_timestamp'])
+                    ? round(($callData['end_timestamp'] - $callData['start_timestamp']) / 1000) . 's'
                     : 'N/A',
                 'disconnection_reason' => $callData['disconnection_reason'] ?? 'N/A',
-                'call_analysis' => $callData['call_analysis'] ?? 'N/A'
+                'call_analysis' => $callData['call_analysis'] ?? 'N/A',
+                'custom_analysis_data' => $callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A',
+                'qualified_lead' => $callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ?? 'N/A',
             ]);
-    
             // Validate required fields
             if (empty($requiredFields['call_id']) || empty($requiredFields['transcript'])) {
                 throw new \RuntimeException("Missing required call data");
             }
-    
-            // Process the call with all available information
-            $this->processCallReport(
-                $requiredFields['call_id'],
-                $requiredFields['transcript'],
-                $requiredFields['call_analysis'],
-                [
-                    'from_number' => $requiredFields['from_number'],
-                    'to_number' => $requiredFields['to_number'],
-                    'direction' => $requiredFields['direction'],
-                    'call_type' => $callData['call_type'] ?? null,
-                    'start_time' => isset($callData['start_timestamp']) 
-                        ? date('Y-m-d H:i:s', $callData['start_timestamp']/1000)
-                        : null
-                ]
-            );
-    
+            if ($requiredFields['direction'] == "outbound") {
+                $sending_number = $requiredFields['from_number'];
+                $phone = $requiredFields['to_number'];
+            } else {
+                $sending_number = $requiredFields['to_number'];
+                $phone = $requiredFields['from_number'];
+            }
+            $note = "Call Summary: " .
+                ($callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A') .
+                "\nQualified Lead: " .
+                ($callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ?? 'N/A');
+            $this->sendAiCallSummary($phone, $sending_number, $requiredFields['transcript'], $note,);
             return response()->json(['status' => 'success'], 200);
-    
         } catch (\Exception $e) {
             Log::error("Webhook processing failed", [
                 'error' => $e->getMessage(),
                 'request_data' => $request->all(),
                 'trace' => $e->getTraceAsString()
             ]);
-    
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -572,6 +570,34 @@ class AISalesPersonController extends Controller
         } catch (\RuntimeException $e) {
             echo "Error: " . $e->getMessage() . "\n";
             \Log::error("Failed to retrieve calls: " . $e->getMessage());
+        }
+    }
+    private function sendAiCallSummary($phone, $sending_number, $message, $note,)
+    {
+
+
+        // Make the API call
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ',
+            '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0',
+            'Accept' => 'application/json',
+        ])
+            ->post('https://crmstaging.godspeedoffers.com/api/sms/ai-call-summary', [
+                'phone' => '+1234567890',
+                'sending_number' => '+1987654321',
+                'message' => 'AI call summary content here',
+                'note' => 'Important follow-up',
+                'sending_server_id' => 1,
+                // For file upload, you would use:
+                // 'file' => fopen('path/to/file.jpg', 'r')
+            ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            // Handle success
+        } else {
+            $error = $response->json();
+            // Handle error
         }
     }
 }
