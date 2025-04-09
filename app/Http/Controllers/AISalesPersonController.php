@@ -603,7 +603,6 @@ class AISalesPersonController extends Controller
                 'sending_number' => $sending_number,
                 'message' => $message,
                 'note' => $note,
-                'sending_server_id' => 1,
             ]);
     
             $duration = round((microtime(true) - $startTime) * 1000, 2); // ms
