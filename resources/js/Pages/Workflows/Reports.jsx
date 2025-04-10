@@ -676,6 +676,7 @@ export default function Create({
                                             <tr>
                                                 <th className="px-4 py-2 border-b text-nowrap">Contact Name</th>
                                                 <th className="px-4 py-2 border-b text-nowrap">Phone</th>
+                                                <th className="px-4 py-2 border-b text-nowrap">Cost</th>
                                                 <th className="px-4 py-2 border-b text-nowrap">Zipcode</th>
                                                 <th className="px-4 py-2 border-b text-nowrap">City</th>
                                                 <th className="px-4 py-2 border-b text-nowrap">State</th>
@@ -690,6 +691,9 @@ export default function Create({
                                                     </td>
                                                     <td className="px-4 py-2 border-b text-nowrap">
                                                         {AICall.phone}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.cost}
                                                     </td>
                                                     <td className="px-4 py-2 border-b text-nowrap">
                                                         {AICall.zipcode}
