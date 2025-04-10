@@ -36,7 +36,8 @@ class AICallController extends Controller
                         'marketing_channel' => 'SMS',
                         'sending_number' => $sending_number,
                         'user_id' => $contact->user_id,
-                        'response' => 'No'
+                        'response' => 'No',
+                        'cost'=>0
                     ]);
             }
             if (($webhookData['event'] ?? null) == 'call_ended') {
