@@ -16,10 +16,12 @@ class executedContractsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $contact = Contact::find($this->contact_id);
+        $contact?$phone= $contact->phone:null;
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'phone' => Contact::find($this->contact_id)->phone,
+            'phone' =>$phone,
             'zipcode'=>$this->zipcode,
             'state'=>$this->state,
             'city'=>$this->city,
