@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class AICall extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+        'contact_id',
+        'contact_communication_id',  
+        'cost',
+        'organisation_id',
+        'user_id',
+        'zipcode',
+        'city',
+        'state',
+        'marketing_channel',
+        'sending_number',
+        'response'
+    ];
 }
