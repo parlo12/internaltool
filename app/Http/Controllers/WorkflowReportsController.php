@@ -220,6 +220,9 @@ class WorkflowReportsController extends Controller
             ->when($city, function ($query) use ($city) {
                 $query->where('city', $city);
             })
+            ->when($response, function ($query) use ($response) {
+                $query->where('response', $response);
+            })
             ->when($user, function ($query) use ($user) {
                 $query->where('user_id', $user);
             })
