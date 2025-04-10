@@ -16,6 +16,8 @@ class CallsSentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $contact = Contact::find($this->contact_id);
+        $contact?$phone= $contact->phone:null;
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -26,7 +28,7 @@ class CallsSentResource extends JsonResource
             'response'=>$this->response,
             'marketing_channel'=>$this->marketing_channel,
             'sending_number' => $this->sending_number,
-            'phone' => Contact::find($this->contact_id)->phone,
+            'phone' => $phone,
             'created_at' => (new Carbon($this->created_at))->format('Y-m-d'),
         ];
     }
