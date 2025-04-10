@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AICallResource;
 use App\Http\Resources\CallsSentResource;
 use App\Http\Resources\CancelledContractsResource;
 use App\Http\Resources\ClosedDealResource;
@@ -11,6 +12,7 @@ use App\Http\Resources\OffersResource;
 use App\Http\Resources\TextSentResource;
 use App\Http\Resources\TotalContactsResource;
 use App\Http\Resources\ValidLeadResource;
+use App\Models\AICall;
 use App\Models\CallsSent;
 use App\Models\CancelledContracts;
 use App\Models\ClosedDeal;
@@ -208,12 +210,28 @@ class WorkflowReportsController extends Controller
             })
             ->orderBy($sortField, $sortDirection);
 
+            $AICallQuery = $applyFilter(AICall::where('organisation_id', $organisationId))
+            ->when($zipcode, function ($query) use ($zipcode) {
+                $query->where('zipcode', $zipcode);
+            })
+            ->when($state, function ($query) use ($state) {
+                $query->where('state', $state);
+            })
+            ->when($city, function ($query) use ($city) {
+                $query->where('city', $city);
+            })
+            ->when($user, function ($query) use ($user) {
+                $query->where('user_id', $user);
+            })
+            ->orderBy($sortField, $sortDirection);
 
         // Calculate the total cost for contacts before pagination
-        $totalCost = round($textSentQuery->sum('cost') + $callsSentQuery->sum('cost'), 2);
+        $totalCost = round($textSentQuery->sum('cost')+$AICallQuery->sum('cost') + $callsSentQuery->sum('cost'), 2);
 
         // Paginate the results
         $textsSent = $textSentQuery->paginate(10)->onEachSide(1);
+        $AICalls = $AICallQuery->paginate(10)->onEachSide(1);
+
         $callsSent = $callsSentQuery->paginate(10)->onEachSide(1);
        // $cancelledContracts = $cancelledContractsQuery->paginate(10)->onEachSide(1);
         $closedDeals = $closedDealQuery->paginate(10)->onEachSide(1);
@@ -222,22 +240,25 @@ class WorkflowReportsController extends Controller
         $validLeads = $validLeadQuery->paginate(10)->onEachSide(1);
         $contacts = $contactsQuery->paginate(10)->onEachSide(1);
 
+        $AICallZipcodes = AICall::select('zipcode')->where('organisation_id', $organisationId)->distinct()->pluck('zipcode')->toArray();
         $callsSentsZipcodes = CallsSent::select('zipcode')->where('organisation_id', $organisationId)->distinct()->pluck('zipcode')->toArray();
         $textSentsZipcodes = TextSent::select('zipcode')->distinct()->pluck('zipcode')->toArray();
-        $distinctZipcodes = array_unique(array_merge($callsSentsZipcodes, $textSentsZipcodes));
+        $distinctZipcodes = array_unique(array_merge($callsSentsZipcodes,$AICallZipcodes, $textSentsZipcodes));
 
+        $AICallCities = AICall::select('city')->distinct()->pluck('city')->toArray();
         $callsSentsCities = CallsSent::select('city')->where('organisation_id', $organisationId)->distinct()->pluck('city')->toArray();
         $textSentsCities = TextSent::select('city')->distinct()->pluck('city')->toArray();
-        $distinctCities = array_unique(array_merge($callsSentsCities, $textSentsCities));
+        $distinctCities = array_unique(array_merge($callsSentsCities,$AICallCities, $textSentsCities));
 
+        $AICallStates = AICall::select('state')->where('organisation_id', $organisationId)->distinct()->pluck('state')->toArray();
         $callsSentsStates = CallsSent::select('state')->where('organisation_id', $organisationId)->distinct()->pluck('state')->toArray();
         $textSentsStates = TextSent::select('state')->distinct()->pluck('state')->toArray();
-        $distinctStates = array_unique(array_merge($callsSentsStates, $textSentsStates));
+        $distinctStates = array_unique(array_merge($callsSentsStates,$AICallStates, $textSentsStates));
        
-       
+        $AICallSendingNumbers = AICall::select('sending_number')->where('organisation_id', $organisationId)->distinct()->pluck('sending_number')->toArray();
         $callsSentsSendingNumbers = CallsSent::select('sending_number')->where('organisation_id', $organisationId)->distinct()->pluck('sending_number')->toArray();
         $textSentsSendingNumbers = TextSent::select('sending_number')->distinct()->pluck('sending_number')->toArray();
-        $distinctSendingNumbers = array_unique(array_merge($callsSentsSendingNumbers, $textSentsSendingNumbers));
+        $distinctSendingNumbers = array_unique(array_merge($callsSentsSendingNumbers,$AICallSendingNumbers, $textSentsSendingNumbers));
 
         $agents = User::all();
 
@@ -245,6 +266,7 @@ class WorkflowReportsController extends Controller
             'success' => session('success'),
             'textsSent' => TextSentResource::collection($textsSent),
             'callsSent' => CallsSentResource::collection($callsSent),
+            'AICalls' => AICallResource::collection($AICalls),
             //'cancelledContracts' => CancelledContractsResource::collection($cancelledContracts),
             'closedDeals' => ClosedDealResource::collection($closedDeals),
             'executedContracts' => ExecutedContractsResource::collection($executedContracts),

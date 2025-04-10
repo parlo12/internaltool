@@ -38,7 +38,7 @@ class WorkflowFactory extends Factory
             'organisation_id' => Organisation::inRandomOrder()->first()->id,
             'user_id' => User::inRandomOrder()->first()->id,
             'number_pool_id' => NumberPool::inRandomOrder()->first()->id,
-            'generated_message'=>random_int(1,0)
+            'generated_message'=>random_int(0,1)
         ];
     }
 }

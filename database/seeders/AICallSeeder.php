@@ -13,7 +13,6 @@ class AICallSeeder extends Seeder
      */
     public function run(): void
     {
-        AICall::factory()->count(1000)->create();
-
+        AICall::factory()->count(200)->create();
     }
 }

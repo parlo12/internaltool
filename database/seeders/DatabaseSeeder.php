@@ -33,9 +33,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call([
                 OrganisationSeeder::class,
-            //     NumberPoolSeeder::class,
-            //     WorkflowSeeder::class,
-            //     SendingServerSeeder::class,
+            //      NumberPoolSeeder::class,
+            //      SendingServerSeeder::class,
             //     AssistantSeeder::class,
             //     ContactSeeder::class,
             //     MessageTypesSeeder::class,
@@ -50,6 +49,7 @@ class DatabaseSeeder extends Seeder
             //     NumberSeeder::class,
             //     FolderSeeder::class,
             //     AICallSeeder::class,
+            //     WorkflowSeeder::class,
             //     CsvFileSeeder::class,
             //     KnowledgeBaseSeeder::class,
             //     WrongNumberSeeder::class,
@@ -57,6 +57,7 @@ class DatabaseSeeder extends Seeder
             //     FollowUpSeeder::class,
             //     FreshleadSeeder::class,
             //     StepSeeder::class,
+            // AICallSeeder::class,
 
         ]);
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AICallController;
 use App\Http\Controllers\AISalesPersonController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +36,7 @@ Route::get('/make-call', [CallController::class, 'makeCall']);
 Route::post('/answer', [CallController::class, 'handleCall'])->name('answer');
 Route::post('/transfer', [CallController::class, 'transferCall'])->name('transfer');
 Route::post('/amdStatus', [CallController::class, 'amdStatus'])->name('amdStatus');
-Route::post('/end-of-call', [AISalesPersonController::class, 'handleEndOfCallWebhook'])->name('handleEndOfCallWebhook');
+Route::post('/end-of-call', [AICallController::class, 'handleEndOfCallWebhook'])->name('handleEndOfCallWebhook');
 Route::get('/recent-calls', [AISalesPersonController::class, 'recentCalls'])->name('recentCalls');
 
 //CONTACT CONTROLLER

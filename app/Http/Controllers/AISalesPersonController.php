@@ -357,38 +357,16 @@ class AISalesPersonController extends Controller
             // Extract data from the nested 'call' object
             $callData = $webhookData['call'] ?? [];
 
-            $requiredFields = [
-                'call_id' => $callData['call_id'] ?? null,
-                'transcript' => $callData['transcript'] ?? null,
-                'from_number' => $callData['from_number'] ?? null,
-                'to_number' => $callData['to_number'] ?? null,
-                'direction' => $callData['direction'] ?? null,
-                'call_analysis' => $callData['call_analysis'] ?? null
-            ];
-
-            Log::info("Call details", [
-                'call_id' => $requiredFields['call_id'],
-                'from' => $requiredFields['from_number'],
-                'to' => $requiredFields['to_number'],
-                'direction' => $requiredFields['direction'],
-                'duration' => isset($callData['end_timestamp'], $callData['start_timestamp'])
-                    ? round(($callData['end_timestamp'] - $callData['start_timestamp']) / 1000) . 's'
-                    : 'N/A',
-                'disconnection_reason' => $callData['disconnection_reason'] ?? 'N/A',
-                'call_analysis' => $callData['call_analysis'] ?? 'N/A',
-                'custom_analysis_data' => $callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A',
-                'qualified_lead' => $callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ?? 'N/A',
-            ]);
-            // Validate required fields
-            if (empty($requiredFields['call_id']) || empty($requiredFields['transcript'])) {
+            
+            if (empty($callData['call_id']) || empty($callData['transcript'])) {
                 throw new \RuntimeException("Missing required call data");
             }
-            if ($requiredFields['direction'] == "outbound") {
-                $sending_number = ltrim($requiredFields['from_number'], '+');
-                $phone = ltrim($requiredFields['to_number'], '+');
+            if ($callData['direction'] == "outbound") {
+                $sending_number = ltrim($callData['from_number'], '+');
+                $phone = ltrim($callData['to_number'], '+');
             } else {
-                $sending_number = ltrim($requiredFields['to_number'], '+');
-                $phone = ltrim($requiredFields['from_number'], '+');
+                $sending_number = ltrim($callData['to_number'], '+');
+                $phone = ltrim($callData['from_number'], '+');
             }
             $note = "Call Summary: " .
                 ($callData['call_analysis']['custom_analysis_data']['detailed_call_summary'] ?? 'N/A') .
@@ -396,7 +374,7 @@ class AISalesPersonController extends Controller
                 ($callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ? 'Qualified' : 'Not Qualified') .
                 "\nSentiment: " .
                 ($callData['call_analysis']['user_sentiment'] ?? 'N/A');
-            $this->sendAiCallSummary($phone, $sending_number, $requiredFields['transcript'], $note,);
+            $this->sendAiCallSummary($phone, $sending_number, $callData['transcript'], $note,);
             return response()->json(['status' => 'success'], 200);
         } catch (\Exception $e) {
             Log::error("Webhook processing failed", [
@@ -412,20 +390,8 @@ class AISalesPersonController extends Controller
         }
     }
 
-    private function processCallReport(string $callId, ?string $transcript, ?array $analysis)
-    {
-        // Save to database or trigger actions
-        // \App\Models\CallReport::create([
-        //     'call_id' => $callId,
-        //     'transcript' => $transcript,
-        //     'sentiment' => $analysis['sentiment'] ?? null,
-        //     'summary' => $analysis['summary'] ?? null,
-        // ]);
-
-        Log::info("Processed Retell call report: $callId");
-    }
-
-    public function test()
+  
+   public function test()
     {
         $dateTime = "2024-12-29 11:43:03";
         $th = $this->checkDateTime($dateTime);
@@ -574,80 +540,5 @@ class AISalesPersonController extends Controller
             \Log::error("Failed to retrieve calls: " . $e->getMessage());
         }
     }
-    private function sendAiCallSummary($phone, $sending_number, $message, $note)
-    {
-        $startTime = microtime(true);
-        
-        Log::info('Starting AI Call Summary API call', [
-            'phone' => $phone,
-            'sending_number' => $sending_number,
-            'message_length' => strlen($message),
-            'note_length' => strlen($note),
-            'initiated_at' => now()->toDateTimeString()
-        ]);
-    
-        try {
-            $token = '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0';
-            $url = 'https://crmstaging.godspeedoffers.com/api/v3/sms/ai-call-summary';
-    
-            Log::debug('Preparing API request', [
-                'endpoint' => $url,
-                'token_truncated' => substr($token, 0, 5) . '...' // Log partial token for security
-            ]);
-    
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-            ])
-            ->timeout(30) // Set timeout
-            ->post($url, [
-                'phone' => $phone,
-                'sending_number' => $sending_number,
-                'message' => $message,
-                'note' => $note,
-            ]);
-    
-            $duration = round((microtime(true) - $startTime) * 1000, 2); // ms
-    
-            if ($response->successful()) {
-                $data = $response->json();
-                
-                Log::info('AI Call Summary API call succeeded', [
-                    'status_code' => $response->status(),
-                    'response' => $data,
-                    'duration_ms' => $duration
-                ]);
-                
-                return $data;
-            } else {
-                $error = $response->json();
-                
-                Log::error('AI Call Summary API call failed', [
-                    'status_code' => $response->status(),
-                    'error' => $error,
-                    'duration_ms' => $duration,
-                    'request_payload' => [ // Redacted sensitive data
-                        'phone' => '***' . substr($phone, -4),
-                        'sending_number' => '***' . substr($sending_number, -4),
-                        'message_length' => strlen($message),
-                        'note_length' => strlen($note)
-                    ]
-                ]);
-                
-                throw new \Exception("API call failed: " . ($error['message'] ?? 'Unknown error'));
-            }
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::critical('API connection failed', [
-                'error' => $e->getMessage(),
-                'duration_ms' => round((microtime(true) - $startTime) * 1000, 2)
-            ]);
-            throw new \Exception("Connection to API failed: " . $e->getMessage());
-        } catch (\Exception $e) {
-            Log::error('Unexpected error in AI Call Summary', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
-        }
-    }
+  
 }

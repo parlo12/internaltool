@@ -25,6 +25,7 @@ export default function Create({
     states,
     agents,
     sending_numbers,
+    AICalls
 }) {
 
     console.log(agents);
@@ -653,6 +654,65 @@ export default function Create({
 
                                 <Pagination
                                     links={validLeads.meta.links}
+                                    queryParams={queryParams}
+                                />
+                            </div>
+                            <div className="table-container">
+                                <div>
+                                    A total of{" "}
+                                    <span className="text-green-500 ">
+                                        {AICalls.meta.total}&nbsp;
+                                    </span>
+                                    AI Calls made &nbsp;
+                                    {/* {queryParams && (
+                                        <span className="text-green-500 ">
+                                            {queryParams.filter}
+                                        </span>
+                                    )} */}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full bg-white border border-gray-200">
+                                        <thead>
+                                            <tr>
+                                                <th className="px-4 py-2 border-b text-nowrap">Contact Name</th>
+                                                <th className="px-4 py-2 border-b text-nowrap">Phone</th>
+                                                <th className="px-4 py-2 border-b text-nowrap">Zipcode</th>
+                                                <th className="px-4 py-2 border-b text-nowrap">City</th>
+                                                <th className="px-4 py-2 border-b text-nowrap">State</th>
+                                                <th className="px-4 py-2 border-b  text-nowrap">Date Sent</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {AICalls.data.map((AICall) => (
+                                                <tr>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.name}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.phone}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.zipcode}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.city}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.state}
+                                                    </td>
+                                                    <td className="px-4 py-2 border-b text-nowrap">
+                                                        {AICall.created_at}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                                <Pagination
+                                    links={AICalls.meta.links}
                                     queryParams={queryParams}
                                 />
                             </div>
