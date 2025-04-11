@@ -34,7 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'handle-question',
             '/send-websocket-message',
             'handleEndOfCallWebhook',
-            '/end-of-call'
+            '/end-of-call',
+            '/inbound-retell-call'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

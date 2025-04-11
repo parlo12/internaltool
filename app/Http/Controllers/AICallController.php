@@ -150,4 +150,76 @@ class AICallController extends Controller
             throw $e;
         }
     }
+    /**
+     * Handle inbound Retell calls without signature verification
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function handleInboundRetellCall(Request $request)
+    {
+        Log::info('Handling inbound Retell call', [
+            'request_data' => $request->all()
+        ]);
+        $validated = $request->validate([
+            'event' => 'required|string|in:call_inbound',
+            'call_inbound' => 'required|array',
+            'call_inbound.from_number' => 'required|string',
+            'call_inbound.to_number' => 'required|string',
+            'call_inbound.agent_id' => 'sometimes|string|nullable',
+        ]);
+        $fromNumber = $validated['call_inbound']['from_number'];
+        $toNumber = $validated['call_inbound']['to_number'];
+        $defaultAgentId = $validated['call_inbound']['agent_id'] ?? null;
+        $contact = Contact::where('phone', $fromNumber)->first();
+        if ($contact) {
+            $response = [
+                'call_inbound' => [
+                    'dynamic_variables' => [
+                        'name' => $contact->contact_name ?? 'N/A',
+                        'zipcode' => $contact->zipcode ?? 'N/A',
+                        'state' => $contact->state ?? 'N/A',
+                        'offer' => $contact->offer ?? 'N/A',
+                        'address' => $contact->address ?? 'N/A',
+                        'gender' => $contact->gender ?? 'N/A',
+                        'lead_score' => $contact->lead_score ?? 'N/A',
+                        'phone' => $contact->phone ?? 'N/A',
+                        'organisation_id' => $contact->organisation_id ?? 'N/A',
+                        'novation' => $contact->novation ?? 'N/A',
+                        'creative_price' => $contact->creative_price ?? 'N/A',
+                        'downpayment' => $contact->downpayment ?? 'N/A',
+                        'monthly' => $contact->monthly ?? 'N/A',
+                    ],
+                    'metadata' => [
+                        'call_direction' => 'inbound',
+                        'received_at' => now()->toDateTimeString(),
+                    ],
+                ],
+            ];
+        } else {
+            $response = [
+                'call_inbound' => [
+                    'dynamic_variables' => [
+                        'name' =>  '',
+                        'state' => '',
+                        'offer' => '',
+                        'address' =>  '',
+                        'gender' =>  '',
+                        'lead_score' =>  '',
+                        'phone' =>  '',
+                        'organisation_id' =>  '',
+                        'novation' =>  '',
+                        'creative_price' =>  '',
+                        'downpayment' =>  '',
+                        'monthly' => '',
+                    ],
+                    'metadata' => [
+                        'call_direction' => 'inbound',
+                        'received_at' => now()->toDateTimeString(),
+                    ],
+                ],
+            ];
+        }
+        return response()->json($response);
+    }
 }
