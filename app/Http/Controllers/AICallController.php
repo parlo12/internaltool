@@ -158,68 +158,137 @@ class AICallController extends Controller
      */
     public function handleInboundRetellCall(Request $request)
     {
-        Log::info('Handling inbound Retell call', [
-            'request_data' => $request->all()
-        ]);
-        $validated = $request->validate([
-            'event' => 'required|string|in:call_inbound',
-            'call_inbound' => 'required|array',
-            'call_inbound.from_number' => 'required|string',
-            'call_inbound.to_number' => 'required|string',
-            'call_inbound.agent_id' => 'sometimes|string|nullable',
-        ]);
-        $fromNumber = $validated['call_inbound']['from_number'];
-        $toNumber = $validated['call_inbound']['to_number'];
-        $defaultAgentId = $validated['call_inbound']['agent_id'] ?? null;
-        $contact = Contact::where('phone', $fromNumber)->first();
-        if ($contact) {
-            $response = [
-                'call_inbound' => [
-                    'dynamic_variables' => [
-                        'name' => $contact->contact_name ?? 'N/A',
-                        'zipcode' => $contact->zipcode ?? 'N/A',
-                        'state' => $contact->state ?? 'N/A',
-                        'offer' => $contact->offer ?? 'N/A',
-                        'address' => $contact->address ?? 'N/A',
-                        'gender' => $contact->gender ?? 'N/A',
-                        'lead_score' => $contact->lead_score ?? 'N/A',
-                        'phone' => $contact->phone ?? 'N/A',
-                        'organisation_id' => $contact->organisation_id ?? 'N/A',
-                        'novation' => $contact->novation ?? 'N/A',
-                        'creative_price' => $contact->creative_price ?? 'N/A',
-                        'downpayment' => $contact->downpayment ?? 'N/A',
-                        'monthly' => $contact->monthly ?? 'N/A',
+        try {
+            // Log incoming request
+            Log::channel('retell')->info('Inbound call received', [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'full_payload' => $request->all(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+    
+            // Validate request
+            $validated = $request->validate([
+                'event' => 'required|string|in:call_inbound',
+                'call_inbound' => 'required|array',
+                'call_inbound.from_number' => 'required|string',
+                'call_inbound.to_number' => 'required|string',
+                'call_inbound.agent_id' => 'sometimes|string|nullable',
+            ]);
+    
+            Log::channel('retell')->debug('Request validated successfully', [
+                'from_number' => $validated['call_inbound']['from_number'],
+                'to_number' => $validated['call_inbound']['to_number'],
+                'agent_id' => $validated['call_inbound']['agent_id'] ?? null
+            ]);
+    
+            // Extract call details
+            $fromNumber = $validated['call_inbound']['from_number'];
+            $toNumber = $validated['call_inbound']['to_number'];
+            $defaultAgentId = $validated['call_inbound']['agent_id'] ?? null;
+    
+            // Lookup contact
+            Log::channel('retell')->info('Attempting contact lookup', [
+                'phone_number' => $fromNumber,
+                'lookup_time' => now()->toDateTimeString()
+            ]);
+    
+            $contact = Contact::where('phone', $fromNumber)->first();
+    
+            if ($contact) {
+                Log::channel('retell')->info('Contact found', [
+                    'contact_id' => $contact->id,
+                    'contact_name' => $contact->contact_name,
+                    'lookup_duration' => microtime(true) - LARAVEL_START
+                ]);
+    
+                $response = [
+                    'call_inbound' => [
+                        'dynamic_variables' => [
+                            'name' => $contact->contact_name ?? 'N/A',
+                            'zipcode' => $contact->zipcode ?? 'N/A',
+                            'state' => $contact->state ?? 'N/A',
+                            'offer' => $contact->offer ?? 'N/A',
+                            'address' => $contact->address ?? 'N/A',
+                            'gender' => $contact->gender ?? 'N/A',
+                            'lead_score' => $contact->lead_score ?? 'N/A',
+                            'phone' => $contact->phone ?? 'N/A',
+                            'organisation_id' => $contact->organisation_id ?? 'N/A',
+                            'novation' => $contact->novation ?? 'N/A',
+                            'creative_price' => $contact->creative_price ?? 'N/A',
+                            'downpayment' => $contact->downpayment ?? 'N/A',
+                            'monthly' => $contact->monthly ?? 'N/A',
+                        ],
+                        'metadata' => [
+                            'call_direction' => 'inbound',
+                            'received_at' => now()->toDateTimeString(),
+                            'contact_id' => $contact->id,
+                            'is_existing_contact' => true
+                        ],
                     ],
-                    'metadata' => [
-                        'call_direction' => 'inbound',
-                        'received_at' => now()->toDateTimeString(),
+                ];
+    
+                Log::channel('retell')->debug('Response prepared for existing contact', [
+                    'dynamic_variables_count' => count($response['call_inbound']['dynamic_variables']),
+                    'metadata' => $response['call_inbound']['metadata']
+                ]);
+            } else {
+                Log::channel('retell')->warning('Contact not found', [
+                    'phone_number' => $fromNumber,
+                    'lookup_duration' => microtime(true) - LARAVEL_START
+                ]);
+    
+                $response = [
+                    'call_inbound' => [
+                        'dynamic_variables' => [
+                            'name' => '',
+                            'state' => '',
+                            'offer' => '',
+                            'address' => '',
+                            'gender' => '',
+                            'lead_score' => '',
+                            'phone' => '',
+                            'organisation_id' => '',
+                            'novation' => '',
+                            'creative_price' => '',
+                            'downpayment' => '',
+                            'monthly' => '',
+                        ],
+                        'metadata' => [
+                            'call_direction' => 'inbound',
+                            'received_at' => now()->toDateTimeString(),
+                            'is_existing_contact' => false,
+                            'phone_number' => $fromNumber
+                        ],
                     ],
-                ],
-            ];
-        } else {
-            $response = [
-                'call_inbound' => [
-                    'dynamic_variables' => [
-                        'name' =>  '',
-                        'state' => '',
-                        'offer' => '',
-                        'address' =>  '',
-                        'gender' =>  '',
-                        'lead_score' =>  '',
-                        'phone' =>  '',
-                        'organisation_id' =>  '',
-                        'novation' =>  '',
-                        'creative_price' =>  '',
-                        'downpayment' =>  '',
-                        'monthly' => '',
-                    ],
-                    'metadata' => [
-                        'call_direction' => 'inbound',
-                        'received_at' => now()->toDateTimeString(),
-                    ],
-                ],
-            ];
+                ];
+    
+                Log::channel('retell')->debug('Response prepared for new contact');
+            }
+    
+            Log::channel('retell')->info('Returning response to Retell', [
+                'response_summary' => [
+                    'has_contact' => !empty($contact),
+                    'variables_count' => count($response['call_inbound']['dynamic_variables'])
+                ]
+            ]);
+    
+            return response()->json($response);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::channel('retell')->error('Validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
+            return response()->json(['error' => 'Invalid request'], 400);
+    
+        } catch (\Exception $e) {
+            Log::channel('retell')->error('Unexpected error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'timestamp' => now()->toDateTimeString()
+            ]);
+            return response()->json(['error' => 'Internal server error'], 500);
         }
-        return response()->json($response);
     }
 }
