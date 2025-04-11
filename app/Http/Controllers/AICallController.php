@@ -193,7 +193,7 @@ class AICallController extends Controller
                 'lookup_time' => now()->toDateTimeString()
             ]);
     
-            $contact = Contact::where('phone', $fromNumber)->first();
+            $contact = Contact::where('phone', ltrim($fromNumber, '+'))->first();
     
             if ($contact) {
                 Log::channel('retell')->info('Contact found', [
