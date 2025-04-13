@@ -52,7 +52,7 @@ class RetellService
                 throw new \Exception("Contact not found");
             }
     
-            // Update contact status to "initiating_call"
+            
             $contact->status = 'call Initiated';
             $contact->save();
     
