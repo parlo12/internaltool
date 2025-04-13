@@ -22,6 +22,8 @@ class SendingServer extends Model
         'websockets_device_id',
         'organisation_id',
         'purpose',
-        'server_name'
+        'server_name',
+        'retell_agent_id',
+        'retell_api',
     ];
 }

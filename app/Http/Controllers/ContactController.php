@@ -33,6 +33,8 @@ use App\Services\MMSService;
 use App\Services\OfferService;
 use App\Services\CallService;
 use App\Services\EmailService;
+use App\Services\RetellService;
+use Illuminate\Support\Facades\Http;
 
 class ContactController extends Controller
 {
@@ -162,91 +164,91 @@ class ContactController extends Controller
     { //Keep the commented code for the purpose of local testing. 
         //Uncomment when testing workflows offline
         //production uses a copy in routes/console.php so comment when pushing to prod
-       // Log::info("Scheduled Task Running: prepare-messages");
-        // ini_set('max_execution_time', 0);
-        // ini_set('memory_limit', '256M');
-        // $steps = Step::where('created_at', '>=', now()->subWeek())->get();
+        Log::info("Scheduled Task Running: prepare-messages");
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '256M');
+        $steps = Step::where('created_at', '>=', now()->subWeek())->get();
 
-        // foreach ($steps as $step) {
-        //     $workflow = Workflow::find($step->workflow_id);
-        //     $days_of_week = json_decode($step->days_of_week, true);
+        foreach ($steps as $step) {
+            $workflow = Workflow::find($step->workflow_id);
+            $days_of_week = json_decode($step->days_of_week, true);
 
-        //     if ($workflow != null && $workflow->active) {
-        //         $contacts = DB::table('contacts')
-        //             ->where('response', 'No')
-        //             ->where('can_send', 1)
-        //             ->where('subscribed', 1)
-        //             ->where('current_step', $step->id)
-        //             ->get();
-        //         // foreach ($contacts as $contact) {
-        //         //     Log::info("Got $contact->id of workflow $contact->workflow_id") ;
-        //         // }
+            if ($workflow != null && $workflow->active) {
+                $contacts = DB::table('contacts')
+                    ->where('response', 'No')
+                    ->where('can_send', 1)
+                    ->where('subscribed', 1)
+                    ->where('current_step', $step->id)
+                    ->get();
+                // foreach ($contacts as $contact) {
+                //     Log::info("Got $contact->id of workflow $contact->workflow_id") ;
+                // }
 
-        //         $start_time = $step->start_time ?: '08:00';
-        //         $end_time = $step->end_time ?: '20:00';
-        //         $chunk_size = $step->batch_size ?: '20';
-        //         $interval = (int) $step->batch_delay * 60;
-        //         $contactsChunks = $contacts->chunk($chunk_size);
+                $start_time = $step->start_time ?: '08:00';
+                $end_time = $step->end_time ?: '20:00';
+                $chunk_size = $step->batch_size ?: '20';
+                $interval = (int) $step->batch_delay * 60;
+                $contactsChunks = $contacts->chunk($chunk_size);
 
-        //         $now = Carbon::now();
-        //         $startTime = Carbon::today()->setTimeFromTimeString($start_time);
-        //         $endTime = Carbon::today()->setTimeFromTimeString($end_time);
+                $now = Carbon::now();
+                $startTime = Carbon::today()->setTimeFromTimeString($start_time);
+                $endTime = Carbon::today()->setTimeFromTimeString($end_time);
 
-        //         if ($now->between($startTime, $endTime)) {
-        //             $startTime = $now;
-        //         } elseif ($now->isAfter($endTime)) {
-        //             $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
-        //             $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
-        //         }
+                if ($now->between($startTime, $endTime)) {
+                    $startTime = $now;
+                } elseif ($now->isAfter($endTime)) {
+                    $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
+                    $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
+                }
 
-        //         while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-        //             $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //             $endTime = $endTime->addDay();
-        //         }
+                while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                    $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                    $endTime = $endTime->addDay();
+                }
 
-        //         foreach ($contactsChunks as $chunk) {
-        //             if ($startTime->greaterThanOrEqualTo($endTime)) {
-        //                 do {
-        //                     $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //                     $endTime = $endTime->addDay();
-        //                 } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
-        //             }
+                foreach ($contactsChunks as $chunk) {
+                    if ($startTime->greaterThanOrEqualTo($endTime)) {
+                        do {
+                            $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                            $endTime = $endTime->addDay();
+                        } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
+                    }
 
-        //             $dispatchTime = $startTime->copy();
-        //             foreach ($chunk as $contact) {
-        //                 $existingJob = DB::table('jobs')
-        //                     ->where('payload', 'like', '%PrepareMessageJob%')
-        //                     ->where('payload', 'like', "%{$contact->uuid}%")
-        //                     ->exists();
-        //                 // Dispatch a job to prepare the message without making third-party requests here
-        //                 if (!$existingJob) {
+                    $dispatchTime = $startTime->copy();
+                    foreach ($chunk as $contact) {
+                        $existingJob = DB::table('jobs')
+                            ->where('payload', 'like', '%PrepareMessageJob%')
+                            ->where('payload', 'like', "%{$contact->uuid}%")
+                            ->exists();
+                        // Dispatch a job to prepare the message without making third-party requests here
+                        if (!$existingJob) {
 
-        //                     PrepareMessageJob::dispatch(
-        //                         $contact->uuid,
-        //                         $workflow->group_id,
-        //                         $workflow->godspeedoffers_api,
-        //                         $step,
-        //                         $contact,
-        //                         $dispatchTime
-        //                     );
-        //                     $contact = Contact::find($contact->id);
-        //                     $contact->can_send = 0;
-        //                     $contact->status = 'Waiting_For_Queau_Job';
-        //                     $contact->save();
-        //                 } else {
-        //                     Log::info("This job exists, skipping");
-        //                 }
-        //             }
+                            PrepareMessageJob::dispatch(
+                                $contact->uuid,
+                                $workflow->group_id,
+                                $workflow->godspeedoffers_api,
+                                $step,
+                                $contact,
+                                $dispatchTime
+                            );
+                            $contact = Contact::find($contact->id);
+                            $contact->can_send = 0;
+                            $contact->status = 'Waiting_For_Queau_Job';
+                            $contact->save();
+                        } else {
+                            Log::info("This job exists, skipping");
+                        }
+                    }
 
-        //             $startTime->addSeconds($interval);
+                    $startTime->addSeconds($interval);
 
-        //             while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-        //                 $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-        //                 $endTime = $endTime->addDay();
-        //             }
-        //         }
-        //     }
-        // }
+                    while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                        $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                        $endTime = $endTime->addDay();
+                    }
+                }
+            }
+        }
     }
 
     public function send_message($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
@@ -275,6 +277,9 @@ class ContactController extends Controller
                     break;
                 case 'Email':
                     $this->send_Email($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+                    break;
+                case 'AICall':
+                    $this->send_AICall($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
                     break;
             }
         } else { //if workflow is paused reschedule to the same time the following day
@@ -665,6 +670,22 @@ class ContactController extends Controller
             }
         }
     }
+    private function send_AICall($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    {
+        $organisation = Organisation::find($organisation_id);
+        $workflow = Workflow::find($workflow_id);
+        $calling_number = $workflow->calling_number;
+        $calling_number = Number::where('phone_number', $calling_number)->first();
+        $sending_server = SendingServer::find($calling_number->sending_server_id);
+        if ($sending_server) {
+            if ($sending_server->service_provider == 'retell') {
+                $retellService = new RetellService('retell'); // Change provider as needed
+                $retellService->AICall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
+            } else {
+                Log::info("AI Cal with retell only");
+            }
+        } 
+    }
     public function handleCall(Request $request) // this can move to their own controller
     {
         $agent_phone_number = $request->input('agent_phone_number');
@@ -801,6 +822,157 @@ class ContactController extends Controller
             $contact->cost = abs($cost);
             $contact->save();
         }
+    }
+    public function test(Request $request)
+    {
+        // try {
+        //     // Find contact (hardcoded for testing)
+        //     $contact = Contact::where('phone', '18449062902')->first();
+
+        //     if (!$contact) {
+        //         throw new \Exception("Contact not found");
+        //     }
+
+        //     // Prepare payload with all possible fields from the example
+        //     $payload = [
+        //         'agent_id' => 'agent_4db3be0f059314560b06202470',
+        //         'from_number' => '+16319190227',
+        //         'to_number' => '+' . $contact->phone,
+        //         'dynamic_variables' => [
+        //             'name' => $contact->contact_name ?? 'N/A',
+        //             'zipcode' => $contact->zipcode ?? 'N/A',
+        //             'state' => $contact->state ?? 'N/A',
+        //             'offer' => $contact->offer ?? 'N/A',
+        //             'address' => $contact->address ?? 'N/A',
+        //             'gender' => $contact->gender ?? 'N/A',
+        //             'lead_score' => $contact->lead_score ?? 'N/A',
+        //             'phone' => $contact->phone ?? 'N/A',
+        //             'organisation_id' => $contact->organisation_id ?? 'N/A',
+        //             'novation' => $contact->novation ?? 'N/A',
+        //             'creative_price' => $contact->creative_price ?? 'N/A',
+        //             'downpayment' => $contact->downpayment ?? 'N/A',
+        //             'monthly' => $contact->monthly ?? 'N/A',
+        //         ],
+        //         'metadata' => [
+        //             'contact_id' => $contact->id,
+        //             'call_purpose' => 'follow_up'
+        //         ],
+        //         'retell_llm_dynamic_variables' => [
+        //             'name' => $contact->contact_name ?? 'N/A',
+        //             'zipcode' => $contact->zipcode ?? 'N/A',
+        //             'state' => $contact->state ?? 'N/A',
+        //             'offer' => $contact->offer ?? 'N/A',
+        //             'address' => $contact->address ?? 'N/A',
+        //             'gender' => $contact->gender ?? 'N/A',
+        //             'lead_score' => $contact->lead_score ?? 'N/A',
+        //             'phone' => $contact->phone ?? 'N/A',
+        //             'organisation_id' => $contact->organisation_id ?? 'N/A',
+        //             'novation' => $contact->novation ?? 'N/A',
+        //             'creative_price' => $contact->creative_price ?? 'N/A',
+        //             'downpayment' => $contact->downpayment ?? 'N/A',
+        //             'monthly' => $contact->monthly ?? 'N/A',
+        //         ],
+        //         'opt_out_sensitive_data_storage' => true
+        //     ];
+
+        //     Log::info('Preparing outbound call payload', $payload);
+
+        //     // Initialize cURL with all recommended settings
+        //     $ch = curl_init();
+
+        //     curl_setopt_array($ch, [
+        //         CURLOPT_URL => 'https://api.retellai.com/v2/create-phone-call',
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_ENCODING => '',
+        //         CURLOPT_MAXREDIRS => 10,
+        //         CURLOPT_TIMEOUT => 30,
+        //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        //         CURLOPT_CUSTOMREQUEST => 'POST',
+        //         CURLOPT_POSTFIELDS => json_encode($payload),
+        //         CURLOPT_HTTPHEADER => [
+        //             'Content-Type: application/json',
+        //             'Authorization: Bearer ' . env('RETELL_API_KEY'),
+        //             'Accept: application/json'
+        //         ],
+        //     ]);
+
+        //     // Execute request
+        //     $response = curl_exec($ch);
+        //     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //     $error = curl_error($ch);
+
+        //     if ($error) {
+        //         throw new \Exception("cURL error: " . $error);
+        //     }
+
+        //     $responseData = json_decode($response, true);
+
+        //     // Handle different HTTP status codes
+        //     switch ($httpCode) {
+        //         case 201: // Success
+        //             Log::info('Call initiated successfully', [
+        //                 'call_id' => $responseData['call_id'] ?? null,
+        //                 'telephony_identifier' => $responseData['telephony_identifier'] ?? null,
+        //                 'response' => $responseData
+        //             ]);
+
+        //             // Save call details to database if needed
+        //             // CallLog::create([
+        //             //     'retell_call_id' => $responseData['call_id'],
+        //             //     'contact_id' => $contact->id,
+        //             //     'status' => $responseData['call_status'] ?? 'initiated',
+        //             //     'direction' => 'outbound',
+        //             //     'metadata' => $payload['metadata'],
+        //             //     'telephony_data' => $responseData['telephony_identifier'] ?? null
+        //             // ]);
+
+        //             return response()->json($responseData);
+
+        //         case 400:
+        //             throw new \Exception("Bad request: " . ($responseData['message'] ?? 'Invalid parameters'));
+        //         case 401:
+        //             throw new \Exception("Unauthorized: Check your API key");
+        //         case 402:
+        //             throw new \Exception("Payment required");
+        //         case 422:
+        //             throw new \Exception("Validation error: " . ($responseData['errors'] ?? 'Invalid data'));
+        //         case 429:
+        //             throw new \Exception("Rate limited: " . ($responseData['message'] ?? 'Too many requests'));
+        //         case 500:
+        //             throw new \Exception("Server error: " . ($responseData['message'] ?? 'Internal server error'));
+        //         default:
+        //             throw new \Exception("Unexpected response: HTTP $httpCode");
+        //     }
+        // } catch (\Exception $e) {
+        //     Log::error('Outbound call failed', [
+        //         'error' => $e->getMessage(),
+        //         'trace' => $e->getTraceAsString(),
+        //         'payload' => $payload ?? null
+        //     ]);
+
+        //     return response()->json([
+        //         'error' => $e->getMessage(),
+        //         'code' => $httpCode ?? 500
+        //     ], $httpCode ?? 500);
+        // } finally {
+        //     if (isset($ch)) {
+        //         curl_close($ch);
+        //     }
+        // }
+
+        $retellService = new RetellService();
+        $agents = $retellService->getAllAgents();
+        dd($agents);
+    }
+
+    protected function prepareDynamicVariables(Contact $contact): array
+    {
+        return [
+            'customer_name' => $contact->contact_name,
+            'account_type' => $contact->account_type ?? 'standard',
+            'last_interaction' => $contact->last_contacted_at?->format('Y-m-d') ?? 'never',
+            // Add other relevant fields
+        ];
     }
 
     private function send_Email($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)

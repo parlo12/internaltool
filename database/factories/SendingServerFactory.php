@@ -24,6 +24,8 @@ class SendingServerFactory extends Factory
             'websockets_api_url' => $this->faker->url,
             'websockets_auth_token' => $this->faker->uuid,
             'websockets_device_id' => $this->faker->uuid,
+            'retell_api' => $this->faker->uuid,
+            'retell_agent_id' => $this->faker->uuid,
             'organisation_id' => 1, // Adjust based on existing organisations
         ];
     }

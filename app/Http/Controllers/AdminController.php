@@ -9,6 +9,7 @@ use App\Models\Organisation;
 use App\Models\SendingServer;
 use App\Models\Spintax;
 use App\Models\User;
+use App\Services\RetellService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -63,6 +64,8 @@ class AdminController extends Controller
             ->paginate(50)
             ->onEachSide(1);
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
+        $retellService = new RetellService();
+        $agents = $retellService->getAllAgents();
         return inertia("Admin/Index", [
             "users" => UserResource::collection($users),
             'queryParams' => request()->query() ?: null,
@@ -73,7 +76,8 @@ class AdminController extends Controller
             'numberPools' => $number_pools,
             'organisations' => $organisations,
             'sendingServers' => $sending_servers,
-            'organisation' => $current_org
+            'organisation' => $current_org,
+            'agents' => $agents,
         ]);
     }
 
@@ -213,6 +217,8 @@ class AdminController extends Controller
             'websockets_api_url' => $request->websockets_api_url,
             'websockets_auth_token' => $request->websockets_auth_token,
             'websockets_device_id' => $request->websockets_device_id,
+            'retell_api' => $request->retell_api,
+            'retell_agent_id' => $request->retell_agent_id,
             'organisation_id'=>auth()->user()->organisation_id
         ]);
         return redirect()->route('admin.index')->with('success', "Server $sending_server->server_name created successfuly.");

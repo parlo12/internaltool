@@ -2,6 +2,12 @@
 // app/Services/RetellService.php
 namespace App\Services;
 
+use App\Models\Contact;
+use App\Models\Number;
+use App\Models\Organisation;
+use App\Models\SendingServer;
+use App\Models\Workflow;
+
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -10,38 +16,215 @@ class RetellService
 {
     protected $apiKey;
     protected $baseUrl = 'https://api.retellai.com/v1';
+    protected $provider;
 
-    public function __construct()
+    public function __construct($provider = 'retell')
     {
+        $this->provider = $provider;
         $this->apiKey = env('RETELL_API_KEY'); // Directly using env()
 
         if (empty($this->apiKey)) {
             throw new \RuntimeException('Retell API key not configured');
         }
     }
-
+    public function AICall($phone, $content, $workflow_id, $detection_duration, $contact_id, $organisation_id)
+    {
+        $httpCode = null;
+        $contact = null;
+        
+        try {
+            $calling_number = Workflow::find($workflow_id)->calling_number;
+            $number = Number::where('phone_number', $calling_number)
+                ->where('organisation_id', $organisation_id)
+                ->first();
+            $sending_server = SendingServer::find($number->sending_server_id);
+            
+            if ($sending_server) {
+                $retell_api = $sending_server->retell_api;
+                $retell_agent_id = $sending_server->retell_agent_id;
+            } else {
+                Log::error('Sending server not found for the number', ['number' => $calling_number]);
+                throw new \Exception("Sending server not configured");
+            }
+    
+            $contact = Contact::find($contact_id);
+            if (!$contact) {
+                throw new \Exception("Contact not found");
+            }
+    
+            // Update contact status to "initiating_call"
+            $contact->status = 'call Initiated';
+            $contact->save();
+    
+            $payload = [
+                'agent_id' => $retell_agent_id,
+                'from_number' => $calling_number,
+                'to_number' => $contact->phone,
+                'dynamic_variables' => [
+                    'name' => $contact->contact_name ?? 'N/A',
+                    'zipcode' => $contact->zipcode ?? 'N/A',
+                    'state' => $contact->state ?? 'N/A',
+                    'offer' => $contact->offer ?? 'N/A',
+                    'address' => $contact->address ?? 'N/A',
+                    'gender' => $contact->gender ?? 'N/A',
+                    'lead_score' => $contact->lead_score ?? 'N/A',
+                    'phone' => $contact->phone ?? 'N/A',
+                    'organisation_id' => $contact->organisation_id ?? 'N/A',
+                    'novation' => $contact->novation ?? 'N/A',
+                    'creative_price' => $contact->creative_price ?? 'N/A',
+                    'downpayment' => $contact->downpayment ?? 'N/A',
+                    'monthly' => $contact->monthly ?? 'N/A',
+                ],
+                'metadata' => [
+                    'contact_id' => $contact->id,
+                    'call_purpose' => 'initial call'
+                ],
+                'retell_llm_dynamic_variables' => $this->getDynamicVariables($contact),
+                'opt_out_sensitive_data_storage' => true
+            ];
+    
+            Log::info('Preparing outbound call payload', $payload);
+    
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => 'https://api.retellai.com/v2/create-phone-call',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $retell_api,
+                    'Accept: application/json'
+                ],
+            ]);
+    
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+    
+            if ($error) {
+                $contact->status = 'connection_error';
+                $contact->save();
+                throw new \Exception("cURL error: " . $error);
+            }
+    
+            $responseData = json_decode($response, true);
+            
+            switch ($httpCode) {
+                case 201: // Success
+                    $contact->status = 'call_initiated';
+                    $contact->call_id = $responseData['call_id'] ?? null;
+                    $contact->save();
+                    
+                    Log::info('Call initiated successfully', [
+                        'call_id' => $responseData['call_id'] ?? null,
+                        'telephony_identifier' => $responseData['telephony_identifier'] ?? null,
+                        'response' => $responseData
+                    ]);
+                    return response()->json($responseData);
+    
+                case 400:
+                    $contact->status = 'bad_request';
+                    $contact->save();
+                    throw new \Exception("Bad request: " . ($responseData['message'] ?? 'Invalid parameters'));
+                    
+                case 401:
+                    $contact->status = 'unauthorized';
+                    $contact->save();
+                    throw new \Exception("Unauthorized: Check your API key");
+                    
+                case 402:
+                    $contact->status = 'payment_required';
+                    $contact->save();
+                    throw new \Exception("Payment required");
+                    
+                case 422:
+                    $contact->status = 'validation_error';
+                    $contact->save();
+                    throw new \Exception("Validation error: " . ($responseData['errors'] ?? 'Invalid data'));
+                    
+                case 429:
+                    $contact->status = 'rate_limited';
+                    $contact->save();
+                    throw new \Exception("Rate limited: " . ($responseData['message'] ?? 'Too many requests'));
+                    
+                case 500:
+                    $contact->status = 'server_error';
+                    $contact->save();
+                    throw new \Exception("Server error: " . ($responseData['message'] ?? 'Internal server error'));
+                    
+                default:
+                    $contact->status = 'api_error_' . $httpCode;
+                    $contact->save();
+                    throw new \Exception("Unexpected response: HTTP $httpCode");
+            }
+        } catch (\Exception $e) {
+            Log::error('Outbound call failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $payload ?? null
+            ]);
+    
+            if ($contact && !isset($contact->status)) {
+                $contact->status = 'call_failed';
+                $contact->save();
+            }
+    
+            return response()->json([
+                'error' => $e->getMessage(),
+                'code' => $httpCode ?? 500
+            ], $httpCode ?? 500);
+        } finally {
+            if (isset($ch)) {
+                curl_close($ch);
+            }
+        }
+    }
+    
+    protected function getDynamicVariables($contact)
+    {
+        return [
+            'name' => $contact->contact_name ?? 'N/A',
+            'zipcode' => $contact->zipcode ?? 'N/A',
+            'state' => $contact->state ?? 'N/A',
+            'offer' => $contact->offer ?? 'N/A',
+            'address' => $contact->address ?? 'N/A',
+            'gender' => $contact->gender ?? 'N/A',
+            'lead_score' => $contact->lead_score ?? 'N/A',
+            'phone' => $contact->phone ?? 'N/A',
+            'organisation_id' => $contact->organisation_id ?? 'N/A',
+            'novation' => $contact->novation ?? 'N/A',
+            'creative_price' => $contact->creative_price ?? 'N/A',
+            'downpayment' => $contact->downpayment ?? 'N/A',
+            'monthly' => $contact->monthly ?? 'N/A',
+        ];
+    }
     public function getRecentCalls($minutes = 30, $limit = 50)
     {
         \Log::info("Retrieving recent calls", ['minutes' => $minutes, 'limit' => $limit]);
-    
+
         $apiKey = env('RETELL_API_KEY');
         if (empty($apiKey)) {
             \Log::error('Retell API key not configured');
             throw new \RuntimeException('Retell API key not configured in .env');
         }
-    
+
         try {
             // Calculate timestamp thresholds (in milliseconds)
             $now = now()->getTimestamp() * 1000;
             $lowerThreshold = $now - ($minutes * 60 * 1000);
-            
+
             \Log::debug("Timestamp thresholds calculated", [
                 'lower_threshold' => $lowerThreshold,
                 'upper_threshold' => $now,
-                'human_readable_lower' => date('Y-m-d H:i:s', $lowerThreshold/1000),
-                'human_readable_upper' => date('Y-m-d H:i:s', $now/1000)
+                'human_readable_lower' => date('Y-m-d H:i:s', $lowerThreshold / 1000),
+                'human_readable_upper' => date('Y-m-d H:i:s', $now / 1000)
             ]);
-    
+
             $requestPayload = [
                 'sort_order' => 'descending',
                 'limit' => $limit,
@@ -53,7 +236,7 @@ class RetellService
                     'call_status' => ['ended'] // Only completed calls
                 ]
             ];
-    
+
             $curl = curl_init();
             curl_setopt_array($curl, [
                 CURLOPT_URL => "https://api.retellai.com/v2/list-calls",
@@ -68,34 +251,34 @@ class RetellService
                 CURLOPT_TIMEOUT => 30,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             ]);
-    
+
             \Log::debug("API request prepared", ['payload' => $requestPayload]);
             $startTime = microtime(true);
-    
+
             $response = curl_exec($curl);
             $err = curl_error($curl);
             $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $duration = round((microtime(true) - $startTime) * 1000, 2);
-    
+
             curl_close($curl);
-    
+
             \Log::debug("API response received", [
                 'status_code' => $httpCode,
                 'duration_ms' => $duration,
                 'response_size' => strlen($response)
             ]);
-    
+
             if ($err) {
                 \Log::error("API request failed", ['error' => $err]);
                 throw new \RuntimeException("API connection failed: $err");
             }
-    
+
             // Validate response
             if (empty($response)) {
                 \Log::warning("Empty API response received");
                 return [];
             }
-    
+
             $data = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 \Log::error("Invalid JSON response", [
@@ -104,7 +287,7 @@ class RetellService
                 ]);
                 throw new \RuntimeException("Invalid API response format");
             }
-    
+
             // Handle API errors
             if ($httpCode >= 400) {
                 $errorMsg = $data['message'] ?? 'Unknown API error';
@@ -114,33 +297,32 @@ class RetellService
                 ]);
                 throw new \RuntimeException("API Error ($httpCode): $errorMsg");
             }
-    
+
             // Process successful response
             $calls = $data['calls'] ?? $data; // Handle both wrapped and direct array responses
             $callCount = count($calls);
-    
+
             \Log::info("Calls retrieved successfully", [
                 'count' => $callCount,
                 'duration_ms' => $duration
             ]);
-    
+
             if ($callCount > 0) {
                 \Log::debug("Sample call data", [
                     'first_call' => $calls[0]['call_id'] ?? null,
-                    'last_call' => $calls[$callCount-1]['call_id'] ?? null,
+                    'last_call' => $calls[$callCount - 1]['call_id'] ?? null,
                     'time_range' => [
-                        'oldest_call_start' => isset($calls[$callCount-1]['start_timestamp']) 
-                            ? date('Y-m-d H:i:s', $calls[$callCount-1]['start_timestamp']/1000)
+                        'oldest_call_start' => isset($calls[$callCount - 1]['start_timestamp'])
+                            ? date('Y-m-d H:i:s', $calls[$callCount - 1]['start_timestamp'] / 1000)
                             : null,
                         'newest_call_start' => isset($calls[0]['start_timestamp'])
-                            ? date('Y-m-d H:i:s', $calls[0]['start_timestamp']/1000)
+                            ? date('Y-m-d H:i:s', $calls[0]['start_timestamp'] / 1000)
                             : null
                     ]
                 ]);
             }
-    
+
             return $calls;
-    
         } catch (\Exception $e) {
             \Log::error("Failed to retrieve calls", [
                 'error' => $e->getMessage(),
@@ -263,5 +445,94 @@ class RetellService
 
         file_put_contents($logFile, "Formatted Results: " . print_r($formattedCalls, true) . "\n", FILE_APPEND);
         return $formattedCalls;
+    }
+    public function getAllAgents()
+    {
+        \Log::info("Retrieving all agents");
+
+        try {
+            $curl = curl_init();
+            curl_setopt_array($curl, [
+                CURLOPT_URL => 'https://api.retellai.com/list-agents',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer " . $this->apiKey,
+                    "Content-Type: application/json",
+                    "Accept: application/json"
+                ],
+            ]);
+
+            \Log::debug("API request prepared for getting agents");
+            $startTime = microtime(true);
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
+
+            curl_close($curl);
+
+            \Log::debug("API response received", [
+                'status_code' => $httpCode,
+                'duration_ms' => $duration,
+                'response_size' => strlen($response)
+            ]);
+
+            if ($err) {
+                \Log::error("cURL Error while getting agents", ['error' => $err]);
+                throw new \RuntimeException("cURL Error: " . $err);
+            }
+
+            // Validate response
+            if (empty($response)) {
+                \Log::warning("Empty API response received when getting agents");
+                return [];
+            }
+
+            $data = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                \Log::error("Invalid JSON response when getting agents", [
+                    'error' => json_last_error_msg(),
+                    'response_sample' => substr($response, 0, 200)
+                ]);
+                throw new \RuntimeException("Invalid API response format");
+            }
+
+            // Handle API errors
+            if ($httpCode >= 400) {
+                $errorMsg = $data['message'] ?? 'Unknown API error';
+                \Log::error("API returned error when getting agents", [
+                    'status_code' => $httpCode,
+                    'error' => $errorMsg
+                ]);
+                throw new \RuntimeException("API Error ($httpCode): $errorMsg");
+            }
+
+            $agentCount = count($data);
+            \Log::info("Agents retrieved successfully", [
+                'count' => $agentCount,
+                'duration_ms' => $duration
+            ]);
+
+            if ($agentCount > 0) {
+                \Log::debug("Sample agent data", [
+                    'first_agent' => $data[0]['agent_id'] ?? null,
+                    'last_agent' => $data[$agentCount - 1]['agent_id'] ?? null
+                ]);
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            \Log::error("Failed to retrieve agents", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw new \RuntimeException("Failed to retrieve agents: " . $e->getMessage());
+        }
     }
 }

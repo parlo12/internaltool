@@ -120,6 +120,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/execute-contract/{id}', [ContactController::class, 'execute_contract'])->name('execute-contract');
     Route::get('/cancel-contract/{id}', [ContactController::class, 'cancel_contract'])->name('cancel-contract');
     Route::get('/close-deal/{id}', [ContactController::class, 'close_deal'])->name('close-deal');
+    Route::get('/test', [ContactController::class, 'test'])->name('test');
 
     //FOLDER CONTROLLER
     Route::post('/create-folder', [FolderController::class, 'create']);

@@ -56,14 +56,14 @@ const ViewSendingServerPopup = ({ showSendingServerPopup, setShowSendingServerPo
                                         </div>
                                         <div>{sendingServerData.service_provider}</div>
                                     </div>
-            
+
                                     <div className="flex ">
                                         <div className="pr-4">
                                             purpose:
                                         </div>
                                         <div>{sendingServerData.purpose}</div>
                                     </div>
-    
+
                                     {sendingServerData.signalwire_space_url && (
                                         <div className="flex ">
                                             <div className="pr-4">
@@ -135,7 +135,7 @@ const ViewSendingServerPopup = ({ showSendingServerPopup, setShowSendingServerPo
                                                 }
                                             </div>
                                         </div>
-                                    )}     
+                                    )}
                                     {sendingServerData.auth_token && (
                                         <div className="flex ">
                                             <div className="pr-4">
@@ -147,15 +147,39 @@ const ViewSendingServerPopup = ({ showSendingServerPopup, setShowSendingServerPo
                                                 }
                                             </div>
                                         </div>
-                                    )}     
+                                    )}
                                     {sendingServerData.websockets_api_url && (
                                         <div className="flex ">
                                             <div className="pr-4">
-                                               websockets api url:
+                                                websockets api url:
                                             </div>
                                             <div>
                                                 {
                                                     sendingServerData.websockets_api_url
+                                                }
+                                            </div>
+                                        </div>
+                                    )}
+                                    {sendingServerData.retell_api && (
+                                        <div className="flex ">
+                                            <div className="pr-4">
+                                                Retell API:
+                                            </div>
+                                            <div>
+                                                {
+                                                    sendingServerData.retell_api
+                                                }
+                                            </div>
+                                        </div>
+                                    )}
+                                      {sendingServerData.retell_agent_id && (
+                                        <div className="flex ">
+                                            <div className="pr-4">
+                                                Retell Agent Id:
+                                            </div>
+                                            <div>
+                                                {
+                                                    sendingServerData.retell_agent_id
                                                 }
                                             </div>
                                         </div>

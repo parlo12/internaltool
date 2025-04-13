@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'testpass@gmail.com',
             'password' => 'testpass',
             'is_admin' => 1,
-            'godspeedoffers_api' => "5|Yrnf1e6HWkCm7522n1d0JSpPeXXJ3XgLtoRfcDYe6ce7c75c"
+            'godspeedoffers_api' => "4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0"
 
         ]);
         $this->call([

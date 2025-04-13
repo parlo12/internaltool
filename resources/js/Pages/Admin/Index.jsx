@@ -30,8 +30,10 @@ export default function Index({
     organisations,
     sendingServers,
     organisation,
-    numberPools
+    numberPools,
+    agents
 }) {
+    console.log(agents)
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
@@ -80,6 +82,8 @@ export default function Index({
         websockets_api_url: "",
         websockets_auth_token: "",
         websockets_device_id: "",
+        retell_api: "",
+        retell_agent_id: "",
     });
     const [numberPoolData, setNumberPoolData] = useState({
         pool_messages: "",
@@ -720,6 +724,9 @@ export default function Index({
                                             <option value="websockets-api">
                                                 Websockets-api
                                             </option>
+                                            <option value="retell">
+                                                Retell
+                                            </option>
                                         </select>
                                     </div>
 
@@ -1253,6 +1260,8 @@ export default function Index({
                                                                 "",
                                                             websockets_api_url: "",
                                                             websockets_auth_token: "",
+                                                            retell_api: "",
+                                                            retell_agent_id: "",
                                                             server_name: ""
                                                         });
                                                     }}
@@ -1284,6 +1293,8 @@ export default function Index({
                                                                 "",
                                                             websockets_api_url: "",
                                                             websockets_auth_token: "",
+                                                            retell_api: "",
+                                                            retell_agent_id: "",
                                                             server_name: ""
                                                         });
                                                     }}
@@ -1319,6 +1330,8 @@ export default function Index({
                                                                 "",
                                                             signalwire_space_url:
                                                                 "",
+                                                            retell_api: "",
+                                                            retell_agent_id: "",
                                                             server_name: ""
                                                         });
                                                     }}
@@ -1327,6 +1340,43 @@ export default function Index({
                                                 />
                                                 <span className="ml-2">
                                                     Websockets API
+                                                </span>
+                                            </label>
+                                            <label className="inline-flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="service_provider"
+                                                    value="retell"
+                                                    checked={
+                                                        data.service_provider ===
+                                                        "retell"
+                                                    }
+                                                    onChange={(e) => {
+                                                        setData({
+                                                            ...data,
+                                                            service_provider:
+                                                                e.target.value,
+                                                            // Clear Twilio texting fields
+                                                            twilio_account_sid:
+                                                                "",
+                                                            twilio_auth_token:
+                                                                "",
+                                                            signalwire_project_id:
+                                                                "",
+                                                            signalwire_api_token:
+                                                                "",
+                                                            signalwire_space_url:
+                                                                "",
+                                                            server_name: "",
+                                                            websockets_api_url: "",
+                                                            websockets_auth_token: ""
+                                                        });
+                                                    }}
+                                                    className="form-radio"
+                                                    required
+                                                />
+                                                <span className="ml-2">
+                                                    Retell
                                                 </span>
                                             </label>
                                         </div>
@@ -1654,6 +1704,100 @@ export default function Index({
                                             </div>
                                         </>
                                     )}
+                                    {data.service_provider === "retell" && (
+                                        <>
+                                            <div>
+                                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                                    Server Name
+                                                </InputLabel>
+                                                <TextInput
+                                                    name="server_name"
+                                                    value={
+                                                        data.server_name
+                                                    }
+                                                    onChange={(e) =>
+                                                        setData({
+                                                            ...data,
+                                                            server_name:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                    placeholder="Enter Server Name."
+                                                    required
+                                                ></TextInput>
+                                            </div>
+                                            <div>
+                                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                                    Retell API  key
+                                                </InputLabel>
+                                                <TextInput
+                                                    name="retell_api"
+                                                    value={
+                                                        data.retell_api
+                                                    }
+                                                    onChange={(e) =>
+                                                        setData({
+                                                            ...data,
+                                                            retell_api:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                    placeholder="Enter retell API key"
+                                                    required
+                                                ></TextInput>
+                                            </div>
+                                            <div>
+                                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                                    Retell Agent
+                                                </InputLabel>
+                                                <select
+                                                    name="retell_agent_id"
+                                                    value={data.retell_agent_id}
+                                                    onChange={(e) => setData({
+                                                        ...data,
+                                                        retell_agent_id: e.target.value
+                                                    })}
+                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                    required
+                                                >
+                                                    <option value="">Select an agent</option>
+                                                    {agents.map((agent) => (
+                                                        <option key={agent.agent_id} value={agent.agent_id}>
+                                                            {agent.agent_name || `Agent ${agent.agent_id.substring(0, 6)}`}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                                    Calling or Texting
+                                                </InputLabel>
+                                                <select
+                                                    name="callingOrTexting"
+                                                    value={data.purpose}
+                                                    onChange={(e) =>
+                                                        setData({
+                                                            ...data,
+                                                            purpose:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                    required
+                                                >
+                                                    <option value="">
+                                                        Select purpose
+                                                    </option>
+                                                   
+                                                    <option value="calling">
+                                                        Calling
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
 
                                     <div>
                                         <PrimaryButton
@@ -1886,6 +2030,7 @@ export default function Index({
                 data={sendingServerData}
                 setData={setSendingServerData}
                 submitServerUpdate={submitServerUpdate}
+                agents={agents}
             />
             <UpdateNumberPoolPopup
                 isOpen={showUpdateNumberPoolPopup}

@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('websockets_api_url')->nullable();
             $table->string('websockets_auth_token')->nullable();
             $table->string('websockets_device_id')->nullable();
+            $table->string('retell_agent_id')->nullable();
+            $table->string('retell_api')->nullable();
             $table->string('organisation_id');
             $table->timestamps();
         });

@@ -336,6 +336,9 @@ const EditStepModal = ({
                         <option value="Voicemail">Voicemail</option>
                         <option value="VoiceCall">Voicecall</option>
                         <option value="VoiceMMS">VoiceMMS</option>
+                        <option value="Offer">Offer</option>
+                        <option value="Email">Email</option>
+                        <option value="AICall">AICall</option>
                     </SelectInput>
                     <InputLabel forInput="offerExpiry" value="Enter Expiry Date (required if you choose Offer)" />
                     <input

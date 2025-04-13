@@ -13,7 +13,8 @@ const UpdateSendingServerPopup = ({
     submitServerUpdate,
     data,
     setData,
-    showUpdateSendingServerPopup
+    showUpdateSendingServerPopup,
+    agents
 }) => {
     useEffect(() => {
         const url = `/get_server/${data.sending_server_id}`;
@@ -334,6 +335,99 @@ const UpdateSendingServerPopup = ({
                                                     </option>
                                                 </select>
                                             </div>
+                                        </div>
+                                    </>
+                                )}
+                                {data.service_provider === "retell" && (
+                                    <>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Server Name
+                                            </InputLabel>
+                                            <TextInput
+                                                name="server_name"
+                                                value={
+                                                    data.server_name
+                                                }
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        server_name:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                placeholder="Enter Server Name."
+                                                required
+                                            ></TextInput>
+                                        </div>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Retell API  key
+                                            </InputLabel>
+                                            <TextInput
+                                                name="retell_api"
+                                                value={
+                                                    data.retell_api
+                                                }
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        retell_api:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                placeholder="Enter retell API key"
+                                                required
+                                            ></TextInput>
+                                        </div>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Retell Agent
+                                            </InputLabel>
+                                            <select
+                                                name="retell_agent_id"
+                                                value={data.retell_agent_id}
+                                                onChange={(e) => setData({
+                                                    ...data,
+                                                    retell_agent_id: e.target.value
+                                                })}
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                required
+                                            >
+                                                <option value="">Select an agent</option>
+                                                {agents.map((agent) => (
+                                                    <option key={agent.agent_id} value={agent.agent_id}>
+                                                        {agent.agent_name || `Agent ${agent.agent_id.substring(0, 6)}`}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Calling or Texting
+                                            </InputLabel>
+                                            <select
+                                                name="callingOrTexting"
+                                                value={data.purpose}
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        purpose:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                required
+                                            >
+                                                <option value="">
+                                                    Select purpose
+                                                </option>
+                                                <option value="calling">
+                                                    Calling
+                                                </option>
+                                            </select>
                                         </div>
                                     </>
                                 )}
