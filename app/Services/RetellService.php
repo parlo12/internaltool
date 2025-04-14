@@ -115,9 +115,7 @@ class RetellService
             switch ($httpCode) {
                 case 201: // Success
                     $contact->status = 'call_initiated';
-                    $contact->call_id = $responseData['call_id'] ?? null;
                     $contact->save();
-                    
                     Log::info('Call initiated successfully', [
                         'call_id' => $responseData['call_id'] ?? null,
                         'telephony_identifier' => $responseData['telephony_identifier'] ?? null,
