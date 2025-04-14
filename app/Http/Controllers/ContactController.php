@@ -679,7 +679,7 @@ class ContactController extends Controller
         $sending_server = SendingServer::find($calling_number->sending_server_id);
         if ($sending_server) {
             if ($sending_server->service_provider == 'retell') {
-                $retellService = new RetellService('retell'); // Change provider as needed
+                $retellService = new RetellService('retell',$sending_server->retell_api); // Change provider as needed
                 $retellService->AICall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
             } else {
                 Log::info("AI Cal with retell only");

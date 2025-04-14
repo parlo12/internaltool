@@ -18,10 +18,10 @@ class RetellService
     protected $baseUrl = 'https://api.retellai.com/v1';
     protected $provider;
 
-    public function __construct($provider = 'retell')
+    public function __construct($provider = 'retell',$api_key = null)
     {
         $this->provider = $provider;
-        $this->apiKey = env('RETELL_API_KEY'); // Directly using env()
+        $this->apiKey = $api_key;
 
         if (empty($this->apiKey)) {
             throw new \RuntimeException('Retell API key not configured');
