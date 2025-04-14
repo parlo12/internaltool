@@ -73,7 +73,6 @@ class RetellService
                     'gender' => $contact->gender ?? '',
                     'lead_score' => $contact->lead_score ?? '',
                     'phone' => $contact->phone ?? '',
-                    'organisation_id' => $contact->organisation_id ?? '',
                     'novation' => $contact->novation ?? '',
                     'creative_price' => $contact->creative_price ?? '',
                     'downpayment' => $contact->downpayment ?? '',
