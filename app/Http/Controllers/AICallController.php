@@ -26,8 +26,10 @@ class AICallController extends Controller
 
             if (($webhookData['event'] ?? null) == 'call_ended') {
                 $contact = Contact::where('phone', $phone)->first();
-                $contact->status = "Call Ended";
-                $contact->save();
+                Contact::where('phone', $phone)->update([
+                    'status' => 'Call Ended',
+                    'updated_at' => now() // Optional: explicitly set update timestamp
+                ]);
                 if ($contact) {
                     $ai_call = AICall::create([
                         'name' => $contact->contact_name,
