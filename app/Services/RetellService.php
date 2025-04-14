@@ -60,21 +60,6 @@ class RetellService
                 'agent_id' => $retell_agent_id,
                 'from_number' => $calling_number,
                 'to_number' => $contact->phone,
-                'dynamic_variables' => [
-                    'name' => $contact->contact_name ?? '',
-                    'zipcode' => $contact->zipcode ?? '',
-                    'state' => $contact->state ?? '',
-                    'offer' => $contact->offer ?? '',
-                    'address' => $contact->address ?? '',
-                    'gender' => $contact->gender ?? '',
-                    'lead_score' => $contact->lead_score ?? '',
-                    'phone' => $contact->phone ?? '',
-                    'organisation_id' => $contact->organisation_id ?? '',
-                    'novation' => $contact->novation ?? '',
-                    'creative_price' => $contact->creative_price ?? '',
-                    'downpayment' => $contact->downpayment ?? '',
-                    'monthly' => $contact->monthly ?? '',
-                ],
                 'metadata' => [
                     'contact_id' => $contact->id,
                     'call_purpose' => 'initial call'
@@ -142,6 +127,15 @@ class RetellService
                     return response()->json($responseData);
     
                 case 400:
+                    Log::error('API Request Failed', [
+                        'status_code' => $httpCode,
+                        'response' => $responseData,
+                        'payload' => $payload,
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . substr($retell_api, 0, 5) . '...', // Partial key for security
+                            'Content-Type' => 'application/json'
+                        ]
+                    ]);
                     $contact->status = 'bad_request';
                     $contact->save();
                     throw new \Exception("Bad request: " . ($responseData['message'] ?? 'Invalid parameters'));
