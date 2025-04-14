@@ -64,7 +64,7 @@ class AdminController extends Controller
             ->paginate(50)
             ->onEachSide(1);
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
-        $retellService = new RetellService();
+        $retellService = new RetellService('retell','key_c3f2ce333c40b9403843077bfc32');
         $agents = $retellService->getAllAgents();
         return inertia("Admin/Index", [
             "users" => UserResource::collection($users),
