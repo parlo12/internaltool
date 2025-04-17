@@ -26,10 +26,10 @@ class AICallController extends Controller
 
             if (($webhookData['event'] ?? null) == 'call_ended') {
                 $contact = Contact::where('phone', $phone)->first();
-               Contact::where('phone', $phone)->update([
-    'status' => 'Call Ended',
-    'updated_at' => now() // Optional: explicitly set update timestamp
-]);
+                Contact::where('phone', $phone)->update([
+                    'status' => 'Call Ended',
+                    'updated_at' => now() // Optional: explicitly set update timestamp
+                ]);
                 if ($contact) {
                     $ai_call = AICall::create([
                         'name' => $contact->contact_name,
@@ -171,7 +171,7 @@ class AICallController extends Controller
                 'full_payload' => $request->all(),
                 'timestamp' => now()->toDateTimeString()
             ]);
-    
+
             // Validate request
             $validated = $request->validate([
                 'event' => 'required|string|in:call_inbound',
@@ -180,33 +180,33 @@ class AICallController extends Controller
                 'call_inbound.to_number' => 'required|string',
                 'call_inbound.agent_id' => 'sometimes|string|nullable',
             ]);
-    
+
             Log::channel('retell')->debug('Request validated successfully', [
                 'from_number' => $validated['call_inbound']['from_number'],
                 'to_number' => $validated['call_inbound']['to_number'],
                 'agent_id' => $validated['call_inbound']['agent_id'] ?? null
             ]);
-    
+
             // Extract call details
             $fromNumber = $validated['call_inbound']['from_number'];
             $toNumber = $validated['call_inbound']['to_number'];
             $defaultAgentId = $validated['call_inbound']['agent_id'] ?? null;
-    
+
             // Lookup contact
             Log::channel('retell')->info('Attempting contact lookup', [
                 'phone_number' => $fromNumber,
                 'lookup_time' => now()->toDateTimeString()
             ]);
-    
+
             $contact = Contact::where('phone', ltrim($fromNumber, '+'))->first();
-    
+
             if ($contact) {
                 Log::channel('retell')->info('Contact found', [
                     'contact_id' => $contact->id,
                     'contact_name' => $contact->contact_name,
                     'lookup_duration' => microtime(true) - LARAVEL_START
                 ]);
-    
+
                 $response = [
                     'call_inbound' => [
                         'dynamic_variables' => [
@@ -232,7 +232,7 @@ class AICallController extends Controller
                         ],
                     ],
                 ];
-    
+
                 Log::channel('retell')->debug('Response prepared for existing contact', [
                     'dynamic_variables_count' => count($response['call_inbound']['dynamic_variables']),
                     'metadata' => $response['call_inbound']['metadata']
@@ -242,7 +242,7 @@ class AICallController extends Controller
                     'phone_number' => $fromNumber,
                     'lookup_duration' => microtime(true) - LARAVEL_START
                 ]);
-    
+
                 $response = [
                     'call_inbound' => [
                         'dynamic_variables' => [
@@ -267,26 +267,24 @@ class AICallController extends Controller
                         ],
                     ],
                 ];
-    
+
                 Log::channel('retell')->debug('Response prepared for new contact');
             }
-    
+
             Log::channel('retell')->info('Returning response to Retell', [
                 'response_summary' => [
                     'has_contact' => !empty($contact),
                     'variables_count' => count($response['call_inbound']['dynamic_variables'])
                 ]
             ]);
-    
+
             return response()->json($response);
-    
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::channel('retell')->error('Validation failed', [
                 'errors' => $e->errors(),
                 'input' => $request->all()
             ]);
             return response()->json(['error' => 'Invalid request'], 400);
-    
         } catch (\Exception $e) {
             Log::channel('retell')->error('Unexpected error', [
                 'error' => $e->getMessage(),

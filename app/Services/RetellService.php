@@ -64,6 +64,21 @@ class RetellService
                     'contact_id' => $contact->id,
                     'call_purpose' => 'initial call'
                 ],
+                'dynamic_variables' => [
+                    'name' => $contact->contact_name ?? '',
+                    'zipcode' => $contact->zipcode ?? '',
+                    'state' => $contact->state ?? '',
+                    'offer' => $contact->offer ?? '',
+                    'address' => $contact->address ?? '',
+                    'gender' => $contact->gender ?? '',
+                    'lead_score' => $contact->lead_score ?? '',
+                    'phone' => $contact->phone ?? '',
+                    'organisation_id' => $contact->organisation_id ?? '',
+                    'novation' => $contact->novation ?? '',
+                    'creative_price' => $contact->creative_price ?? '',
+                    'downpayment' => $contact->downpayment ?? '',
+                    'monthly' => $contact->monthly ?? '',
+                ],
                 'retell_llm_dynamic_variables' => [
                     'name' => $contact->contact_name ?? '',
                     'zipcode' => $contact->zipcode ?? '',
