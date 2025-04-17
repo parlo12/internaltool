@@ -580,7 +580,7 @@ export default function Create({
                         </form>
                     </div>
                     <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                        <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <div className=" bg-white border-b border-gray-200 overflow-x-auto">
                             <table className="min-w-full bg-white shadow-md rounded-lg">
                                 <thead>
                                     <tr>
