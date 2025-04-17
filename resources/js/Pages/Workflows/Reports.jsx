@@ -52,32 +52,31 @@ export default function Create({
 
     return (
         <AuthenticatedLayout user={auth.user}>
-            <Head title="Create workflow" />
-            <div className="container min-h-screen mx-auto">
-                <div className="w-full p-2">
+            <Head title="Workflow Reports" />
+            <div className="container mx-auto py-8 min-h-screen">
+                <div className="w-full">
                     {success && (
-                        <div className="bg-green-500 text-center text-white relative">
+                        <div className="bg-blue-500 text-center text-white py-2 rounded-md shadow-md">
                             {success}
                         </div>
                     )}
-                    <div className="text-2xl text-center">WorkFlow Reports</div>
+                    <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">
+                        Workflow Reports
+                    </h1>
 
-                    <div className=" flex flex-col items-center justify-center ">
+                    <div className="flex flex-col items-center">
                         <form
                             onSubmit={handleSubmit}
-                            className="mb-4 mx-auto flex flex-col justify-center"
+                            className="w-full max-w-4xl bg-white p-6 rounded-lg shadow-lg space-y-6"
                         >
-                            <div className="flex space-x-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <InputLabel
-                                        htmlFor="filter"
-                                        value="Filter by time period"
-                                    />
+                                    <InputLabel htmlFor="filter" value="Filter by Time Period" />
                                     <select
                                         name="filter"
                                         value={data.filter}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a Time Period</option>
                                         <option value="today">Today</option>
@@ -91,41 +90,30 @@ export default function Create({
                                         </option>
                                         <option value="this_year">This Year</option>
                                     </select>
-                                    <InputLabel
-                                        htmlFor="zipcode"
-                                        value="Filter by zipcode"
-                                    />
+                                    <InputLabel htmlFor="zipcode" value="Filter by Zipcode" />
                                     <input
                                         type="text"
                                         name="zipcode"
                                         value={data.zipcode}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                         placeholder="Enter a Zipcode"
                                     />
-
-                                    <InputLabel
-                                        htmlFor="city"
-                                        value="Filter by city"
-                                    />
+                                    <InputLabel htmlFor="city" value="Filter by City" />
                                     <input
                                         type="text"
                                         name="city"
                                         value={data.city}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        placeholder="Enter a city"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+                                        placeholder="Enter a City"
                                     />
-
-                                    <InputLabel
-                                        htmlFor="state"
-                                        value="Filter by state"
-                                    />
+                                    <InputLabel htmlFor="state" value="Filter by State" />
                                     <select
                                         name="state"
                                         value={data.state}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a State</option>
                                         {Object.values(states).map((state, index) => (
@@ -136,15 +124,12 @@ export default function Create({
                                     </select>
                                 </div>
                                 <div>
-                                    <InputLabel
-                                        htmlFor="agent"
-                                        value="Filter by agent"
-                                    />
+                                    <InputLabel htmlFor="agent" value="Filter by Agent" />
                                     <select
                                         name="agent"
                                         value={data.agent}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a Sales Rep</option>
                                         {agents.map((agent, index) => (
@@ -153,15 +138,12 @@ export default function Create({
                                             </option>
                                         ))}
                                     </select>
-                                    <InputLabel
-                                        htmlFor="marketing_channel"
-                                        value="Filter by marketing channel"
-                                    />
+                                    <InputLabel htmlFor="marketing_channel" value="Filter by Marketing Channel" />
                                     <select
                                         name="marketing_channel"
                                         value={data.marketing_channel}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a Marketing Channel</option>
                                         <option value="SMS">SMS</option>
@@ -169,29 +151,23 @@ export default function Create({
                                         <option value="VoiceMail">VoiceMail</option>
                                         <option value="VoiceCall">VoiceCall</option>
                                     </select>
-                                    <InputLabel
-                                        htmlFor="response"
-                                        value="Filter by response"
-                                    />
+                                    <InputLabel htmlFor="response" value="Filter by Response" />
                                     <select
                                         name="response"
                                         value={data.response}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a Response</option>
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </select>
-                                    <InputLabel
-                                        htmlFor="sending_number"
-                                        value="Filter by sending number"
-                                    />
+                                    <InputLabel htmlFor="sending_number" value="Filter by Sending Number" />
                                     <select
                                         name="sending_number"
                                         value={data.sending_number}
                                         onChange={handleChange}
-                                        className="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        className="block w-full mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
                                     >
                                         <option value="">Select a Sending Number</option>
                                         {Object.values(sending_numbers).map((sending_number, index) => (
@@ -202,43 +178,40 @@ export default function Create({
                                     </select>
                                 </div>
                             </div>
-                            <div className="w-full mx-auto flex justify-center">
-                                <PrimaryButton
-                                    className="mt-4"
-                                    processing={processing}
-                                >
+                            <div className="flex justify-center">
+                                <PrimaryButton className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md" processing={processing}>
                                     Filter
                                 </PrimaryButton>
                             </div>
-
                         </form>
+
+                        <div className="text-xl font-semibold text-blue-700 mt-8">
+                            The cost of sending SMS and calls is{" "}
+                            <span className="text-blue-500">${totalCost}</span>
+                        </div>
+
+                        {queryParams && (
+                            <div className="text-sm text-gray-600 mt-4">
+                                For these parameters: <br />
+                                Time Period: {queryParams.filter ? queryParams.filter : "All Time"}&nbsp;
+                                State: {queryParams.state ? queryParams.state : "All states"}&nbsp;
+                                City: {queryParams.city ? queryParams.city : "All Cities"}&nbsp;
+                                Zipcode: {queryParams.zipcode ? queryParams.zipcode : "All Zipcodes"} &nbsp;
+                                Sales Rep: {
+                                    queryParams.agent
+                                        ? agents.find((user) => user.id === parseInt(queryParams.agent))?.name || "Unknown Sales Rep"
+                                        : "All Sales Rep"
+                                }
+                                <br />
+                                Sending Number: {queryParams.sending_number ? queryParams.sending_number : "All Sending Numbers"} &nbsp;
+                                Marketing Channel: {queryParams.marketing_channel ? queryParams.marketing_channel : "All Marketing Channels"} &nbsp;
+                                Response: {queryParams.response ? queryParams.response : "YES/NO"} &nbsp;
+                            </div>
+                        )}
                         <div className="text-2xl mb-2">
                             The cost is sending SMS and calls is<span className="text-green-500 ">
                                 &nbsp;{totalCost}$ &nbsp;
                             </span>
-
-                            {queryParams && (
-                                <div className="text-sm">
-                                    For these parameters: <br />
-                                    Time Period: {queryParams.filter ? queryParams.filter : "All Time"}&nbsp;
-                                    State: {queryParams.state ? queryParams.state : "All states"}&nbsp;
-                                    City: {queryParams.city ? queryParams.city : "All Cities"}&nbsp;
-                                    Zipcode: {queryParams.zipcode ? queryParams.zipcode : "All Zipcodes"} &nbsp;
-                                    Sales Rep: {
-                                        queryParams.agent
-                                            ? agents.find((user) => user.id === parseInt(queryParams.agent))?.name || "Unknown Sales Rep"
-                                            : "All Sales Rep"
-                                    }
-                                    <br />
-
-                                    Sending Number: {queryParams.sending_number ? queryParams.sending_number : "All Sending Numbers"} &nbsp;
-                                    Marketing Channel: {queryParams.marketing_channel ? queryParams.marketing_channel : "All Marketing Channels"} &nbsp;
-                                    Response: {queryParams.response ? queryParams.response : "YES/NO"} &nbsp;
-
-                                </div>
-                            )}
-
-
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 w-full">
                             <div className="table-container">

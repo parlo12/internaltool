@@ -435,53 +435,53 @@ export default function Index({
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Admin" />
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="text-2xl text-center">
-                        Your are now managing org:{" "}
-                        {organisation && organisation.organisation_name}
+            <div className="py-12 bg-gray-100 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-2xl text-center font-semibold text-gray-800 mb-6">
+                        You are now managing org:{" "}
+                        <span className="text-indigo-600">{organisation?.organisation_name}</span>
                     </div>
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                            {error && (
-                                <div className="bg-red-500 text-white p-2 rounded mb-4">
-                                    {error}
-                                </div>
-                            )}
-                            {success && (
-                                <div className="bg-green-500 text-white p-2 rounded mb-4">
-                                    {success}
-                                </div>
-                            )}
-                            {message && (
-                                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white p-4 rounded">
-                                    {message}
-                                </div>
-                            )}
-                            {errorMessage && (
-                                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white p-4 rounded">
-                                    {errorMessage}
-                                </div>
-                            )}
+                    <div className="bg-white shadow-md rounded-lg p-6">
+                        {error && (
+                            <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="bg-green-100 text-green-700 p-4 rounded mb-4">
+                                {success}
+                            </div>
+                        )}
+                        {message && (
+                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white p-4 rounded shadow-lg">
+                                {message}
+                            </div>
+                        )}
+                        {errorMessage && (
+                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white p-4 rounded shadow-lg">
+                                {errorMessage}
+                            </div>
+                        )}
+                        <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead>
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Name
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Email
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Admin Status
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Organisation
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Enter godspeedoffers api & press enter
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            API Key
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
@@ -496,87 +496,54 @@ export default function Index({
                                                 {user.email}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {user.is_admin
-                                                    ? "Admin"
-                                                    : "User"}
+                                                {user.is_admin ? "Admin" : "User"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <select
                                                     value={user.organisation_id}
                                                     onChange={(e) =>
-                                                        handleUpdateOrganisation(
-                                                            user.id,
-                                                            e.target.value
-                                                        )
+                                                        handleUpdateOrganisation(user.id, e.target.value)
                                                     }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                 >
                                                     <option value="">
                                                         {organisations.data.find(
-                                                            (org) =>
-                                                                org.id ===
-                                                                user.organisation_id
-                                                        )?.organisation_name ||
-                                                            "Select Organisation"}
+                                                            (org) => org.id === user.organisation_id
+                                                        )?.organisation_name || "Select Organisation"}
                                                     </option>
-                                                    {organisations.data.map(
-                                                        (org) => (
-                                                            <option
-                                                                key={org.id}
-                                                                value={org.id}
-                                                            >
-                                                                {
-                                                                    org.organisation_name
-                                                                }
-                                                            </option>
-                                                        )
-                                                    )}
+                                                    {organisations.data.map((org) => (
+                                                        <option key={org.id} value={org.id}>
+                                                            {org.organisation_name}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div className='w-48 overflow-auto'>{user.godspeedoffers_api}</div>
+                                                <div className="w-48 overflow-auto">{user.godspeedoffers_api}</div>
                                                 <input
                                                     type="text"
-                                                    value={
-                                                        apiKeys[user.id] || ''
-                                                    }
+                                                    value={apiKeys[user.id] || ''}
                                                     onChange={(e) =>
-                                                        handleApiKeyChange(
-                                                            user.id,
-                                                            e.target.value
-                                                        )
+                                                        handleApiKeyChange(user.id, e.target.value)
                                                     }
                                                     onKeyPress={(e) => {
-                                                        if (e.key === "Enter") {
-                                                            submitApiKey(
-                                                                user.id
-                                                            );
-                                                        }
+                                                        if (e.key === "Enter") submitApiKey(user.id);
                                                     }}
                                                     placeholder="Enter API Key"
-                                                    className="border  rounded"
+                                                    className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                 />
                                             </td>
-                                            <td className=" whitespace-nowrap text-right text-sm font-medium">
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button
-                                                    onClick={() =>
-                                                        handleToggleAdmin(
-                                                            user.id
-                                                        )
-                                                    }
-                                                    className={`inline-flex items-center px-2 mr-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                    onClick={() => handleToggleAdmin(user.id)}
+                                                    className={`inline-flex items-center px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${user.is_admin ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+                                                        } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                                                 >
-                                                    {user.is_admin
-                                                        ? "Dismiss"
-                                                        : "Admit"}
+                                                    {user.is_admin ? "Dismiss" : "Admit"}
                                                 </button>
                                                 <button
-                                                    onClick={() =>
-                                                        deleteUser(
-                                                            user
-                                                        )
-                                                    }
-                                                    className={`inline-flex items-center px-2  border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500`}
+                                                    onClick={() => deleteUser(user)}
+                                                    className="ml-2 inline-flex items-center px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                                                 >
                                                     Delete
                                                 </button>
@@ -585,127 +552,1110 @@ export default function Index({
                                     ))}
                                 </tbody>
                             </table>
-
-                            <Pagination links={users.meta.links} />
                         </div>
+                        <Pagination links={users.meta.links} />
                     </div>
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Add a spintax
-                                </h1>
-                                <form onSubmit={onSubmit} className="space-y-4">
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Spintax
-                                        </InputLabel>
-                                        <TextAreaInput
-                                            name="spintaxMessage"
-                                            value={data.content}
-                                            onChange={(e) =>
+                </div>
+            </div>
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Add a spintax
+                        </h1>
+                        <form onSubmit={onSubmit} className="space-y-4">
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Spintax
+                                </InputLabel>
+                                <TextAreaInput
+                                    name="spintaxMessage"
+                                    value={data.content}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            content: e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter Spintax message E.G. {How are you|Hi|Hello}"
+                                    rows="4"
+                                    required
+                                ></TextAreaInput>
+                            </div>
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Add spintax
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Content
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {spintaxes.data.map((spintax) => (
+                                    <tr key={spintax.id}>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {spintax.content}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                onClick={() =>
+                                                    deleteSpintax(
+                                                        spintax.id
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <Pagination links={users.meta.links} />
+                    </div>
+                </div>
+            </div>
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Add a phone number
+                        </h1>
+                        <form
+                            onSubmit={submitNumber}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Phone Number
+                                </InputLabel>
+                                <TextInput
+                                    name="phoneNumber"
+                                    value={data.phone_number}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            phone_number:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter phone number"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Phone Number Provider
+                                </InputLabel>
+                                <select
+                                    name="phoneNumberProvider"
+                                    value={data.phone_number_provider}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            phone_number_provider:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    required
+                                >
+                                    <option value="">
+                                        Select provider
+                                    </option>
+                                    <option value="twilio">
+                                        Twilio
+                                    </option>
+                                    <option value="signalwire">
+                                        SignalWire
+                                    </option>
+                                    <option value="websockets-api">
+                                        Websockets-api
+                                    </option>
+                                    <option value="retell">
+                                        Retell
+                                    </option>
+                                </select>
+                            </div>
+
+                            {/* cccccccccccccccccccccccccccccc */}
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Choose Server
+                                </InputLabel>
+                                <select
+                                    name="sending_server_id"
+                                    value={data.sending_server_id}
+                                    onChange={(e) => setData({ ...data, sending_server_id: e.target.value })}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    required
+                                >
+                                    <option value="">Select Sending Server</option>
+                                    {sendingServers.data.map((server) => (
+                                        <option key={server.id} value={server.id}>
+                                            {server.server_name} {'-'} {server.service_provider}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Calling or Texting
+                                </InputLabel>
+                                <select
+                                    name="callingOrTexting"
+                                    value={data.number_purpose}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            number_purpose:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    required
+                                >
+                                    <option value="">
+                                        Select purpose
+                                    </option>
+                                    <option value="calling">
+                                        Calling
+                                    </option>
+                                    <option value="texting">
+                                        Texting
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Assign To Pool
+                                </InputLabel>
+                                <select
+                                    name="number_pool_id"
+                                    value={data.number_pool_id}
+                                    onChange={(e) => setData({ ...data, number_pool_id: e.target.value })}
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                >
+                                    <option value="">Add To A Pool</option>
+                                    {numberPools.data.map((numberPool) => (
+                                        <option key={numberPool.id} value={numberPool.id}>
+                                            {numberPool.pool_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Add number
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Number
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Purpose
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Sending Server
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Number Pool
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50">
+                                        Provider
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {numbers.data.map((number) => (
+                                    <tr key={number.id}>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {number.phone_number}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {number.purpose}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {serverLookup[number.sending_server_id] || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {NumberPoolLookup[number.number_pool_id] || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {number.provider}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                onClick={() =>
+                                                    deleteNumber(
+                                                        number.id
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <Pagination links={users.meta.links} />
+                    </div>
+                </div>
+            </div>
+            {/* ****************************** */}
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Create A Number Pool
+                        </h1>
+                        <form
+                            onSubmit={submitNumberPool}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Pool Name
+                                </InputLabel>
+                                <TextInput
+                                    name="pool_name"
+                                    value={data.pool_name}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            pool_name:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter Pool Name"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <div className="mr-2 w-2/3">
+                                    <InputLabel
+                                        forInput="pool_messages"
+                                        value="Send"
+                                    />
+                                    <input
+                                        type="number"
+                                        min="1" // Enforce minimum wait time limit
+                                        name="pool_messages"
+                                        value={data.pool_messages}
+                                        required
+                                        onChange={(e) =>
+                                            setData({
+                                                ...data,
+                                                pool_messages:
+                                                    e.target.value,
+                                            })} className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                    />
+                                </div>
+                                <div className="mr-2 w-2/3">
+                                    <InputLabel
+                                        forInput="pool"
+                                        value="Every"
+                                    />
+                                    <input
+                                        type="number"
+                                        min="1" // Enforce minimum wait time limit
+                                        name="pool_time"
+                                        value={data.pool_time}
+                                        required
+                                        onChange={(e) =>
+                                            setData({
+                                                ...data,
+                                                pool_time:
+                                                    e.target.value,
+                                            })}
+                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel
+                                        forInput="pool_time_units"
+                                        value="Units"
+                                    />
+                                    <select
+                                        name="pool_time_units"
+                                        required
+                                        onChange={(e) =>
+                                            setData({
+                                                ...data,
+                                                pool_time_units:
+                                                    e.target.value,
+                                            })}
+                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                        value={data.pool_time_units}
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="minutes">Minutes</option>
+                                        <option value="hours">Hours</option>
+                                        <option value="days">Days</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className=" text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Create Numbers Pool
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Pool Name
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Instructions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {numberPools.data.map((numberPool) => (
+                                    <tr key={numberPool.id}>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {numberPool.pool_name}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {"send "}{numberPool.pool_messages}{" Message(s) Every "}{numberPool.pool_time}{' '}{numberPool.pool_time_units}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                onClick={() =>
+                                                    handleUpdateNumberPool(
+                                                        numberPool
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faPen}
+                                                    className="fa-xs"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleViewNumberPool(
+                                                        numberPool
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faEye}
+                                                    className="fa-xs"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    deleteNumberPool(
+                                                        numberPool.id
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        faTrash
+                                                    }
+                                                    className="fa-xs"
+                                                />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <Pagination links={users.meta.links} />
+                    </div>
+                </div>
+            </div>
+            {/* ************************************* */}
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Add an Organisation
+                        </h1>
+                        <form
+                            onSubmit={submitOrganisation}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Organisation Name
+                                </InputLabel>
+                                <TextInput
+                                    name="organisationName"
+                                    value={data.organisation_name}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            organisation_name:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter organisation name"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Open AI Key
+                                </InputLabel>
+                                <TextInput
+                                    name="openAI"
+                                    value={data.openAI}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            openAI:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter openAI Key"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Sending Email
+                                </InputLabel>
+                                <TextInput
+                                    name="sending_email"
+                                    value={data.sending_email}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            sending_email:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter sending Email"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Email Password
+                                </InputLabel>
+                                <TextInput
+                                    name="email_password"
+                                    value={data.email_password}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            email_password:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter Email Password"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Add Organisation
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        organisation_name
+                                    </th>
+
+                                    <th className="px-6 py-3 bg-gray-50">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {organisations.data.map(
+                                    (organisation) => (
+                                        <tr key={organisation.id}>
+                                            <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                {
+                                                    organisation.organisation_name
+                                                }
+                                            </td>
+                                            <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() =>
+                                                        handleUpdateOrg(
+                                                            organisation
+                                                        )
+                                                    }
+                                                    className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faPen}
+                                                        className="fa-xs"
+                                                    />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        handleViewOrg(
+                                                            organisation
+                                                        )
+                                                    }
+                                                    className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faEye}
+                                                        className="fa-xs"
+                                                    />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        switchOrg(
+                                                            organisation.id
+                                                        )
+                                                    }
+                                                    className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={
+                                                            faExchangeAlt
+                                                        }
+                                                        className="fa-xs"
+                                                    />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
+                            </tbody>
+                        </table>
+                        <Pagination links={users.meta.links} />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Add A Sending Server
+                        </h1>
+                        <form
+                            onSubmit={submitServer}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Choose A Server and Enter Details
+                                </InputLabel>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="service_provider"
+                                            value="twilio"
+                                            checked={
+                                                data.service_provider ===
+                                                "twilio"
+                                            }
+                                            onChange={(e) => {
                                                 setData({
                                                     ...data,
-                                                    content: e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter Spintax message E.G. {How are you|Hi|Hello}"
-                                            rows="4"
+                                                    service_provider:
+                                                        e.target.value,
+                                                    // Clear SignalWire texting fields
+                                                    signalwire_project_id:
+                                                        "",
+                                                    signalwire_api_token:
+                                                        "",
+                                                    signalwire_space_url:
+                                                        "",
+                                                    websockets_api_url: "",
+                                                    websockets_auth_token: "",
+                                                    retell_api: "",
+                                                    retell_agent_id: "",
+                                                    server_name: ""
+                                                });
+                                            }}
+                                            className="form-radio"
                                             required
-                                        ></TextAreaInput>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Add spintax
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
+                                        />
+                                        <span className="ml-2">
+                                            Twilio
+                                        </span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="service_provider"
+                                            value="signalwire"
+                                            checked={
+                                                data.service_provider ===
+                                                "signalwire"
+                                            }
+                                            onChange={(e) => {
+                                                setData({
+                                                    ...data,
+                                                    service_provider:
+                                                        e.target.value,
+                                                    // Clear Twilio texting fields
+                                                    twilio_account_sid:
+                                                        "",
+                                                    twilio_auth_token:
+                                                        "",
+                                                    websockets_api_url: "",
+                                                    websockets_auth_token: "",
+                                                    retell_api: "",
+                                                    retell_agent_id: "",
+                                                    server_name: ""
+                                                });
+                                            }}
+                                            className="form-radio"
+                                            required
+                                        />
+                                        <span className="ml-2">
+                                            SignalWire
+                                        </span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="service_provider"
+                                            value="websockets-api"
+                                            checked={
+                                                data.service_provider ===
+                                                "websockets-api"
+                                            }
+                                            onChange={(e) => {
+                                                setData({
+                                                    ...data,
+                                                    service_provider:
+                                                        e.target.value,
+                                                    // Clear Twilio texting fields
+                                                    twilio_account_sid:
+                                                        "",
+                                                    twilio_auth_token:
+                                                        "",
+                                                    signalwire_project_id:
+                                                        "",
+                                                    signalwire_api_token:
+                                                        "",
+                                                    signalwire_space_url:
+                                                        "",
+                                                    retell_api: "",
+                                                    retell_agent_id: "",
+                                                    server_name: ""
+                                                });
+                                            }}
+                                            className="form-radio"
+                                            required
+                                        />
+                                        <span className="ml-2">
+                                            Websockets API
+                                        </span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="service_provider"
+                                            value="retell"
+                                            checked={
+                                                data.service_provider ===
+                                                "retell"
+                                            }
+                                            onChange={(e) => {
+                                                setData({
+                                                    ...data,
+                                                    service_provider:
+                                                        e.target.value,
+                                                    // Clear Twilio texting fields
+                                                    twilio_account_sid:
+                                                        "",
+                                                    twilio_auth_token:
+                                                        "",
+                                                    signalwire_project_id:
+                                                        "",
+                                                    signalwire_api_token:
+                                                        "",
+                                                    signalwire_space_url:
+                                                        "",
+                                                    server_name: "",
+                                                    websockets_api_url: "",
+                                                    websockets_auth_token: ""
+                                                });
+                                            }}
+                                            className="form-radio"
+                                            required
+                                        />
+                                        <span className="ml-2">
+                                            Retell
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Content
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {spintaxes.data.map((spintax) => (
-                                            <tr key={spintax.id}>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {spintax.content}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button
-                                                        onClick={() =>
-                                                            deleteSpintax(
-                                                                spintax.id
-                                                            )
-                                                        }
-                                                        className={`inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <Pagination links={users.meta.links} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Add a phone number
-                                </h1>
-                                <form
-                                    onSubmit={submitNumber}
-                                    className="space-y-4"
-                                >
+
+                            {data.service_provider === "twilio" && (
+                                <>
                                     <div>
                                         <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Phone Number
+                                            Server Name
                                         </InputLabel>
                                         <TextInput
-                                            name="phoneNumber"
-                                            value={data.phone_number}
+                                            name="server_name"
+                                            value={
+                                                data.server_name
+                                            }
                                             onChange={(e) =>
                                                 setData({
                                                     ...data,
-                                                    phone_number:
+                                                    server_name:
                                                         e.target.value,
                                                 })
                                             }
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter phone number"
+                                            placeholder="Enter Server Name."
                                             required
                                         ></TextInput>
                                     </div>
                                     <div>
                                         <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Phone Number Provider
+                                            Twilio Account SID
                                         </InputLabel>
-                                        <select
-                                            name="phoneNumberProvider"
-                                            value={data.phone_number_provider}
+                                        <TextInput
+                                            name="twilioAccountSid"
+                                            value={
+                                                data.twilio_account_sid
+                                            }
                                             onChange={(e) =>
                                                 setData({
                                                     ...data,
-                                                    phone_number_provider:
+                                                    twilio_account_sid:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Twilio Account SID"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Twilio Auth Token
+                                        </InputLabel>
+                                        <TextInput
+                                            name="twilioAuthToken"
+                                            value={
+                                                data.twilio_auth_token
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    twilio_auth_token:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Twilio Auth Token"
+                                            required
+                                        ></TextInput>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Purpose
+                                            </InputLabel>
+                                            <select
+                                                name="purpose"
+                                                value={data.purpose}
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        purpose:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                required
+                                            >
+                                                <option value="">
+                                                    Select purpose
+                                                </option>
+                                                <option value="texting">
+                                                    Texting
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {data.service_provider === "signalwire" && (
+                                <>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Server Name
+                                        </InputLabel>
+                                        <TextInput
+                                            name="server_name"
+                                            value={
+                                                data.server_name
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    server_name:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Server Name."
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            SignalWire Project ID
+                                        </InputLabel>
+                                        <TextInput
+                                            name="signalwireProjectId"
+                                            value={
+                                                data.signalwire_project_id
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    signalwire_project_id:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter SignalWire Project ID"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            SignalWire API Token
+                                        </InputLabel>
+                                        <TextInput
+                                            name="signalwireApiToken"
+                                            value={
+                                                data.signalwire_api_token
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    signalwire_api_token:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter SignalWire API Token"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            SignalWire Space URL
+                                        </InputLabel>
+                                        <TextInput
+                                            name="signalwireTextingSpaceUrl"
+                                            value={
+                                                data.signalwire_space_url
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    signalwire_space_url:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter SignalWire Space URL"
+                                            required
+                                        ></TextInput>
+                                        <div>
+                                            <InputLabel className="block text-sm font-medium text-gray-700">
+                                                Calling or Texting
+                                            </InputLabel>
+                                            <select
+                                                name="callingOrTexting"
+                                                value={data.purpose}
+                                                onChange={(e) =>
+                                                    setData({
+                                                        ...data,
+                                                        purpose:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                required
+                                            >
+                                                <option value="">
+                                                    Select purpose
+                                                </option>
+                                                <option value="texting">
+                                                    Texting
+                                                </option>
+                                                <option value="calling">
+                                                    Calling
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                            {data.service_provider === "websockets-api" && (
+                                <>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Server Name
+                                        </InputLabel>
+                                        <TextInput
+                                            name="server_name"
+                                            value={
+                                                data.server_name
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    server_name:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Server Name."
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            websockets Device ID
+                                        </InputLabel>
+                                        <TextInput
+                                            name="websockets_device_id"
+                                            value={
+                                                data.websockets_device_id
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    websockets_device_id:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Websockets Device ID"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Websockets Auth Token
+                                        </InputLabel>
+                                        <TextInput
+                                            name="websockets_auth_token"
+                                            value={
+                                                data.websockets_auth_token
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    websockets_auth_token:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="websockets Auth Token"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Websockets Api Url
+                                        </InputLabel>
+                                        <TextInput
+                                            name="websockets_api_url"
+                                            value={
+                                                data.websockets_api_url
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    websockets_api_url:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Websockets API URL"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Calling or Texting
+                                        </InputLabel>
+                                        <select
+                                            name="callingOrTexting"
+                                            value={data.purpose}
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    purpose:
                                                         e.target.value,
                                                 })
                                             }
@@ -713,39 +1663,77 @@ export default function Index({
                                             required
                                         >
                                             <option value="">
-                                                Select provider
+                                                Select purpose
                                             </option>
-                                            <option value="twilio">
-                                                Twilio
-                                            </option>
-                                            <option value="signalwire">
-                                                SignalWire
-                                            </option>
-                                            <option value="websockets-api">
-                                                Websockets-api
-                                            </option>
-                                            <option value="retell">
-                                                Retell
+                                            <option value="texting">
+                                                Texting
                                             </option>
                                         </select>
                                     </div>
-
-                                    {/* cccccccccccccccccccccccccccccc */}
+                                </>
+                            )}
+                            {data.service_provider === "retell" && (
+                                <>
                                     <div>
                                         <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Choose Server
+                                            Server Name
+                                        </InputLabel>
+                                        <TextInput
+                                            name="server_name"
+                                            value={
+                                                data.server_name
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    server_name:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter Server Name."
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Retell API  key
+                                        </InputLabel>
+                                        <TextInput
+                                            name="retell_api"
+                                            value={
+                                                data.retell_api
+                                            }
+                                            onChange={(e) =>
+                                                setData({
+                                                    ...data,
+                                                    retell_api:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            placeholder="Enter retell API key"
+                                            required
+                                        ></TextInput>
+                                    </div>
+                                    <div>
+                                        <InputLabel className="block text-sm font-medium text-gray-700">
+                                            Retell Agent
                                         </InputLabel>
                                         <select
-                                            name="sending_server_id"
-                                            value={data.sending_server_id}
-                                            onChange={(e) => setData({ ...data, sending_server_id: e.target.value })}
+                                            name="retell_agent_id"
+                                            value={data.retell_agent_id}
+                                            onChange={(e) => setData({
+                                                ...data,
+                                                retell_agent_id: e.target.value
+                                            })}
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             required
                                         >
-                                            <option value="">Select Sending Server</option>
-                                            {sendingServers.data.map((server) => (
-                                                <option key={server.id} value={server.id}>
-                                                    {server.server_name} {'-'} {server.service_provider}
+                                            <option value="">Select an agent</option>
+                                            {agents.map((agent) => (
+                                                <option key={agent.agent_id} value={agent.agent_id}>
+                                                    {agent.agent_name || `Agent ${agent.agent_id.substring(0, 6)}`}
                                                 </option>
                                             ))}
                                         </select>
@@ -756,11 +1744,11 @@ export default function Index({
                                         </InputLabel>
                                         <select
                                             name="callingOrTexting"
-                                            value={data.number_purpose}
+                                            value={data.purpose}
                                             onChange={(e) =>
                                                 setData({
                                                     ...data,
-                                                    number_purpose:
+                                                    purpose:
                                                         e.target.value,
                                                 })
                                             }
@@ -770,1229 +1758,207 @@ export default function Index({
                                             <option value="">
                                                 Select purpose
                                             </option>
+
                                             <option value="calling">
                                                 Calling
                                             </option>
-                                            <option value="texting">
-                                                Texting
-                                            </option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Assign To Pool
-                                        </InputLabel>
-                                        <select
-                                            name="number_pool_id"
-                                            value={data.number_pool_id}
-                                            onChange={(e) => setData({ ...data, number_pool_id: e.target.value })}
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                        >
-                                            <option value="">Add To A Pool</option>
-                                            {numberPools.data.map((numberPool) => (
-                                                <option key={numberPool.id} value={numberPool.id}>
-                                                    {numberPool.pool_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Add number
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Number
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Purpose
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Sending Server
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Number Pool
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50">
-                                                Provider
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {numbers.data.map((number) => (
-                                            <tr key={number.id}>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {number.phone_number}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {number.purpose}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {serverLookup[number.sending_server_id] || 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {NumberPoolLookup[number.number_pool_id] || 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {number.provider}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button
-                                                        onClick={() =>
-                                                            deleteNumber(
-                                                                number.id
-                                                            )
-                                                        }
-                                                        className={`inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <Pagination links={users.meta.links} />
-                            </div>
-                        </div>
-                    </div>
-                    {/* ****************************** */}
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Create A Number Pool
-                                </h1>
-                                <form
-                                    onSubmit={submitNumberPool}
-                                    className="space-y-4"
+                                </>
+                            )}
+
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                 >
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Pool Name
-                                        </InputLabel>
-                                        <TextInput
-                                            name="pool_name"
-                                            value={data.pool_name}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    pool_name:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter Pool Name"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div className="flex items-center mb-4">
-                                        <div className="mr-2 w-2/3">
-                                            <InputLabel
-                                                forInput="pool_messages"
-                                                value="Send"
-                                            />
-                                            <input
-                                                type="number"
-                                                min="1" // Enforce minimum wait time limit
-                                                name="pool_messages"
-                                                value={data.pool_messages}
-                                                required
-                                                onChange={(e) =>
-                                                    setData({
-                                                        ...data,
-                                                        pool_messages:
-                                                            e.target.value,
-                                                    })} className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                                            />
-                                        </div>
-                                        <div className="mr-2 w-2/3">
-                                            <InputLabel
-                                                forInput="pool"
-                                                value="Every"
-                                            />
-                                            <input
-                                                type="number"
-                                                min="1" // Enforce minimum wait time limit
-                                                name="pool_time"
-                                                value={data.pool_time}
-                                                required
-                                                onChange={(e) =>
-                                                    setData({
-                                                        ...data,
-                                                        pool_time:
-                                                            e.target.value,
-                                                    })}
-                                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                                            />
-                                        </div>
-                                        <div>
-                                            <InputLabel
-                                                forInput="pool_time_units"
-                                                value="Units"
-                                            />
-                                            <select
-                                                name="pool_time_units"
-                                                required
-                                                onChange={(e) =>
-                                                    setData({
-                                                        ...data,
-                                                        pool_time_units:
-                                                            e.target.value,
-                                                    })}
-                                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                                                value={data.pool_time_units}
-                                            >
-                                                <option value="">Select</option>
-                                                <option value="minutes">Minutes</option>
-                                                <option value="hours">Hours</option>
-                                                <option value="days">Days</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className=" text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Create Numbers Pool
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
+                                    Add Server
+                                </PrimaryButton>
                             </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Pool Name
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Instructions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {numberPools.data.map((numberPool) => (
-                                            <tr key={numberPool.id}>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {numberPool.pool_name}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                    {"send "}{numberPool.pool_messages}{" Message(s) Every "}{numberPool.pool_time}{' '}{numberPool.pool_time_units}
-                                                </td>
-                                                <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleUpdateNumberPool(
-                                                                numberPool
-                                                            )
-                                                        }
-                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                    >
-                                                        <FontAwesomeIcon
-                                                            icon={faPen}
-                                                            className="fa-xs"
-                                                        />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleViewNumberPool(
-                                                                numberPool
-                                                            )
-                                                        }
-                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                    >
-                                                        <FontAwesomeIcon
-                                                            icon={faEye}
-                                                            className="fa-xs"
-                                                        />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            deleteNumberPool(
-                                                                numberPool.id
-                                                            )
-                                                        }
-                                                        className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                    >
-                                                        <FontAwesomeIcon
-                                                            icon={
-                                                                faTrash
-                                                            }
-                                                            className="fa-xs"
-                                                        />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <Pagination links={users.meta.links} />
-                            </div>
-                        </div>
+                        </form>
                     </div>
-                    {/* ************************************* */}
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Add an Organisation
-                                </h1>
-                                <form
-                                    onSubmit={submitOrganisation}
-                                    className="space-y-4"
-                                >
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Organisation Name
-                                        </InputLabel>
-                                        <TextInput
-                                            name="organisationName"
-                                            value={data.organisation_name}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    organisation_name:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter organisation name"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Open AI Key
-                                        </InputLabel>
-                                        <TextInput
-                                            name="openAI"
-                                            value={data.openAI}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    openAI:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter openAI Key"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Sending Email
-                                        </InputLabel>
-                                        <TextInput
-                                            name="sending_email"
-                                            value={data.sending_email}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    sending_email:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter sending Email"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Email Password
-                                        </InputLabel>
-                                        <TextInput
-                                            name="email_password"
-                                            value={data.email_password}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    email_password:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter Email Password"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Add Organisation
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                organisation_name
-                                            </th>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Server Name
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Service Provider
+                                    </th>
 
-                                            <th className="px-6 py-3 bg-gray-50">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {organisations.data.map(
-                                            (organisation) => (
-                                                <tr key={organisation.id}>
-                                                    <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                        {
-                                                            organisation.organisation_name
-                                                        }
-                                                    </td>
-                                                    <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleUpdateOrg(
-                                                                    organisation
-                                                                )
-                                                            }
-                                                            className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faPen}
-                                                                className="fa-xs"
-                                                            />
-                                                        </button>
-                                                        <button
-                                                            onClick={() =>
-                                                                handleViewOrg(
-                                                                    organisation
-                                                                )
-                                                            }
-                                                            className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faEye}
-                                                                className="fa-xs"
-                                                            />
-                                                        </button>
-                                                        <button
-                                                            onClick={() =>
-                                                                switchOrg(
-                                                                    organisation.id
-                                                                )
-                                                            }
-                                                            className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={
-                                                                    faExchangeAlt
-                                                                }
-                                                                className="fa-xs"
-                                                            />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                                <Pagination links={users.meta.links} />
-                            </div>
-                        </div>
-                    </div>
+                                    <th className="px-6 py-3 bg-gray-50">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {sendingServers.data.map(
+                                    (sendingServer) => (
+                                        <tr key={sendingServer.id}>
+                                            <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                {
+                                                    sendingServer.server_name
+                                                }
+                                            </td>
+                                            <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                                {
+                                                    sendingServer.service_provider
+                                                }
+                                            </td>
 
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Add A Sending Server
-                                </h1>
-                                <form
-                                    onSubmit={submitServer}
-                                    className="space-y-4"
-                                >
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Choose A Server and Enter Details
-                                        </InputLabel>
-                                        <div className="space-x-4">
-                                            <label className="inline-flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="service_provider"
-                                                    value="twilio"
-                                                    checked={
-                                                        data.service_provider ===
-                                                        "twilio"
+                                            <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() =>
+                                                        handleUpdateSendingServer(
+                                                            sendingServer
+                                                        )
                                                     }
-                                                    onChange={(e) => {
-                                                        setData({
-                                                            ...data,
-                                                            service_provider:
-                                                                e.target.value,
-                                                            // Clear SignalWire texting fields
-                                                            signalwire_project_id:
-                                                                "",
-                                                            signalwire_api_token:
-                                                                "",
-                                                            signalwire_space_url:
-                                                                "",
-                                                            websockets_api_url: "",
-                                                            websockets_auth_token: "",
-                                                            retell_api: "",
-                                                            retell_agent_id: "",
-                                                            server_name: ""
-                                                        });
-                                                    }}
-                                                    className="form-radio"
-                                                    required
-                                                />
-                                                <span className="ml-2">
-                                                    Twilio
-                                                </span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="service_provider"
-                                                    value="signalwire"
-                                                    checked={
-                                                        data.service_provider ===
-                                                        "signalwire"
-                                                    }
-                                                    onChange={(e) => {
-                                                        setData({
-                                                            ...data,
-                                                            service_provider:
-                                                                e.target.value,
-                                                            // Clear Twilio texting fields
-                                                            twilio_account_sid:
-                                                                "",
-                                                            twilio_auth_token:
-                                                                "",
-                                                            websockets_api_url: "",
-                                                            websockets_auth_token: "",
-                                                            retell_api: "",
-                                                            retell_agent_id: "",
-                                                            server_name: ""
-                                                        });
-                                                    }}
-                                                    className="form-radio"
-                                                    required
-                                                />
-                                                <span className="ml-2">
-                                                    SignalWire
-                                                </span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="service_provider"
-                                                    value="websockets-api"
-                                                    checked={
-                                                        data.service_provider ===
-                                                        "websockets-api"
-                                                    }
-                                                    onChange={(e) => {
-                                                        setData({
-                                                            ...data,
-                                                            service_provider:
-                                                                e.target.value,
-                                                            // Clear Twilio texting fields
-                                                            twilio_account_sid:
-                                                                "",
-                                                            twilio_auth_token:
-                                                                "",
-                                                            signalwire_project_id:
-                                                                "",
-                                                            signalwire_api_token:
-                                                                "",
-                                                            signalwire_space_url:
-                                                                "",
-                                                            retell_api: "",
-                                                            retell_agent_id: "",
-                                                            server_name: ""
-                                                        });
-                                                    }}
-                                                    className="form-radio"
-                                                    required
-                                                />
-                                                <span className="ml-2">
-                                                    Websockets API
-                                                </span>
-                                            </label>
-                                            <label className="inline-flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="service_provider"
-                                                    value="retell"
-                                                    checked={
-                                                        data.service_provider ===
-                                                        "retell"
-                                                    }
-                                                    onChange={(e) => {
-                                                        setData({
-                                                            ...data,
-                                                            service_provider:
-                                                                e.target.value,
-                                                            // Clear Twilio texting fields
-                                                            twilio_account_sid:
-                                                                "",
-                                                            twilio_auth_token:
-                                                                "",
-                                                            signalwire_project_id:
-                                                                "",
-                                                            signalwire_api_token:
-                                                                "",
-                                                            signalwire_space_url:
-                                                                "",
-                                                            server_name: "",
-                                                            websockets_api_url: "",
-                                                            websockets_auth_token: ""
-                                                        });
-                                                    }}
-                                                    className="form-radio"
-                                                    required
-                                                />
-                                                <span className="ml-2">
-                                                    Retell
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {data.service_provider === "twilio" && (
-                                        <>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Server Name
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="server_name"
-                                                    value={
-                                                        data.server_name
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            server_name:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Server Name."
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Twilio Account SID
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="twilioAccountSid"
-                                                    value={
-                                                        data.twilio_account_sid
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            twilio_account_sid:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Twilio Account SID"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Twilio Auth Token
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="twilioAuthToken"
-                                                    value={
-                                                        data.twilio_auth_token
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            twilio_auth_token:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Twilio Auth Token"
-                                                    required
-                                                ></TextInput>
-                                                <div>
-                                                    <InputLabel className="block text-sm font-medium text-gray-700">
-                                                        Purpose
-                                                    </InputLabel>
-                                                    <select
-                                                        name="purpose"
-                                                        value={data.purpose}
-                                                        onChange={(e) =>
-                                                            setData({
-                                                                ...data,
-                                                                purpose:
-                                                                    e.target.value,
-                                                            })
-                                                        }
-                                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                        required
-                                                    >
-                                                        <option value="">
-                                                            Select purpose
-                                                        </option>
-                                                        <option value="texting">
-                                                            Texting
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {data.service_provider === "signalwire" && (
-                                        <>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Server Name
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="server_name"
-                                                    value={
-                                                        data.server_name
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            server_name:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Server Name."
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    SignalWire Project ID
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="signalwireProjectId"
-                                                    value={
-                                                        data.signalwire_project_id
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            signalwire_project_id:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter SignalWire Project ID"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    SignalWire API Token
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="signalwireApiToken"
-                                                    value={
-                                                        data.signalwire_api_token
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            signalwire_api_token:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter SignalWire API Token"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    SignalWire Space URL
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="signalwireTextingSpaceUrl"
-                                                    value={
-                                                        data.signalwire_space_url
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            signalwire_space_url:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter SignalWire Space URL"
-                                                    required
-                                                ></TextInput>
-                                                <div>
-                                                    <InputLabel className="block text-sm font-medium text-gray-700">
-                                                        Calling or Texting
-                                                    </InputLabel>
-                                                    <select
-                                                        name="callingOrTexting"
-                                                        value={data.purpose}
-                                                        onChange={(e) =>
-                                                            setData({
-                                                                ...data,
-                                                                purpose:
-                                                                    e.target.value,
-                                                            })
-                                                        }
-                                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                        required
-                                                    >
-                                                        <option value="">
-                                                            Select purpose
-                                                        </option>
-                                                        <option value="texting">
-                                                            Texting
-                                                        </option>
-                                                        <option value="calling">
-                                                            Calling
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {data.service_provider === "websockets-api" && (
-                                        <>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Server Name
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="server_name"
-                                                    value={
-                                                        data.server_name
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            server_name:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Server Name."
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    websockets Device ID
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="websockets_device_id"
-                                                    value={
-                                                        data.websockets_device_id
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            websockets_device_id:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Websockets Device ID"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Websockets Auth Token
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="websockets_auth_token"
-                                                    value={
-                                                        data.websockets_auth_token
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            websockets_auth_token:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="websockets Auth Token"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Websockets Api Url
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="websockets_api_url"
-                                                    value={
-                                                        data.websockets_api_url
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            websockets_api_url:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Websockets API URL"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Calling or Texting
-                                                </InputLabel>
-                                                <select
-                                                    name="callingOrTexting"
-                                                    value={data.purpose}
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            purpose:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    required
+                                                    className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                                                 >
-                                                    <option value="">
-                                                        Select purpose
-                                                    </option>
-                                                    <option value="texting">
-                                                        Texting
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </>
-                                    )}
-                                    {data.service_provider === "retell" && (
-                                        <>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Server Name
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="server_name"
-                                                    value={
-                                                        data.server_name
+                                                    <FontAwesomeIcon
+                                                        icon={faPen}
+                                                        className="fa-xs"
+                                                    />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        handleViewSendingServer(
+                                                            sendingServer
+                                                        )
                                                     }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            server_name:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter Server Name."
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Retell API  key
-                                                </InputLabel>
-                                                <TextInput
-                                                    name="retell_api"
-                                                    value={
-                                                        data.retell_api
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            retell_api:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    placeholder="Enter retell API key"
-                                                    required
-                                                ></TextInput>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Retell Agent
-                                                </InputLabel>
-                                                <select
-                                                    name="retell_agent_id"
-                                                    value={data.retell_agent_id}
-                                                    onChange={(e) => setData({
-                                                        ...data,
-                                                        retell_agent_id: e.target.value
-                                                    })}
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    required
+                                                    className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                                                 >
-                                                    <option value="">Select an agent</option>
-                                                    {agents.map((agent) => (
-                                                        <option key={agent.agent_id} value={agent.agent_id}>
-                                                            {agent.agent_name || `Agent ${agent.agent_id.substring(0, 6)}`}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <InputLabel className="block text-sm font-medium text-gray-700">
-                                                    Calling or Texting
-                                                </InputLabel>
-                                                <select
-                                                    name="callingOrTexting"
-                                                    value={data.purpose}
-                                                    onChange={(e) =>
-                                                        setData({
-                                                            ...data,
-                                                            purpose:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                                    required
-                                                >
-                                                    <option value="">
-                                                        Select purpose
-                                                    </option>
-                                                   
-                                                    <option value="calling">
-                                                        Calling
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </>
-                                    )}
+                                                    <FontAwesomeIcon
+                                                        icon={faEye}
+                                                        className="fa-xs"
+                                                    />
+                                                </button>
 
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Add Server
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead>
-                                        <tr>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Server Name
-                                            </th>
-                                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Service Provider
-                                            </th>
-
-                                            <th className="px-6 py-3 bg-gray-50">
-                                                Actions
-                                            </th>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {sendingServers.data.map(
-                                            (sendingServer) => (
-                                                <tr key={sendingServer.id}>
-                                                    <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                        {
-                                                            sendingServer.server_name
-                                                        }
-                                                    </td>
-                                                    <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
-                                                        {
-                                                            sendingServer.service_provider
-                                                        }
-                                                    </td>
-
-                                                    <td className="px-6 py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleUpdateSendingServer(
-                                                                    sendingServer
-                                                                )
-                                                            }
-                                                            className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faPen}
-                                                                className="fa-xs"
-                                                            />
-                                                        </button>
-                                                        <button
-                                                            onClick={() =>
-                                                                handleViewSendingServer(
-                                                                    sendingServer
-                                                                )
-                                                            }
-                                                            className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-black hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-                                                        >
-                                                            <FontAwesomeIcon
-                                                                icon={faEye}
-                                                                className="fa-xs"
-                                                            />
-                                                        </button>
-
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                                <Pagination links={users.meta.links} />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
-                        <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className="max-w-md mx-auto mt-10">
-                                <h1 className="text-2xl font-bold mb-4">
-                                    Search By Contact
-                                </h1>
-                                <form
-                                    onSubmit={handleSearch}
-                                    className="space-y-4"
-                                >
-                                    <div>
-                                        <InputLabel className="block text-sm font-medium text-gray-700">
-                                            Enter Phone Number
-                                        </InputLabel>
-                                        <TextInput
-                                            name="organisationName"
-                                            value={data.phone_number}
-                                            onChange={(e) =>
-                                                setData({
-                                                    ...data,
-                                                    phone_number:
-                                                        e.target.value,
-                                                })
-                                            }
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            placeholder="Enter Phone Number"
-                                            required
-                                        ></TextInput>
-                                    </div>
-                                    <div>
-                                        <PrimaryButton
-                                            type="submit"
-                                            className=" text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                        >
-                                            Search Contact
-                                        </PrimaryButton>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="bg-white p-2 rounded-lg shadow-md w-full lg:w-1/2">
-                            <div className=" bg-white border-b border-gray-200 overflow-x-auto">
-                                {contact && (
-                                    <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg ">
-                                        <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact Details</h2>
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full bg-white border border-gray-300">
-                                                <thead>
-                                                    <tr className="bg-gray-200">
-                                                        <th className="px-4 py-2 border border-gray-300 text-left text-sm font-semibold text-gray-700">Field</th>
-                                                        <th className="px-4 py-2 border border-gray-300 text-left text-sm font-semibold text-gray-700">Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">ID</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.id}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">UUID</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.uuid}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Current Step</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.current_step || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Created At</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{new Date(contact.created_at).toLocaleString()}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Updated At</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{new Date(contact.updated_at).toLocaleString()}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Name</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.contact_name || 'N/A'}</td>
-                                                    </tr>
-
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Email</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.email || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Phone Number</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.phone || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Address</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.address || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">City</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.city || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">State</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.state || 'N/A'}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Zip Code</td>
-                                                        <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.zipcode || 'N/A'}</td>
-                                                    </tr>
-
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                                    )
                                 )}
+                            </tbody>
+                        </table>
+                        <Pagination links={users.meta.links} />
+                    </div>
+                </div>
+            </div>
 
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">
+                            Search By Contact
+                        </h1>
+                        <form
+                            onSubmit={handleSearch}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Enter Phone Number
+                                </InputLabel>
+                                <TextInput
+                                    name="organisationName"
+                                    value={data.phone_number}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            phone_number:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter Phone Number"
+                                    required
+                                ></TextInput>
                             </div>
-                        </div>
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className=" text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Search Contact
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div className="bg-white p-2 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className=" bg-white border-b border-gray-200 overflow-x-auto">
+                        {contact && (
+                            <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg ">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-4">Contact Details</h2>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full bg-white border border-gray-300">
+                                        <thead>
+                                            <tr className="bg-gray-200">
+                                                <th className="px-4 py-2 border border-gray-300 text-left text-sm font-semibold text-gray-700">Field</th>
+                                                <th className="px-4 py-2 border border-gray-300 text-left text-sm font-semibold text-gray-700">Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">ID</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.id}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">UUID</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.uuid}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Current Step</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.current_step || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Created At</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{new Date(contact.created_at).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Updated At</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{new Date(contact.updated_at).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Name</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.contact_name || 'N/A'}</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Email</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.email || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Phone Number</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.phone || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Address</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.address || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">City</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.city || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">State</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.state || 'N/A'}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">Zip Code</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-sm text-gray-700">{contact.zipcode || 'N/A'}</td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </div>
             </div>

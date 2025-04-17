@@ -69,35 +69,37 @@ const AddStepModal = ({
     console.log(spintaxes)
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-md w-full h-full overflow-auto">
+            <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-lg w-full h-full overflow-auto">
                 <button
-                    className="absolute top-0 right-0 mt-2 mr-2 text-gray-600 hover:text-gray-800"
+                    className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xl"
                     onClick={onClose}
                 >
                     &#x2715;
                 </button>
-                <div className="mt-4 text-center flex flex-col justify-center">
-                    <InputLabel forInput="name" value="New Step Name" />
-                    <input
-                        type="text"
-                        name="stepName"
-                        required
-                        value={newStepData.stepName}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                    />
-                    <div className="mb-4">
+                <div className="mt-6 text-center flex flex-col justify-center space-y-6">
+                    <div>
+                        <InputLabel forInput="name" value="New Step Name" className="text-lg font-semibold" />
+                        <input
+                            type="text"
+                            name="stepName"
+                            required
+                            value={newStepData.stepName}
+                            onChange={handleChange}
+                            className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
+                        />
+                    </div>
+                    <div>
                         <InputLabel
                             htmlFor="message"
-                            className="block text-sm font-medium"
+                            className="block text-lg font-semibold"
                         >
                             Available Tags
                         </InputLabel>
-                        <div className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        <div className="mt-2 bg-gray-100 p-4 rounded-md shadow-inner">
                             {placeholders.length > 0 && (
-                                <div className="flex">
+                                <div className="flex space-x-4">
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-700">
                                             {placeholders
                                                 .slice(
                                                     0,
@@ -113,7 +115,7 @@ const AddStepModal = ({
                                         </ul>
                                     </div>
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-700">
                                             {placeholders
                                                 .slice(
                                                     Math.ceil(
@@ -131,18 +133,18 @@ const AddStepModal = ({
                             )}
                         </div>
                     </div>
-                    <div className="mb-4">
+                    <div>
                         <InputLabel
                             htmlFor="message"
-                            className="block text-sm font-medium"
+                            className="block text-lg font-semibold"
                         >
                             Spintaxes
                         </InputLabel>
-                        <div className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        <div className="mt-2 bg-gray-100 p-4 rounded-md shadow-inner">
                             {spintaxes.length > 0 && (
-                                <div className="flex">
+                                <div className="flex space-x-4">
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-700">
                                             {spintaxes
                                                 .slice(
                                                     0,
@@ -158,7 +160,7 @@ const AddStepModal = ({
                                         </ul>
                                     </div>
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-700">
                                             {spintaxes
                                                 .slice(
                                                     Math.ceil(
@@ -176,41 +178,45 @@ const AddStepModal = ({
                             )}
                         </div>
                     </div>
-                    <InputLabel forInput="content" value="Content" />
-                    <TextAreaInput
-                        type="text"
-                        name="content"
-                        required
-                        value={newStepData.content}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                    />
-                    <div className="flex items-center mt-4">
-                        <div className="mr-2 w-2/3">
+                    <div>
+                        <InputLabel forInput="content" value="Content" className="text-lg font-semibold" />
+                        <TextAreaInput
+                            type="text"
+                            name="content"
+                            required
+                            value={newStepData.content}
+                            onChange={handleChange}
+                            className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
+                        />
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex-1">
                             <InputLabel
                                 forInput="delay"
                                 value="No Response Delay"
+                                className="text-lg font-semibold"
                             />
                             <input
                                 type="number"
-                                min='1'
+                                min="1"
                                 name="delay"
                                 required
                                 value={newStepData.delay}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                             />
                         </div>
                         <div>
                             <InputLabel
                                 forInput="delayUnit"
                                 value="Delay Unit"
+                                className="text-lg font-semibold"
                             />
                             <select
                                 name="delayUnit"
                                 value={newStepData.delayUnit}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                             >
                                 <option value="minutes">Minutes</option>
                                 <option value="hours">Hours</option>
@@ -220,11 +226,11 @@ const AddStepModal = ({
                         </div>
                     </div>
 
-                    <InputLabel forInput="type" value="Message Type" />
+                    <InputLabel forInput="type" value="Message Type" className="text-lg font-semibold" />
                     <SelectInput
                         name="type"
                         required
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                         defaultValue={newStepData.type || ""}
                         onChange={handleChange}
                     >
@@ -238,21 +244,21 @@ const AddStepModal = ({
                         <option value="AICall">AICall</option>
 
                     </SelectInput>
-                    <InputLabel forInput="offerExpiry" value="Enter Expiry Date (required if you choose Offer)" />
+                    <InputLabel forInput="offerExpiry" value="Enter Expiry Date (required if you choose Offer)" className="text-lg font-semibold" />
                     <input
                         type="date"  // Changed from "text" to "date"
                         name="offerExpiry"
                         value={newStepData.offerExpiry}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                     />
-                    <InputLabel forInput="emailSubject" value="Enter Email Subject (required if you choose Email)" />
+                    <InputLabel forInput="emailSubject" value="Enter Email Subject (required if you choose Email)" className="text-lg font-semibold" />
                     <input
                         type="text"  // Changed from "text" to "date"
                         name="emailSubject"
                         value={newStepData.emailSubject}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                     />
                 
                     <div className="mt-4">
@@ -304,29 +310,32 @@ const AddStepModal = ({
                                 <InputLabel
                                     forInput="startTime"
                                     value="Start Time"
+                                    className="text-lg font-semibold"
                                 />
                                 <input
                                     type="time"
                                     name="startTime"
                                     value={newStepData.startTime}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                    className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                                 />
                                 <InputLabel
                                     forInput="endTime"
                                     value="End Time"
+                                    className="text-lg font-semibold"
                                 />
                                 <input
                                     type="time"
                                     name="endTime"
                                     value={newStepData.endTime}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                    className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                                 />
                             </div>
                             <InputLabel
                                 forInput="Batch size"
                                 value="Batch Size"
+                                className="text-lg font-semibold"
                             />
                             <input
                                 type="number"
@@ -334,25 +343,14 @@ const AddStepModal = ({
                                 name="batchSize"
                                 value={newStepData.batchSize}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                             />
-                            {/* <InputLabel
-                                forInput="Batch Delay"
-                                value="Batch Delay"
-                            />
-                            <input
-                                type="number"
-                                min="1"
-                                name="batchDelay"
-                                value={newStepData.batchDelay}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                            /> */}
-                            <div className="flex items-center mt-4">
-                                <div className="mr-2 w-2/3">
+                            <div className="flex items-center mt-4 space-x-4">
+                                <div className="flex-1">
                                     <InputLabel
                                         forInput="delay"
                                         value="Batch Delay"
+                                        className="text-lg font-semibold"
                                     />
                                     <input
                                         type="number"
@@ -361,19 +359,20 @@ const AddStepModal = ({
                                         required
                                         value={newStepData.batchDelay}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                        className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                                     />
                                 </div>
                                 <div className="w-1/3">
                                     <InputLabel
                                         forInput="BatchDelayUnit"
                                         value="Unit"
+                                        className="text-lg font-semibold"
                                     />
                                     <select
                                         name="BatchDelayUnit"
                                         value={newStepData.BatchDelayUnit}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                        className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                                     >
                                         <option value="minutes">Minutes</option>
                                         <option value="hours">Hours</option>
@@ -387,15 +386,15 @@ const AddStepModal = ({
                     )}
 
                     {validationMessage && (
-                        <div className="mt-4 text-red-500">
+                        <div className="mt-4 text-red-500 text-sm font-medium">
                             {validationMessage}
                         </div>
                     )}
 
-                    <div className="flex justify-center mt-4">
+                    <div className="flex justify-center mt-6">
                         <PrimaryButton
                             onClick={handleAddStep}
-                            className="text-center"
+                            className="text-center px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700"
                         >
                             Add Step
                         </PrimaryButton>

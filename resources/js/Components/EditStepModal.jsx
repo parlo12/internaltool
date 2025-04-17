@@ -209,53 +209,40 @@ const EditStepModal = ({
                 >
                     &#x2715;
                 </button>
-                <div className="mt-4 text-center flex flex-col justify-center">
-                    <InputLabel forInput="name" value="Name" />
+                <div className="mt-4 text-center flex flex-col justify-center space-y-4">
+                    <InputLabel forInput="name" value="Step Name" className="text-lg font-semibold text-gray-700" />
                     <TextInput
                         type="text"
                         name="stepName"
                         value={editedStep.stepName}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
                     <div className="mb-4">
                         <InputLabel
                             htmlFor="message"
-                            className="block text-sm font-medium"
+                            className="block text-sm font-medium text-gray-700"
                         >
                             Available Tags
                         </InputLabel>
-                        <div className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        <div className="mt-1 bg-gray-50 p-4 rounded-md shadow-inner">
                             {placeholders.length > 0 && (
-                                <div className="flex">
+                                <div className="flex space-x-4">
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-600">
                                             {placeholders
-                                                .slice(
-                                                    0,
-                                                    Math.ceil(
-                                                        placeholders.length / 2
-                                                    )
-                                                )
+                                                .slice(0, Math.ceil(placeholders.length / 2))
                                                 .map((placeholder, index) => (
-                                                    <li key={index}>
-                                                        {placeholder}
-                                                    </li>
+                                                    <li key={index}>{placeholder}</li>
                                                 ))}
                                         </ul>
                                     </div>
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-600">
                                             {placeholders
-                                                .slice(
-                                                    Math.ceil(
-                                                        placeholders.length / 2
-                                                    )
-                                                )
+                                                .slice(Math.ceil(placeholders.length / 2))
                                                 .map((placeholder, index) => (
-                                                    <li key={index}>
-                                                        {placeholder}
-                                                    </li>
+                                                    <li key={index}>{placeholder}</li>
                                                 ))}
                                         </ul>
                                     </div>
@@ -266,41 +253,28 @@ const EditStepModal = ({
                     <div className="mb-4">
                         <InputLabel
                             htmlFor="message"
-                            className="block text-sm font-medium"
+                            className="block text-sm font-medium text-gray-700"
                         >
                             Spintaxes
                         </InputLabel>
-                        <div className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        <div className="mt-1 bg-gray-50 p-4 rounded-md shadow-inner">
                             {spintaxes.length > 0 && (
-                                <div className="flex">
+                                <div className="flex space-x-4">
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-600">
                                             {spintaxes
-                                                .slice(
-                                                    0,
-                                                    Math.ceil(
-                                                        spintaxes.length / 2
-                                                    )
-                                                )
+                                                .slice(0, Math.ceil(spintaxes.length / 2))
                                                 .map((spintax, index) => (
-                                                    <li key={index}>
-                                                        {spintax.content}
-                                                    </li>
+                                                    <li key={index}>{spintax.content}</li>
                                                 ))}
                                         </ul>
                                     </div>
                                     <div className="flex-1">
-                                        <ul className="list-disc list-inside">
+                                        <ul className="list-disc list-inside text-sm text-gray-600">
                                             {spintaxes
-                                                .slice(
-                                                    Math.ceil(
-                                                        spintaxes.length / 2
-                                                    )
-                                                )
+                                                .slice(Math.ceil(spintaxes.length / 2))
                                                 .map((spintax, index) => (
-                                                    <li key={index}>
-                                                        {spintax.content}
-                                                    </li>
+                                                    <li key={index}>{spintax.content}</li>
                                                 ))}
                                         </ul>
                                     </div>
@@ -308,24 +282,24 @@ const EditStepModal = ({
                             )}
                         </div>
                     </div>
-                    <InputLabel forInput="content" value="Content" />
+                    <InputLabel forInput="content" value="Content" className="text-lg font-semibold text-gray-700" />
                     {editedStep.generatedMessage==1 ? (
-                           <div className="text-gray-500 italic">{editedStep.content}</div>      
+                           <div className="text-gray-500 italic bg-gray-50 p-4 rounded-md shadow-inner">{editedStep.content}</div>      
                             ) : (
                         <TextAreaInput
                             type="text"
                             name="content"
                             value={editedStep.content}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                         />
                     )}
 
 
-                    <InputLabel forInput="editType" value="Message Type" />
+                    <InputLabel forInput="editType" value="Message Type" className="text-lg font-semibold text-gray-700" />
                     <SelectInput
                         name="type"
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                         defaultValue={editedStep.type || ""}
                         onChange={handleChange}
                     >
@@ -340,21 +314,21 @@ const EditStepModal = ({
                         <option value="Email">Email</option>
                         <option value="AICall">AICall</option>
                     </SelectInput>
-                    <InputLabel forInput="offerExpiry" value="Enter Expiry Date (required if you choose Offer)" />
+                    <InputLabel forInput="offerExpiry" value="Offer Expiry Date (if Offer selected)" className="text-lg font-semibold text-gray-700" />
                     <input
                         type="date"  // Changed from "text" to "date"
                         name="offerExpiry"
                         value={editedStep.offerExpiry}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
-                    <InputLabel forInput="emailSubject" value="Enter Email Subject (required if you choose Email)" />
+                    <InputLabel forInput="emailSubject" value="Email Subject (if Email selected)" className="text-lg font-semibold text-gray-700" />
                     <input
                         type="text"  // Changed from "text" to "date"
-                        name="offerSubject"
+                        name="emailSubject"
                         value={editedStep.emailSubject}
                         onChange={handleChange}
-                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
 
                     <div className="flex items-center mt-4">
@@ -362,6 +336,7 @@ const EditStepModal = ({
                             <InputLabel
                                 forInput="delay"
                                 value="No Response Delay"
+                                className="text-lg font-semibold text-gray-700"
                             />
                             <input
                                 type="number"
@@ -370,16 +345,16 @@ const EditStepModal = ({
                                 required
                                 value={editedStep.delay}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
                         <div className="w-1/3">
-                            <InputLabel forInput="delayUnit" value="Unit" />
+                            <InputLabel forInput="delayUnit" value="Unit" className="text-lg font-semibold text-gray-700" />
                             <select
                                 name="delayUnit"
                                 value={editedStep.delayUnit}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="minutes">Minutes</option>
                                 <option value="hours">Hours</option>
@@ -398,7 +373,7 @@ const EditStepModal = ({
                             onChange={handleChange}
                             className="mr-2"
                         />
-                        <label htmlFor="customSending">
+                        <label htmlFor="customSending" className="text-lg font-semibold text-gray-700">
                             Custom Sending Schedule
                         </label>
                     </div>
@@ -407,49 +382,41 @@ const EditStepModal = ({
                             <InputLabel
                                 forInput="startTime"
                                 value="Start Time"
+                                className="text-lg font-semibold text-gray-700"
                             />
                             <input
                                 type="time"
                                 name="startTime"
                                 value={editedStep.startTime}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                             />
-                            <InputLabel forInput="endTime" value="End Time" />
+                            <InputLabel forInput="endTime" value="End Time" className="text-lg font-semibold text-gray-700" />
                             <input
                                 type="time"
                                 name="endTime"
                                 value={editedStep.endTime}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                             />
                             <InputLabel
                                 forInput="batchSize"
                                 value="Batch Size"
+                                className="text-lg font-semibold text-gray-700"
                             />
                             <input
                                 type="number"
                                 name="batchSize"
                                 value={editedStep.batchSize}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                             />
-                            {/* <InputLabel
-                                forInput="batchDelay"
-                                value="Batch Delay"
-                            />
-                            <input
-                                type="number"
-                                name="batchDelay"
-                                value={editedStep.batchDelay}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
-                            /> */}
                             <div className="flex items-center mt-4">
                                 <div className="mr-2 w-2/3">
                                     <InputLabel
                                         forInput="delay"
                                         value="Batch Delay"
+                                        className="text-lg font-semibold text-gray-700"
                                     />
                                     <input
                                         type="number"
@@ -458,19 +425,20 @@ const EditStepModal = ({
                                         required
                                         value={editedStep.batchDelay}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                                     />
                                 </div>
                                 <div className="w-1/3">
                                     <InputLabel
                                         forInput="batchDelayUnit"
                                         value="Unit"
+                                        className="text-lg font-semibold text-gray-700"
                                     />
                                     <select
                                         name="batchDelayUnit"
                                         value={editedStep.batchDelayUnit}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-black rounded-md shadow-sm text-center"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                                     >
                                         <option value="minutes">Minutes</option>
                                         <option value="hours">Hours</option>
@@ -480,7 +448,6 @@ const EditStepModal = ({
                                     </select>
                                 </div>
                             </div>
-                            {/* Days of Week Selection */}
                             <div className="mt-2">{renderDaysGrid()}</div>
                         </>
                     )}
@@ -489,7 +456,6 @@ const EditStepModal = ({
                             {validationMessage}
                         </div>
                     )}
-                    {/* Buttons */}
                     <div className="flex justify-center mt-2">
                         <PrimaryButton
                             onClick={handleSubmit}

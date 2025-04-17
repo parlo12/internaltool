@@ -56,14 +56,14 @@ export default function TasksTable({
     return (
         <>
             {success && (
-                <div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4">
+                <div className="bg-emerald-500 py-2 px-4 text-white rounded mb-4 text-sm font-medium">
                     {success}
                 </div>
             )}
-            <div className="overflow-auto">
-                <table className="w-full text-sm text-left rtl:text-right">
-                    <thead className="text-xs text-black uppercase bg-gray-50 border-gray-500">
-                        <tr className="text-nowrap">
+            <div className="overflow-x-auto shadow-md rounded-lg">
+                <table className="w-full text-sm text-left text-gray-700">
+                    <thead className="text-xs text-gray-600 uppercase bg-gray-100">
+                        <tr>
                             <TableHeading
                                 name="id"
                                 sort_field={queryParams.sort_field}
@@ -120,28 +120,16 @@ export default function TasksTable({
                             >
                                 Next Step on
                             </TableHeading>
-
-                            <TableHeading
-                                name="created_at"
-                                sort_field={queryParams.sort_field}
-                                sort_direction={queryParams.sort_direction}
-                                sortChanged={sortChanged}
-                            >
-                                Create Date
-                            </TableHeading>
-                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <thead className="text-xs text-black uppercase bg-gray-50">
-                        <tr className="text-nowrap">
+                    <thead className="bg-gray-50">
+                        <tr>
                             <th className="px-3 py-3"></th>
                             <th className="px-3 py-3">
                                 <TextInput
-                                    className="w-full"
-                                    defaultValue={
-                                        queryParams.contact_name || ""
-                                    }
-                                    placeholder="contact name"
+                                    className="w-full border-gray-300 rounded-md"
+                                    defaultValue={queryParams.contact_name || ""}
+                                    placeholder="Contact Name"
                                     onBlur={(e) =>
                                         searchFieldChanged(
                                             "contact_name",
@@ -155,7 +143,7 @@ export default function TasksTable({
                             </th>
                             <th className="px-3 py-3">
                                 <TextInput
-                                    className="w-full"
+                                    className="w-full border-gray-300 rounded-md"
                                     defaultValue={queryParams.phone || ""}
                                     placeholder="Phone"
                                     onBlur={(e) =>
@@ -169,7 +157,7 @@ export default function TasksTable({
                             </th>
                             <th className="px-3 py-3">
                                 <SelectInput
-                                    className="w-full"
+                                    className="w-full border-gray-300 rounded-md"
                                     defaultValue={queryParams.response || ""}
                                     onChange={(e) =>
                                         searchFieldChanged(
@@ -183,13 +171,12 @@ export default function TasksTable({
                                     <option value="no">NO</option>
                                 </SelectInput>
                             </th>
-
                             {!hideProjectColumn && (
                                 <th className="px-3 py-3"></th>
                             )}
                             <th className="px-3 py-3">
                                 <SelectInput
-                                    className="w-full"
+                                    className="w-full border-gray-300 rounded-md"
                                     defaultValue={
                                         queryParams.queaue_status || ""
                                     }
@@ -209,13 +196,12 @@ export default function TasksTable({
                                 </SelectInput>
                             </th>
                             <th className="px-3 py-3"></th>
-                            <th className="px-3 py-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {contacts.data.map((contact) => (
                             <tr
-                                className="bg-white text-black border-b"
+                                className="bg-white text-gray-700 border-b hover:bg-gray-50"
                                 key={contact.id}
                             >
                                 <td className="px-3 py-2">{contact.id}</td>
@@ -224,114 +210,28 @@ export default function TasksTable({
                                         {contact.contact_name}
                                     </td>
                                 )}
-
                                 <td className="px-3 py-2">
-                                    <span className="px-2 py-1 rounded text-nowrap">
+                                    <span className="px-2 py-1 rounded bg-gray-100">
                                         {contact.phone}
                                     </span>
                                 </td>
-                                <td className="px-3 py-2 text-nowrap">
-                                    {contact.response}
-                                </td>
-                                <td className="px-3 py-2 text-nowrap">
-                                    {contact.current_step}
-                                </td>
-                                <td className="px-3 py-2 text-nowrap">
-                                    {contact.status}
-                                </td>
-                                <td className="px-3 py-2 text-nowrap">
-                                    {contact.can_send_after}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {contact.created_at}
-                                </td>
-                                <td className="">
-                                    <div className="flex mb-1">
-                                        <Link
-                                            href={route(
-                                                "mark-lead",
-                                                contact.id
-                                            )}
-                                            className={`bg-blue-600 hover:bg-blue-300 text-white text-nowrap mr-1 ${contact.valid_lead == 1
-                                                ? "bg-red-600 hover:bg-red-300"
-                                                : ""
-                                                }`}
-                                        >
-                                            {contact.valid_lead == 1
-                                                ? "Unmark as lead"
-                                                : "Mark Lead"}
-                                        </Link>{" "}
-                                        <Link
-                                            href={route(
-                                                "mark-offer",
-                                                contact.id
-                                            )}
-                                            className={`bg-blue-600 hover:bg-blue-300 text-white text-nowrap mr-1 ${contact.offer_made == 1
-                                                ? "bg-red-600 hover:bg-red-300"
-                                                : ""
-                                                }`}
-                                        >
-                                            {contact.offer_made == 1
-                                                ? "Unmark as offer"
-                                                : "Mark offer"}
-                                        </Link>
-                                        <Link
-                                            href={route(
-                                                "execute-contract",
-                                                contact.id
-                                            )}
-                                            className={`bg-blue-600 hover:bg-blue-300 text-white text-nowrap mr-1 ${contact.contract_executed == 1
-                                                ? "bg-red-600 hover:bg-red-300"
-                                                : ""
-                                                }`}
-                                        >
-                                            {contact.contract_executed == 1
-                                                ? "Unxecute contract"
-                                                : "execute contract"}
-                                        </Link>
-                                    </div>
-                                    <div className="flex">
-                                        <Link
-                                            href={route(
-                                                "close-deal",
-                                                contact.id
-                                            )}
-                                            className={`bg-blue-600 hover:bg-blue-300 text-white text-nowrap mr-1 ${contact.deal_closed == 1
-                                                ? "bg-red-600 hover:bg-red-300"
-                                                : ""
-                                                }`}
-                                        >
-                                            {contact.deal_closed == 1
-                                                ? "Unclose Deal"
-                                                : "Close Deal"}{" "}
-
-                                        </Link>
-                                        {/* <Link
-                                            href={route(
-                                                "close-deal",
-                                                contact.id
-                                            )}
-                                            className="bg-blue-600 hover:bg-blue-300 text-white text-nowrap"
-                                        >
-                                            close deal
-                                        </Link> */}
-                                    </div>
-                                </td>
+                                <td className="px-3 py-2">{contact.response}</td>
+                                <td className="px-3 py-2">{contact.current_step}</td>
+                                <td className="px-3 py-2">{contact.status}</td>
+                                <td className="px-3 py-2">{contact.can_send_after}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-                <div className="flex justify-center my-2">
+                <div className="flex justify-center my-4">
                     <a
                         href={exportUrl}
-                        className="text-center mt-2 w-1/4 text-white bg-green-700 hover:bg-green-300"
+                        className="px-4 py-2 text-white bg-green-600 hover:bg-green-500 rounded-md text-sm"
                     >
                         Export Contacts with No Response
                     </a>
                 </div>
-
             </div>
-
             <Pagination links={contacts.meta.links} queryParams={queryParams} />
         </>
     );

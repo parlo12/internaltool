@@ -290,109 +290,146 @@ export default function Create({
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Create workflow" />
-            <div className="container mx-auto px-4 py-8 min-h-screen">
+            <div className="container min-h-screen mx-auto">
                 <div className="flex flex-col items-center">
-                    <div className="mt-8 text-2xl font-semibold text-gray-800">
+                    <div className="mt-8 text-2xl">
                         Workflow: {workflow.name}
                         <button
                             onClick={() => setEditWorkflowModalOpen(true)}
-                            className="ml-2 text-blue-500 hover:text-blue-700"
+                            className="text-center ml-2 max-w-16"
                         >
                             <FontAwesomeIcon icon={faPen} className="fa-xs" />
                         </button>
                     </div>
                     {success && (
-                        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded shadow-lg">
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white p-4 rounded">
                             {success}
                         </div>
                     )}
                     {error && (
-                        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded shadow-lg">
+                        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white p-4 rounded">
                             {error}
                         </div>
                     )}
-                    <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg bg-white">
+                    <div className="w-full max-w-md min-h-screen p-6 rounded-lg shadow-lg bg-gray-100">
                         <div>
                             {stepsState.map((step, index) => (
-                                <div key={step.id} className="mb-6">
+                                <div key={step.id} className="mb-4">
                                     <div
-                                        className="border border-gray-300 p-4 rounded-lg cursor-pointer hover:shadow-md"
+                                        className="border border-black p-4 cursor-pointer"
                                         onClick={() => openEditModal(step)}
                                     >
-                                        <div className="flex justify-between items-center">
-                                            <div className="font-medium text-gray-700">
-                                                {index + 1}. {step.name}
-                                            </div>
-                                            <div className="text-sm text-gray-500">
+                                        <div className="flex justify-between">
+                                            <div>
+                                                {index + 1}{'.'}{step.name}
+                                            </div>{" "}
+                                            <div>
                                                 Responses: <span id={`response-count-${step.id}`}>Loading...</span>
                                             </div>
                                         </div>
-                                        <div className="mt-2 text-gray-600">
+                                        <div>Message Content</div>
+                                        <div className="text-gray-600">
                                             {step.content}
                                         </div>
-                                        <div className="flex justify-end mt-4 text-sm text-gray-500">
-                                            <span>Message Type: {step.type}</span>
+                                        <div className="flex justify-end mt-4 text-gray-500">
+                                            <div>Message Type: </div>
+                                            <div>{step.type}</div>
                                         </div>
                                     </div>
-                                    <div className="text-center text-gray-500 mt-4">
-                                        <span className="text-lg">&darr;</span>
+                                    <style jsx>{`
+                                        .rhombus {
+                                            width: 100px;
+                                            height: 100px;
+                                            transform: rotate(45deg);
+                                            position: relative;
+                                        }
+                                        .rhombus-content {
+                                            transform: rotate(-45deg);
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            height: 100%;
+                                        }
+                                        .arrow-up::before {
+                                            content: "";
+                                            position: absolute;
+                                            bottom: 100%;
+                                            left: 50%;
+                                            transform: translateX(-50%);
+                                            border-width: 10px;
+                                            border-style: solid;
+                                            border-color: transparent
+                                                transparent black transparent;
+                                        }
+                                    `}</style>
+                                    <div className="text-center text-2xl">
+                                        &darr;
                                     </div>
                                     <div className="flex justify-center my-5">
-                                        <div className="p-4 border border-gray-300 rounded-lg bg-gray-50">
-                                            <span className="text-sm text-gray-700">
+                                        <div className="p-4 rhombus border border-black">
+                                            <div className="rhombus-content text-nowrap">
                                                 Delay: {formatDelay(step.delay)}
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="text-center text-gray-500">
                                         If no response
                                     </div>
-                                    <div className="text-center text-gray-500 mt-2">
-                                        <span className="text-lg">&darr;</span>
+                                    <div className="text-center text-2xl">
+                                        &darr;
                                     </div>
                                 </div>
                             ))}
                             {stepsState.length > 0 && (
-                                <div className="flex justify-center mt-6">
-                                    <div className="border border-gray-300 p-4 text-center w-24 rounded-lg bg-gray-50">
+                                <div className="flex justify-center">
+                                    <div className="border border-black p-4 text-center w-24">
                                         End
                                     </div>
                                 </div>
                             )}
                         </div>
-                        <div className="flex flex-col items-center mt-6 space-y-4">
-                            <PrimaryButton
-                                onClick={() => setIsModalOpen(true)}
-                                className="w-full max-w-xs py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow"
-                            >
-                                Add Step
-                            </PrimaryButton>
+                        <div className="flex flex-col  justify-center mt-4">
+                            <div className="flex justify-center mb-5">
+                                <PrimaryButton
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="text-center max-w-48"
+                                >
+                                    Add Step
+                                </PrimaryButton>
+                            </div>
                             {stepsState.length > 0 && (
-                                <div className="w-full flex flex-col sm:flex-row justify-center gap-4">
-                                    <PrimaryButton
-                                        onClick={workflow.active ? pauseWorkflow : startWorkflow}
-                                        className={`w-full max-w-xs py-2 text-white rounded-lg shadow ${
-                                            workflow.active
-                                                ? "bg-yellow-600 hover:bg-yellow-700"
-                                                : "bg-green-600 hover:bg-green-700"
-                                        }`}
-                                    >
-                                        {workflow.active ? "Pause Workflow" : "Start Workflow"}
-                                    </PrimaryButton>
-                                    <Link
-                                        href={route("contacts.index", workflow.id)}
-                                        className="w-full max-w-xs py-2 text-center text-white bg-green-600 hover:bg-green-700 rounded-lg shadow"
-                                    >
-                                        Workflow Progress
-                                    </Link>
-                                    <button
-                                        onClick={deleteWorkflow}
-                                        className="w-full max-w-xs py-2 text-center text-white bg-red-600 hover:bg-red-700 rounded-lg shadow"
-                                    >
-                                        Delete This Workflow
-                                    </button>
+                                <div className="w-full flex justify-center mb-2">
+                                    {workflow.active ? (
+                                        <PrimaryButton
+                                            onClick={() => pauseWorkflow()}
+                                            className="text-center  w-1/2 mr-1 text-white bg-blue-700 hover:bg-blue-300"
+                                        >
+                                            Pause Workflow
+                                        </PrimaryButton>
+                                    ) : (
+                                        <PrimaryButton
+                                            onClick={() => startWorkflow()}
+                                            className="text-center  w-1/2 mr-1 text-white bg-green-700 hover:bg-green-300"
+                                        >
+                                            Start Workflow
+                                        </PrimaryButton>
+                                    )}
                                 </div>
                             )}
+                        </div>
+                        <div className="w-full flex justify-center">
+                            <Link
+                                href={route("contacts.index", workflow.id)}
+                                className="text-center  w-1/2 mr-1 text-white bg-green-700 hover:bg-green-300"
+                            >
+                                Workflow progress
+                            </Link>
+                            <Link
+                                onClick={deleteWorkflow}
+                                className="text-center  w-1/2 text-white bg-red-700 hover:bg-red-300"
+                            >
+                                Delete This workflow
+                            </Link>
                         </div>
                     </div>
                 </div>
