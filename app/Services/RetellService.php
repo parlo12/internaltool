@@ -18,7 +18,7 @@ class RetellService
     protected $baseUrl = 'https://api.retellai.com/v1';
     protected $provider;
 
-    public function __construct($provider = 'retell',$api_key = null)
+    public function __construct($provider = 'retell', $api_key = null)
     {
         $this->provider = $provider;
         $this->apiKey = $api_key;
@@ -31,14 +31,14 @@ class RetellService
     {
         $httpCode = null;
         $contact = null;
-        
+
         try {
             $calling_number = Workflow::find($workflow_id)->calling_number;
             $number = Number::where('phone_number', $calling_number)
                 ->where('organisation_id', $organisation_id)
                 ->first();
             $sending_server = SendingServer::find($number->sending_server_id);
-            
+
             if ($sending_server) {
                 $retell_api = $sending_server->retell_api;
                 $retell_agent_id = $sending_server->retell_agent_id;
@@ -46,16 +46,16 @@ class RetellService
                 Log::error('Sending server not found for the number', ['number' => $calling_number]);
                 throw new \Exception("Sending server not configured");
             }
-    
+
             $contact = Contact::find($contact_id);
             if (!$contact) {
                 throw new \Exception("Contact not found");
             }
-    
-            
+
+
             $contact->status = 'call Initiated';
             $contact->save();
-    
+
             $payload = [
                 'agent_id' => $retell_agent_id,
                 'from_number' => $calling_number,
@@ -64,21 +64,7 @@ class RetellService
                     'contact_id' => $contact->id,
                     'call_purpose' => 'initial call'
                 ],
-                'dynamic_variables' => [
-                    'name' => $contact->contact_name ?? '',
-                    'zipcode' => $contact->zipcode ?? '',
-                    'state' => $contact->state ?? '',
-                    'offer' => $contact->offer ?? '',
-                    'address' => $contact->address ?? '',
-                    'gender' => $contact->gender ?? '',
-                    'lead_score' => $contact->lead_score ?? '',
-                    'phone' => $contact->phone ?? '',
-                    'organisation_id' => $contact->organisation_id ?? '',
-                    'novation' => $contact->novation ?? '',
-                    'creative_price' => $contact->creative_price ?? '',
-                    'downpayment' => $contact->downpayment ?? '',
-                    'monthly' => $contact->monthly ?? '',
-                ],
+
                 'retell_llm_dynamic_variables' => [
                     'name' => $contact->contact_name ?? '',
                     'zipcode' => $contact->zipcode ?? '',
@@ -95,9 +81,9 @@ class RetellService
                 ],
                 'opt_out_sensitive_data_storage' => true
             ];
-    
+
             Log::info('Preparing outbound call payload', $payload);
-    
+
             $ch = curl_init();
             curl_setopt_array($ch, [
                 CURLOPT_URL => 'https://api.retellai.com/v2/create-phone-call',
@@ -114,19 +100,19 @@ class RetellService
                     'Accept: application/json'
                 ],
             ]);
-    
+
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
-    
+
             if ($error) {
                 $contact->status = 'connection_error';
                 $contact->save();
                 throw new \Exception("cURL error: " . $error);
             }
-    
+
             $responseData = json_decode($response, true);
-            
+
             switch ($httpCode) {
                 case 201: // Success
                     $contact->status = 'call_initiated';
@@ -137,7 +123,7 @@ class RetellService
                         'response' => $responseData
                     ]);
                     return response()->json($responseData);
-    
+
                 case 400:
                     Log::error('API Request Failed', [
                         'status_code' => $httpCode,
@@ -151,32 +137,32 @@ class RetellService
                     $contact->status = 'bad_request';
                     $contact->save();
                     throw new \Exception("Bad request: " . ($responseData['message'] ?? 'Invalid parameters'));
-                    
+
                 case 401:
                     $contact->status = 'unauthorized';
                     $contact->save();
                     throw new \Exception("Unauthorized: Check your API key");
-                    
+
                 case 402:
                     $contact->status = 'payment_required';
                     $contact->save();
                     throw new \Exception("Payment required");
-                    
+
                 case 422:
                     $contact->status = 'validation_error';
                     $contact->save();
                     throw new \Exception("Validation error: " . ($responseData['errors'] ?? 'Invalid data'));
-                    
+
                 case 429:
                     $contact->status = 'rate_limited';
                     $contact->save();
                     throw new \Exception("Rate limited: " . ($responseData['message'] ?? 'Too many requests'));
-                    
+
                 case 500:
                     $contact->status = 'server_error';
                     $contact->save();
                     throw new \Exception("Server error: " . ($responseData['message'] ?? 'Internal server error'));
-                    
+
                 default:
                     $contact->status = 'api_error_' . $httpCode;
                     $contact->save();
@@ -188,12 +174,12 @@ class RetellService
                 'trace' => $e->getTraceAsString(),
                 'payload' => $payload ?? null
             ]);
-    
+
             if ($contact && !isset($contact->status)) {
                 $contact->status = 'call_failed';
                 $contact->save();
             }
-    
+
             return response()->json([
                 'error' => $e->getMessage(),
                 'code' => $httpCode ?? 500
@@ -204,8 +190,8 @@ class RetellService
             }
         }
     }
-    
-  
+
+
     public function getRecentCalls($minutes = 30, $limit = 50)
     {
         \Log::info("Retrieving recent calls", ['minutes' => $minutes, 'limit' => $limit]);
