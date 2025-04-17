@@ -53,7 +53,8 @@ class AICallController extends Controller
             }
             $callData = $webhookData['call'] ?? [];
             if (empty($callData['call_id']) || empty($callData['transcript'])) {
-                throw new \RuntimeException("Missing required call data");
+                Log::info("Missing call_id or transcript");
+                return response()->json(['status' => 'ignored'], 200);
             }
 
             $note = "Call Summary: " .
