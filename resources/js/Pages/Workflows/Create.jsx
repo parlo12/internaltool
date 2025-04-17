@@ -601,7 +601,7 @@ export default function Create({
                                             <td className="px-6 py-1 text-sm text-gray-700">
                                                 {folder.name}
                                             </td>
-                                            <td className="px-6 py-1 text-right text-sm font-medium">
+                                            <td className="px-1 py-1 text-right text-sm font-medium">
                                                 <div className="flex flex-wrap justify-end space-x-2">
                                                     <button
                                                         onClick={() =>
