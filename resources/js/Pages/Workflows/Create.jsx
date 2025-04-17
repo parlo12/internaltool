@@ -112,6 +112,9 @@ export default function Create({
         setShowPopup(false);
     };
     const deleteFolder = (deletedFolderId) => {
+        if (!confirm("Are you sure you want to delete this folder?")) {
+            return;
+        }
         axios
             .delete(`/delete-folder/${deletedFolderId}`, {})
             .then((response) => {
