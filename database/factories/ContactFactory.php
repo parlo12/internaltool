@@ -28,7 +28,7 @@ class ContactFactory extends Factory
         return [
             'uuid' => Str::uuid(),
             'current_step' => $currentStep,
-            'workflow_id' => Workflow::factory(),
+            'workflow_id' => Workflow::inRandomOrder()->first()->id,
             'contact_communication_ids' => $this->faker->text(50),
             'phone' => $this->faker->phoneNumber,
             'can_send' => $this->faker->boolean ? '1' : '0',

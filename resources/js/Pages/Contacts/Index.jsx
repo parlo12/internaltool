@@ -11,7 +11,7 @@ export default function Index({ auth, success, contacts, workflow, queryParams, 
             <Head title="Reports" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px- lg:px-2">
                     {error && (
                         <div className="bg-red-700 w-full text-center text-white py-2 rounded mb-4">
                             {error}
@@ -38,7 +38,7 @@ export default function Index({ auth, success, contacts, workflow, queryParams, 
                     </div>
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-4 sm:p-6 dark:text-gray-100">
+                        <div className="p-2 sm:p-2 dark:text-gray-100">
                             <TasksTable
                                 contacts={contacts}
                                 queryParams={queryParams}

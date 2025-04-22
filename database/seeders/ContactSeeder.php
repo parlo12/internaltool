@@ -17,7 +17,7 @@ class ContactSeeder extends Seeder
         // Ensure there are some workflows in the database
 
         // Create contacts associated with existing workflows
-        Contact::factory()->count(50)->create();
+        Contact::factory()->count(1)->create();
     }
 }
 

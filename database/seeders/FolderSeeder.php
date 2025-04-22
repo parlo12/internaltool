@@ -13,7 +13,7 @@ class FolderSeeder extends Seeder
      */
     public function run(): void
     {
-        Folder::factory()->count(10)->create();
+        Folder::factory()->count(3)->create();
 
     }
 }

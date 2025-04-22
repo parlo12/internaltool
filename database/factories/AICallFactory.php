@@ -26,7 +26,7 @@ class AICallFactory extends Factory
         $randomDate = Carbon::createFromTimestamp(rand($startOfYear->timestamp, $endOfYear->timestamp));
 
         return [
-            'contact_id' => Contact::factory(),
+            'contact_id' => Contact::inRandomOrder()->first()->id,
             'organisation_id' => Organisation::inRandomOrder()->first()->id,
             'name' => $this->faker->name,
             'contact_communication_id' => $this->faker->text(50),

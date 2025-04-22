@@ -33,7 +33,7 @@ class WorkflowFactory extends Factory
             'agent_number' => '+1234567890',
             'calling_number' => '+12334567890',
             'texting_number' => '+1234567890',
-            'folder_id' => Folder::factory(),
+            'folder_id' => Folder::inRandomOrder()->first()->id,
             'godspeedoffers_api' => 'api_key',
             'organisation_id' => Organisation::inRandomOrder()->first()->id,
             'user_id' => User::inRandomOrder()->first()->id,
