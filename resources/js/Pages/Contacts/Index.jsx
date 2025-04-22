@@ -21,15 +21,15 @@ export default function Index({ auth, success, contacts, workflow, queryParams, 
                     <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
                         <Link
                             href={route('add_steps', workflow.id)}
-                            className="text-blue-600 hover:underline text-lg sm:text-2xl mb-2 sm:mb-0"
+                            className="text-blue-600 hover:underline  mb-2 sm:mb-0"
                         >
                             Edit Workflow
                         </Link>
-                        <div className="text-lg sm:text-2xl text-center sm:text-right">
+                        <div className=" text-center sm:text-right">
                             Workflow Name: {workflow.name}
                         </div>
                         <div
-                            className={`text-lg sm:text-2xl ${
+                            className={` ${
                                 workflow.active ? 'text-green-500' : 'text-red-500'
                             }`}
                         >
