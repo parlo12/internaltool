@@ -104,7 +104,7 @@ class AICallController extends Controller
                 'Authorization' => 'Bearer ' . $token,
                 'Accept' => 'application/json',
             ])
-                ->timeout(30) // Set timeout
+                ->timeout(30) 
                 ->post($url, [
                     'phone' => $phone,
                     'sending_number' => $sending_number,
