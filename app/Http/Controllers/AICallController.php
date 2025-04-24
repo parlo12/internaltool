@@ -28,7 +28,7 @@ class AICallController extends Controller
             if (($webhookData['event'] ?? null) == 'call_ended') {
                 $contact = Contact::where('phone', $phone)->first();
                 Contact::where('phone', $phone)->update([
-                    'status' => $callData['disconnect_reason'] ?? 'Unknown',
+                    'status' => $callData['disconnection_reason'] ?? 'Unknown',
                     'updated_at' => now() // Optional: explicitly set update timestamp
                 ]);
                 if ($contact) {
