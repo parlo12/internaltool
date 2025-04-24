@@ -93,7 +93,7 @@ class AICallController extends Controller
 
         try {
             $token = '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0';
-            $url = 'https://crmstaging.godspeedoffers.com/api/v3/sms/ai-call-summary';
+            $url = env('CRM_URL', 'https://crmstaging.godspeedoffers.com') . '/api/v3/sms/ai-call-summary';
 
             Log::debug('Preparing API request', [
                 'endpoint' => $url,
