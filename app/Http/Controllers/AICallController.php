@@ -94,8 +94,7 @@ class AICallController extends Controller
 
         try {
             $token = '4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0';
-            $url = env('CRM_URL', 'https://crmstaging.godspeedoffers.com') . '/api/v3/sms/ai-call-summary';
-
+            $url = config('services.crm_url') . '/api/v3/sms/ai-call-summary';
             Log::debug('Preparing API request', [
                 'endpoint' => $url,
                 'token_truncated' => substr($token, 0, 5) . '...' // Log partial token for security

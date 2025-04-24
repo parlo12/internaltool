@@ -34,5 +34,6 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'crm_url' => env('CRM_URL', 'https://www.godspeedoffers.com'),
 
 ];
