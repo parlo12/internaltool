@@ -218,7 +218,6 @@ class AICallController extends Controller
                             'gender' => $contact->gender ?? 'N/A',
                             'lead_score' => $contact->lead_score ?? 'N/A',
                             'phone' => $contact->phone ?? 'N/A',
-                            'organisation_id' => $contact->organisation_id ?? 'N/A',
                             'novation' => $contact->novation ?? 'N/A',
                             'creative_price' => $contact->creative_price ?? 'N/A',
                             'downpayment' => $contact->downpayment ?? 'N/A',
