@@ -48,9 +48,9 @@ const CopyWorkflowPopup = ({
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 sm:mx-auto">
                 <div>
                     {workflowData && (
-                        <div className="max-w-full sm:px-6 lg:px-8">
+                        <div className="max-w-full ">
                             <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                                <div className="p-4 sm:p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                                <div className=" bg-white border-b border-gray-200 overflow-x-auto">
                                     <div className="max-h-96 overflow-y-auto">
                                         <table className="min-w-full divide-y divide-gray-200 text-sm sm:text-base">
                                             <thead>
