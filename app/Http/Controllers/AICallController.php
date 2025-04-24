@@ -13,6 +13,7 @@ class AICallController extends Controller
     public function handleEndOfCallWebhook(Request $request)
     {
         try {
+            Log::info("here on webhook");
             $webhookData = $request->all();
             Log::info("Webhook received", ['event' => $webhookData['event'] ?? 'unknown']);
             $callData = $webhookData['call'] ?? [];
