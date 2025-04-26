@@ -90,12 +90,14 @@ export default function Create({
         setShowViewFolderPopup(true);
     };
     const handleAssignFolder = (workflow) => {
+        console.log("Working with".workflow);
         setData({
             id: workflow.id,
         });
         setShowFolderPopup(true);
     };
     const handleAssignFolderSubmit = (e) => {
+        console.log("submitting");
         e.preventDefault();
         post("/assign-folder");
         setShowFolderPopup(false);
