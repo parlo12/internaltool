@@ -31,7 +31,6 @@ export default function Create({
     error,
     organisation
 }) {
-    console.log(voices);
     const { data, setData, post, errors, processing } = useForm({
         name: "",
         contact_group: "",
@@ -96,11 +95,15 @@ export default function Create({
         });
         setShowFolderPopup(true);
     };
-    const handleAssignFolderSubmit = (e) => {
-        console.log("submitting");
+    const handleAssignFolderSubmit = async (e) => {
         e.preventDefault();
-        post("/assign-folder");
-        setShowFolderPopup(false);
+        try {
+            await post("/assign-folder");
+            setShowFolderPopup(false);
+        } catch (error) {
+            setErrorMessage("Error assigning folder. Please try again.");
+            console.error("Error assigning folder:", error.response?.data || error.message);
+        }
     };
 
     const handleCopySubmit = (e) => {
@@ -120,7 +123,6 @@ export default function Create({
         axios
             .delete(`/delete-folder/${deletedFolderId}`, {})
             .then((response) => {
-                console.log(response);
                 console.log(`Folder deleted successfully`);
                 setMessage(`Folder deleted successfully`);
                 location.reload();
