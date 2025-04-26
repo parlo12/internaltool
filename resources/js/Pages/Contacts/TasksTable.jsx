@@ -315,7 +315,7 @@ export default function TasksTable({
                 <div className="flex justify-center my-4">
                     <a
                         href={exportUrl}
-                        className="text-center mt-2 w-1/4 text-white bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg shadow-md transition duration-150"
+                        className="text-center text-nowrap mt-2 w-1/4 text-white bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg shadow-md transition duration-150"
                     >
                         Export Contacts with No Response
                     </a>
