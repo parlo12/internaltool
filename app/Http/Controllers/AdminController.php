@@ -246,6 +246,13 @@ class AdminController extends Controller
             'numbers'=>$numbers
         ], 200);
     }
+    public function get_number($id)
+    {
+        $number = Number::find($id);
+        return response()->json([
+            'number' => $number,
+        ], 200);
+    }
     public function update_organisation(Request $request)
     {
         $validatedData = $request->validate([
@@ -289,11 +296,26 @@ class AdminController extends Controller
     }
     public function update_number_pool(Request $request)
     {
+        
         $number_pool = NumberPool::findOrFail( $request->input('id'));
         $number_pool->update($request->input());
         return response()->json([
             'message' => "number_pool updated successfully",
             'number_pool' => $number_pool,
+            'request'=>$request->input('id')
+        ], 200);
+    }
+    public function update_number(Request $request)
+    {
+        // return response()->json([
+        //     'message' => "number updated successfully",
+        //     'number' => $request->all(),
+        // ], 200);
+        $number = Number::findOrFail( $request->input('id'));
+        $number->update($request->input());
+        return response()->json([
+            'message' => "number updated successfully",
+            'number' => $number,
             'request'=>$request->input('id')
         ], 200);
     }

@@ -90,9 +90,11 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/no-godspeedoffers-apikey', [AdminController::class, 'no_godspeedoffers_apikey'])->name('no-godspeedoffers-apikey');
     Route::get('/get_server/{id}', [AdminController::class, 'get_server'])->name('get-server');
     Route::get('/get_number_pool/{id}', [AdminController::class, 'get_number_pool'])->name('get-number-pool');
+    Route::get('/get_number/{id}', [AdminController::class, 'get_number'])->name('get-number');
     Route::post('/store-server', [AdminController::class, 'store_server'])->name('store-server');
     Route::post('/update-server', [AdminController::class, 'update_server'])->name('update-server');
     Route::post('/update-number-pool', [AdminController::class, 'update_number_pool'])->name('update-number-pool');
+    Route::post('/update-number', [AdminController::class, 'update_number'])->name('update-number');
 
     //WORKFLOW CONTROLLER
     Route::get('/create-workflow', [WorkflowController::class, 'create'])->name('create-workflow');

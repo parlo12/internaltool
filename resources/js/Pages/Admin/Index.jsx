@@ -19,6 +19,7 @@ import ViewNumberPoolPopup from "@/Components/ViewNumberPoolPopup";
 import UpdateOrgPopup from "@/Components/UpdateOrgPopup";
 import UpdateSendingServerPopup from "@/Components/UpdateSendingServerPopup";
 import UpdateNumberPoolPopup from "@/Components/UpdateNumberPoolPopup";
+import UpdateNumberPopup from "@/Components/UpdateNumberPopup";
 
 export default function Index({
     auth,
@@ -33,7 +34,6 @@ export default function Index({
     numberPools,
     agents
 }) {
-    console.log(agents)
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
@@ -44,6 +44,8 @@ export default function Index({
     const [showUpdateOrgPopup, setShowUpdateOrgPopup] = useState(false);
     const [showUpdateSendingServerPopup, setShowUpdateSendingServerPopup] = useState(false);
     const [showUpdateNumberPoolPopup, setShowUpdateNumberPoolPopup] = useState(false);
+    const [showUpdateNumberPopup, setShowUpdateNumberPopup] = useState(false);
+
     const [contact, setContact] = useState(null);
     const [orgData, setOrgData] = useState({
         organisation_id: organisation.id,
@@ -93,7 +95,13 @@ export default function Index({
         number_pool_id: ""
     });
 
-
+    const [numberData, setNumberData] = useState({
+        phone_number : '',
+        purpose : '',
+        provider : '',
+        sending_server_id : '',
+        number_pool_id : '',
+    });
     const handleSearch = async (e) => {
         e.preventDefault();
 
@@ -103,7 +111,7 @@ export default function Index({
             });
 
             if (response.data.status === 'success') {
-                console.log(response.data.contact);
+
                 setContact(response.data.contact);
                 setErrorMessage(null);
             } else {
@@ -196,8 +204,8 @@ export default function Index({
         axios
             .delete(`/delete-spintax/${deletedSpintaxId}`, {})
             .then((response) => {
-                console.log(response);
-                console.log(`Spintax ${response.content} deleted successfully`);
+
+
                 setMessage(`Spintax ${response.content} deleted successfully`);
                 location.reload();
             })
@@ -213,8 +221,8 @@ export default function Index({
         axios
             .delete(`/delete-number/${deletedNumberId}`, {})
             .then((response) => {
-                console.log(response);
-                console.log(`Number ${response.content} deleted successfully`);
+
+
                 setMessage(`Number ${response.content} deleted successfully`);
                 location.reload();
             })
@@ -230,8 +238,8 @@ export default function Index({
         axios
             .delete(`/delete-number-pool/${deletedPoolId}`, {})
             .then((response) => {
-                console.log(response);
-                console.log(`Number pool deleted successfully`);
+
+
                 setMessage(`Number pool deleted successfully`);
                 location.reload();
             })
@@ -266,7 +274,7 @@ export default function Index({
             ...prevData,  // Spread existing data
             sending_server_id: sendingServer.id  // Update specific field
         }));
-        console.log({ ...data, sending_server_id: sendingServer.id });  // Log updated value
+
         setShowUpdateSendingServerPopup(true);
     };
     const handleViewNumberPool = (numberPool) => {
@@ -280,8 +288,16 @@ export default function Index({
             ...prevData,  // Spread existing data
             number_pool_id: numberPool.id  // Update specific field
         }));
-        console.log({ ...data, number_pool_id: numberPool.id });  // Log updated value
+
         setShowUpdateNumberPoolPopup(true);
+    };
+    const handleUpdateNumber = (number) => {
+        setNumberData(prevData => ({
+            ...prevData,  // Spread existing data
+            number_id: number.id  // Update specific field
+        }));
+
+        setShowUpdateNumberPopup(true);
     };
     const submitOrganisationUpdate = async (e) => {
         e.preventDefault();
@@ -291,7 +307,7 @@ export default function Index({
             setMessage(`Org update  successfull`);
             setShowUpdateOrgPopup(false)
             setTimeout(() => { window.location.reload() }, 2000);
-            console.log('Response:', response.data);
+
         } catch (error) {
             setErrorMessage("Error switching to org");
             setShowUpdateOrgPopup(false)
@@ -301,12 +317,12 @@ export default function Index({
     const submitServerUpdate = async (e) => {
         e.preventDefault();
         try {
-            console.log(sendingServerData)
+
             const response = await axios.post('/update-server', sendingServerData);
             setMessage(`Server update  successfull`);
             setShowUpdateSendingServerPopup(false)
             setTimeout(() => { window.location.reload() }, 2000);
-            console.log('Response:', response.data);
+
         } catch (error) {
             setErrorMessage("Error updating server");
             setShowUpdateSendingServerPopup(false)
@@ -316,16 +332,31 @@ export default function Index({
     const submitNumberPoolUpdate = async (e) => {
         e.preventDefault();
         try {
-            console.log(numberPoolData)
+
             const response = await axios.post('/update-number-pool', numberPoolData);
             setMessage(`Number Pool update  successfull`);
             setShowUpdateNumberPoolPopup(false)
             setTimeout(() => { window.location.reload() }, 2000);
-            console.log('Response:', response.data);
+
         } catch (error) {
             setErrorMessage("Error updating number pool");
             setShowUpdateNumberPoolPopup(false)
             console.error('Error updating org', error);
+        }
+    };
+    const submitNumberUpdate = async (e) => {
+        e.preventDefault();
+        try {
+
+            const response = await axios.post('/update-number', numberData);
+            setMessage(`Number update  successfull`);
+            setShowUpdateNumberPopup(false)
+            setTimeout(() => { window.location.reload() }, 2000);
+
+        } catch (error) {
+            setErrorMessage("Error updating number pool");
+            setShowUpdateNumberPopup(false)
+            console.error('Error updating number', error);
         }
     };
     const switchOrg = (orgId) => {
@@ -333,10 +364,8 @@ export default function Index({
             .get(`/switch-organisation/${orgId}`)
             .then((response) => {
                 setMessage(`Switch to org ${orgId} was successfull`);
-                console.log(
-                    "Organisation switched successfully:",
-                    response.data
-                );
+              
+                
                 window.location.reload();
             })
             .catch((error) => {
@@ -358,17 +387,15 @@ export default function Index({
         const apiKey = apiKeys[userId];
         if (apiKey) {
             // handleKeyPress(apiKey, userId);
-            console.log(apiKey);
+
             axios
                 .post("/submit-api-key", {
                     api_key: apiKey,
                     user_id: userId,
                 })
                 .then((response) => {
-                    console.log(
-                        "API Key submitted successfully:",
-                        response.data
-                    );
+                    
+                    
 
                     setMessage(`Godspeedoffers api key updated successfully`);
                     setTimeout(() => { window.location.reload() }, 2000);
@@ -825,9 +852,29 @@ export default function Index({
                                                         number.id
                                                     )
                                                 }
-                                                className={`inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                                                className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                                             >
-                                                Delete
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        faTrash
+                                                    }
+                                                    className="fa-xs"
+                                                />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleUpdateNumber(
+                                                        number
+                                                    )
+                                                }
+                                                className={`inline-flex items-center px-2 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 ml-2  focus:ring-blue-500`}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={
+                                                        faPen
+                                                    }
+                                                    className="fa-xs"
+                                                />
                                             </button>
                                         </td>
                                     </tr>
@@ -2006,6 +2053,17 @@ export default function Index({
                 data={numberPoolData}
                 setData={setNumberPoolData}
                 submitNumberPoolUpdate={submitNumberPoolUpdate}
+            />
+            <UpdateNumberPopup
+                isOpen={showUpdateNumberPopup}
+                onClose={() => setShowUpdateNumberPopup(false)}
+                showUpdateNumberPopup={showUpdateNumberPopup}
+                setShowUpdateNumberPopup={setShowUpdateNumberPopup}
+                sendingServers={sendingServers}
+                numberPools={numberPools}
+                data={numberData}
+                setData={setNumberData}
+                submitNumberUpdate={submitNumberUpdate}
             />
         </AuthenticatedLayout>
     );
