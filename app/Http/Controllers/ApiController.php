@@ -550,12 +550,15 @@ class ApiController extends Controller
         }
     
         // 🔍 Retrieve the contact (optionally filter by user/organisation if needed)
-        $contact = DB::table('contacts')->where('phone', $phone)->first();
+        $contact = DB::table('contacts')->where('phone', $phone)
+        ->where('organisation_id',$user->organisation_id)->first();
     
         if (!$contact) {
+            Log::info("Contact not found for phone: $phone in organisation: $user->organisation_id");
             return response()->json(['error' => 'Contact not found'], 404);
         }
-    
+        Log::info("Contact found: ", (array)$contact);
+        Log::info("contact found in organisation: $user->organisation_id");
         $current_step = $contact->current_step;
         $step = Step::find($current_step);
     
