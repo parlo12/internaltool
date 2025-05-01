@@ -543,6 +543,7 @@ class ApiController extends Controller
         $apiKey = $request->query('workflow_apikey');
         Log::info("The api key is $apiKey");
         $user = User::where('api_key', $apiKey)->first();
+        Log::info("The user is $user");
     
         if (!$user) {
             return response()->json(['error' => 'Invalid API key'], 401);
