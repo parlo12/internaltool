@@ -531,45 +531,45 @@ class ApiController extends Controller
             throw new \Exception('Failed to retrieve contact');
         }
     }
-    public function get_message(string $phone,Request $request)
+    public function get_message(string $phone, Request $request)
     {
         Log::info("I am in the get message function");
-        Log::info(
-            'request data',
-            [
-                'phone' => $phone,
-                'request' => $request->all()
-            ]
-            );
-        
-        // Retrieve the contact based on the phone number
+        Log::info('request data', [
+            'phone' => $phone,
+            'request' => $request->all()
+        ]);
+    
+        // 🔐 Authenticate by workflow_apikey
+        $apiKey = $request->query('workflow_apikey');
+        $user = User::where('workflow_apikey', $apiKey)->first();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Invalid API key'], 401);
+        }
+    
+        // 🔍 Retrieve the contact (optionally filter by user/organisation if needed)
         $contact = DB::table('contacts')->where('phone', $phone)->first();
-
-        // Check if the contact exists
+    
         if (!$contact) {
             return response()->json(['error' => 'Contact not found'], 404);
         }
-
-        // Get the current step from the contact
+    
         $current_step = $contact->current_step;
-
-        // Find the corresponding step
         $step = Step::find($current_step);
-
-        // Check if the step exists
+    
         if (!$step) {
             return response()->json(['error' => 'Step not found'], 404);
         }
-
-        // Get the content of the step
+    
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
-        $message =  $DynamicTagsService->composeMessage($contact, $content);
-        $content =  $DynamicTagsService->spintax($message);
-        // Return the content in the response
+        $message = $DynamicTagsService->composeMessage($contact, $content);
+        $content = $DynamicTagsService->spintax($message);
+    
         return response()->json(['message' => $content]);
     }
+    
     public function get_AI_reply(Request $request)
     {
         // Validate incoming request
