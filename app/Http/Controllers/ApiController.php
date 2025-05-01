@@ -531,8 +531,16 @@ class ApiController extends Controller
             throw new \Exception('Failed to retrieve contact');
         }
     }
-    public function get_message(string $phone)
+    public function get_message(string $phone,Request $request)
     {
+        Log::info("I am in the get message function");
+        Log::info(
+            'request data',
+            [
+                'phone' => $phone,
+                'request' => $request->all()
+            ]
+            );
         
         // Retrieve the contact based on the phone number
         $contact = DB::table('contacts')->where('phone', $phone)->first();
