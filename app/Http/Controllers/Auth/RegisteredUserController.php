@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -40,6 +41,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'api_key' => Str::random(60), // Generates a random 60-character API key
         ]);
 
         event(new Registered($user));

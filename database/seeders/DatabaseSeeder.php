@@ -28,8 +28,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'testpass@gmail.com',
             'password' => 'testpass',
             'is_admin' => 1,
-            'godspeedoffers_api' => "4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0"
-
+            'godspeedoffers_api' => "4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0",
+            'api_key'=>fake()->uuid(),
         ]);
         $this->call([
             OrganisationSeeder::class,

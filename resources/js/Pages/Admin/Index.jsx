@@ -34,6 +34,7 @@ export default function Index({
     numberPools,
     agents
 }) {
+    console.log(users);
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
@@ -506,7 +507,10 @@ export default function Index({
                                             Organisation
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            API Key
+                                            Godspeed API Key
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            workflow API Key
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
@@ -559,6 +563,9 @@ export default function Index({
                                                     placeholder="Enter API Key"
                                                     className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                                 />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {user.api_key}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button

@@ -22,7 +22,8 @@ class User extends Authenticatable
         'password',
         'is_admin', 
         'godspeedoffers_api',
-        'organisation_id'
+        'organisation_id',
+        'api_key'
     ];
 
     /**

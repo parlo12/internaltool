@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('is_admin')->default(false);
             $table->string('godspeedoffers_api')->nullable();
+            $table->string('api_key')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

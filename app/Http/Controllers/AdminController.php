@@ -11,6 +11,7 @@ use App\Models\Spintax;
 use App\Models\User;
 use App\Services\RetellService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -356,6 +357,8 @@ class AdminController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
         $user->godspeedoffers_api = $request->input('api_key');
+        $user->api_key = Str::random(60);
+
         $user->save();
         return response()->json(['success' => 'API Key submitted successfully'], 200);
     }

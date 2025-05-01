@@ -20,7 +20,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'is_admin' => $this->is_admin,
             'godspeedoffers_api'=>$this->godspeedoffers_api,
-            'organisation_id'=>$this->organisation_id
+            'organisation_id'=>$this->organisation_id,
+            'api_key'=>$this->api_key,
         ];
     }
 }
