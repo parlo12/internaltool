@@ -541,6 +541,7 @@ class ApiController extends Controller
     
         // 🔐 Authenticate by workflow_apikey
         $apiKey = $request->query('workflow_apikey');
+        Log::info("The api key is $apiKey");
         $user = User::where('api_key', $apiKey)->first();
     
         if (!$user) {
