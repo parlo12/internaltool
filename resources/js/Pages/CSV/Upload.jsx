@@ -5,12 +5,15 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-export default function Upload({ auth, success, csvFiles, zipfile }) {
+export default function Upload({ auth, success, zipfile, workflows }) {
     const { data, setData, post, errors, processing, reset } = useForm({
-        csv_files: [], // plural, for multiple files
+        csv_files: [],
+        sms_workflow_id: "",
+        calls_workflow_id: ""
     });
 
     const [fileNames, setFileNames] = useState([]);
+    const [showWorkflowSelect, setShowWorkflowSelect] = useState(false);
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
@@ -26,12 +29,15 @@ export default function Upload({ auth, success, csvFiles, zipfile }) {
             formData.append(`csv_files[${index}]`, file);
         });
 
+        formData.append("workflow_id", data.workflow_id);
+
         post(route("process.csv"), {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
                 reset();
                 setFileNames([]);
+                setShowWorkflowSelect(false);
             },
         });
     };
@@ -71,6 +77,66 @@ export default function Upload({ auth, success, csvFiles, zipfile }) {
                                 )}
                                 <InputError message={errors.csv_files} className="mt-2" />
                             </div>
+
+                            <div className="mb-4 mt-4">
+                                <label className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={showWorkflowSelect}
+                                        onChange={(e) => setShowWorkflowSelect(e.target.checked)}
+                                    />
+                                    <span className="text-sm">Would you like to create workflows too?</span>
+                                </label>
+                            </div>
+
+                            {showWorkflowSelect && (
+                                <>
+                                    <div className="mb-4">
+                                        <InputLabel htmlFor="workflow_id" className="block text-sm font-medium">
+                                            Choose Workflow To Copy Steps From for SMS
+                                        </InputLabel>
+                                        <select
+                                            id="sms_workflow_id"
+                                            name="sms_workflow_id"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
+                                            value={data.sms_workflow_id}
+                                            onChange={(e) => setData("sms_workflow_id", e.target.value)}
+                                        >
+                                            <option value="">-- Select Workflow --</option>
+                                            {workflows.map((workflow) => (
+                                                <option key={workflow.id} value={workflow.id}>
+                                                    {workflow.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <InputError message={errors.sms_workflow_id} className="mt-2" />
+                                    </div>
+                                    <div className="mb-4">
+                                        <InputLabel htmlFor="calls_workflow_id" className="block text-sm font-medium">
+                                            Choose Workflow To Copy Steps From for Calls
+                                        </InputLabel>
+                                        <select
+                                            id="calls_workflow_id"
+                                            name="calls_workflow_id"
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
+                                            value={data.workflow_id}
+                                            onChange={(e) => setData("calls_workflow_id", e.target.value)}
+                                        >
+                                            <option value="">-- Select Workflow --</option>
+                                            {workflows.map((workflow) => (
+                                                <option key={workflow.id} value={workflow.id}>
+                                                    {workflow.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <InputError message={errors.calls_workflow_id} className="mt-2" />
+                                    </div>
+
+                                </>
+
+                            )}
+
                             <div className="flex justify-end">
                                 <PrimaryButton type="submit" disabled={processing} className="w-full">
                                     {processing ? "Uploading..." : "Upload"}

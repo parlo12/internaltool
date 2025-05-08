@@ -13,6 +13,7 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\FreshleadController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ShopifyProductSyncController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\UnderContractController;
 use App\Http\Controllers\WorkflowController;
@@ -122,7 +123,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/execute-contract/{id}', [ContactController::class, 'execute_contract'])->name('execute-contract');
     Route::get('/cancel-contract/{id}', [ContactController::class, 'cancel_contract'])->name('cancel-contract');
     Route::get('/close-deal/{id}', [ContactController::class, 'close_deal'])->name('close-deal');
-    Route::get('/test', [ContactController::class, 'test'])->name('test');
+    Route::get('/test', [ShopifyProductSyncController::class, 'test'])->name('test');
 
     //FOLDER CONTROLLER
     Route::post('/create-folder', [FolderController::class, 'create']);
