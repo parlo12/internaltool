@@ -23,12 +23,10 @@ export default function Upload({ auth, success, zipfile, workflows }) {
 
     const onSubmit = (e) => {
         e.preventDefault();
-
         const formData = new FormData();
         data.csv_files.forEach((file, index) => {
             formData.append(`csv_files[${index}]`, file);
         });
-
         formData.append("workflow_id", data.workflow_id);
 
         post(route("process.csv"), {
@@ -45,113 +43,115 @@ export default function Upload({ auth, success, zipfile, workflows }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Upload CSV" />
-            <div className="container mt-5 mx-auto min-h-screen">
-                <div className="flex flex-col items-center justify-center min-h-screen">
-                    <div className="w-full max-w-md p-4 bg-white shadow-md rounded-md mb-6">
-                        {success && (
-                            <div className="bg-green-500 text-center text-white p-2 rounded mb-4">
-                                {success}
+            <div className="container mx-auto px-4 py-10 max-w-3xl">
+                <div className="bg-white shadow-xl rounded-xl p-8 space-y-6">
+                    {success && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            {success}
+                        </div>
+                    )}
+
+                    <h2 className="text-3xl font-bold text-gray-800 text-center">
+                        Upload CSV Files
+                    </h2>
+
+                    <form onSubmit={onSubmit} className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="csv-files">CSV Files</InputLabel>
+                            <input
+                                id="csv-files"
+                                type="file"
+                                accept=".csv"
+                                multiple
+                                required
+                                onChange={handleFileChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                            {fileNames.length > 0 && (
+                                <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
+                                    {fileNames.map((name, idx) => (
+                                        <li key={idx}>{name}</li>
+                                    ))}
+                                </ul>
+                            )}
+                            <InputError message={errors.csv_files} className="mt-2" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="workflowToggle"
+                                className="form-checkbox rounded text-indigo-600 focus:ring-indigo-500"
+                                checked={showWorkflowSelect}
+                                onChange={(e) => setShowWorkflowSelect(e.target.checked)}
+                            />
+                            <label htmlFor="workflowToggle" className="text-sm text-gray-700">
+                                Create workflows too?
+                            </label>
+                        </div>
+
+                        {showWorkflowSelect && (
+                            <div className="space-y-4">
+                                <div>
+                                    <InputLabel htmlFor="sms_workflow_id">
+                                        Copy Steps From (SMS Workflow)
+                                    </InputLabel>
+                                    <select
+                                        id="sms_workflow_id"
+                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        value={data.sms_workflow_id}
+                                        onChange={(e) => setData("sms_workflow_id", e.target.value)}
+                                    >
+                                        <option value="">-- Select Workflow --</option>
+                                        {workflows.map((workflow) => (
+                                            <option key={workflow.id} value={workflow.id}>
+                                                {workflow.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.sms_workflow_id} className="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="calls_workflow_id">
+                                        Copy Steps From (Calls Workflow)
+                                    </InputLabel>
+                                    <select
+                                        id="calls_workflow_id"
+                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        value={data.calls_workflow_id}
+                                        onChange={(e) => setData("calls_workflow_id", e.target.value)}
+                                    >
+                                        <option value="">-- Select Workflow --</option>
+                                        {workflows.map((workflow) => (
+                                            <option key={workflow.id} value={workflow.id}>
+                                                {workflow.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.calls_workflow_id} className="mt-2" />
+                                </div>
                             </div>
                         )}
-                        <h2 className="text-2xl font-semibold text-center mb-6">Upload CSV Files</h2>
-                        <form onSubmit={onSubmit}>
-                            <div className="mb-4">
-                                <InputLabel htmlFor="csv-files" className="block text-sm font-medium">
-                                    CSV Files
-                                </InputLabel>
-                                <input
-                                    id="csv-files"
-                                    type="file"
-                                    accept=".csv"
-                                    multiple
-                                    required
-                                    onChange={handleFileChange}
-                                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                />
-                                {fileNames.length > 0 && (
-                                    <ul className="text-sm text-gray-600 mt-2">
-                                        {fileNames.map((name, idx) => (
-                                            <li key={idx}>• {name}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                                <InputError message={errors.csv_files} className="mt-2" />
-                            </div>
 
-                            <div className="mb-4 mt-4">
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        className="form-checkbox"
-                                        checked={showWorkflowSelect}
-                                        onChange={(e) => setShowWorkflowSelect(e.target.checked)}
-                                    />
-                                    <span className="text-sm">Would you like to create workflows too?</span>
-                                </label>
-                            </div>
-
-                            {showWorkflowSelect && (
-                                <>
-                                    <div className="mb-4">
-                                        <InputLabel htmlFor="workflow_id" className="block text-sm font-medium">
-                                            Choose Workflow To Copy Steps From for SMS
-                                        </InputLabel>
-                                        <select
-                                            id="sms_workflow_id"
-                                            name="sms_workflow_id"
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
-                                            value={data.sms_workflow_id}
-                                            onChange={(e) => setData("sms_workflow_id", e.target.value)}
-                                        >
-                                            <option value="">-- Select Workflow --</option>
-                                            {workflows.map((workflow) => (
-                                                <option key={workflow.id} value={workflow.id}>
-                                                    {workflow.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <InputError message={errors.sms_workflow_id} className="mt-2" />
-                                    </div>
-                                    <div className="mb-4">
-                                        <InputLabel htmlFor="calls_workflow_id" className="block text-sm font-medium">
-                                            Choose Workflow To Copy Steps From for Calls
-                                        </InputLabel>
-                                        <select
-                                            id="calls_workflow_id"
-                                            name="calls_workflow_id"
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
-                                            value={data.workflow_id}
-                                            onChange={(e) => setData("calls_workflow_id", e.target.value)}
-                                        >
-                                            <option value="">-- Select Workflow --</option>
-                                            {workflows.map((workflow) => (
-                                                <option key={workflow.id} value={workflow.id}>
-                                                    {workflow.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <InputError message={errors.calls_workflow_id} className="mt-2" />
-                                    </div>
-
-                                </>
-
-                            )}
-
-                            <div className="flex justify-end">
-                                <PrimaryButton type="submit" disabled={processing} className="w-full">
-                                    {processing ? "Uploading..." : "Upload"}
-                                </PrimaryButton>
-                            </div>
-                        </form>
-                    </div>
+                        <PrimaryButton
+                            type="submit"
+                            disabled={processing}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+                        >
+                            {processing ? "Uploading..." : "Upload"}
+                        </PrimaryButton>
+                    </form>
 
                     {zipfile && (
-                        <div>
-                            <p className="text-lg font-semibold text-center mb-2">
-                                Download your processed file:
-                            </p>
-                            <a className="text-2xl text-blue-700" href={zipfile} download>
-                                Download {zipfile}
+                        <div className="text-center mt-6">
+                            <p className="text-lg font-medium mb-2">Download your processed file:</p>
+                            <a
+                                className="text-indigo-600 hover:underline font-semibold text-base"
+                                href={zipfile}
+                                download
+                            >
+                                Download ZIP
                             </a>
                         </div>
                     )}

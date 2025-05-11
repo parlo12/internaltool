@@ -24,6 +24,15 @@ class CSVProcessorController extends Controller
         ]);
     }
 
+    public function test()
+    {
+        $crm_api = new \App\Services\CRMAPIRequestsService('4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0');
+        $response = $crm_api->createGroup('Test Group');
+        $content = json_decode($response->getContent(), true);
+        $uid = $content['data']['data']['uid'] ?? null;
+    }
+
+
 
 
     public function processCSV(Request $request)
@@ -56,14 +65,15 @@ class CSVProcessorController extends Controller
 
                 // Sanitize the filename
                 $file_name = preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName);
-                $file_name = strtolower(trim($file_name, '_'));                Log::info("Processing file: $file_name");
-                $folder=Folder::create([
-                    'name'=>$file_name,
-                    'organisation_id'=>auth()->user()->organisation_id,
-                    'user_id'=>auth()->user()->id,
+                $file_name = strtolower(trim($file_name, '_'));
+                Log::info("Processing file: $file_name");
+                
+                $folder = Folder::create([
+                    'name' => $file_name,
+                    'organisation_id' => auth()->user()->organisation_id,
+                    'user_id' => auth()->user()->id,
                 ]);
-                $folder_id=$folder->id;
-              
+                $folder_id = $folder->id;
                 $columnName = 'Phone type 1';
                 $columnName2 = 'Phone usage 1';
                 $keywords = ['wireless'];
@@ -99,8 +109,8 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $wirelessFilePath;
-                if($request->sms_workflow_id){
-                    dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath,$request->sms_workflow_id,$folder_id));
+                if ($request->sms_workflow_id) {
+                    dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
                 }
                 Log::info("Wireless CSV saved: $wirelessFilePath");
 
@@ -130,8 +140,8 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $landlineFilePath;
-                if($request->calls_workflow_id){
-                    dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath,$request->calls_workflow_id,$folder_id));
+                if ($request->calls_workflow_id) {
+                    dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath, $request->calls_workflow_id, $folder_id,auth()->user()));
                 }
 
                 Log::info("Landline CSV saved: $landlineFilePath");
@@ -195,8 +205,8 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] = $processedFilePath;
-                if($request->sms_workflow_id){
-                    dispatch(new \App\Jobs\ProcessCsvFile($processedFilePath,$request->sms_workflow_id,$folder_id));
+                if ($request->sms_workflow_id) {
+                    dispatch(new \App\Jobs\ProcessCsvFile($processedFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
                 }
                 Log::info("Processed CSV saved: $processedFilePath");
             } catch (\Exception $e) {
@@ -219,9 +229,9 @@ class CSVProcessorController extends Controller
         } else {
             Log::error("Failed to create ZIP archive: $zipFilePath");
         }
-        $workflows_message=$request->workflow_id?"Workflows were also created":"No workflows were created";
+        $workflows_message = $request->sms_workflow_id || $request->calls_workflow_id ? "Workflows were also created" : "No workflows were created";
         return redirect()->back()->with([
-            'success' => 'Files processed and zipped successfully and ' . $workflows_message,
+            'success' => 'Files processed and zipped successfully. ' . $workflows_message,
             'zipfile' => asset('uploads/' . $zipFileName),
         ]);
     }
