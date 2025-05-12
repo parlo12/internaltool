@@ -124,7 +124,7 @@ class CSVProcessorController extends Controller
 
                 $filteredRows = [];
                 foreach ($records as $record) {
-                    if (isset($record[$header[$columnIndex]])) {
+                    if (isset($record[$header[$columnIndex]]) && strtolower($record[$columnName2]) !== 'no data available or no usage in the last 2 months') {
                         $cellValue = $record[$header[$columnIndex]];
                         foreach ($keywords as $keyword) {
                             if (stripos($cellValue, $keyword) !== false) {
@@ -135,7 +135,7 @@ class CSVProcessorController extends Controller
                     }
                 }
 
-                $landlineFilePath = $uploadDirectory . "/{$file_name}_landline_only_numbers.csv";
+                $landlineFilePath = $uploadDirectory . "/{$file_name}_landline_numbers.csv";
                 $writer = Writer::createFromPath($landlineFilePath, 'w+');
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
@@ -178,18 +178,19 @@ class CSVProcessorController extends Controller
                 $csvFilePaths[] = $noUsageFilePath;
                 Log::info("No usage CSV saved: $noUsageFilePath");
 
-                // Replace landlines
-                $reader = Reader::createFromPath($landlineFilePath, 'r');
+                // This is for wireless processed numbers
+                $reader = Reader::createFromPath($file->getPathname(), 'r');
                 $reader->setHeaderOffset(0);
                 $header = $reader->getHeader();
                 $records = $reader->getRecords();
 
                 $updatedRows = [];
                 foreach ($records as $record) {
-                    //We might need this to filter generate true landline only numbers
                     if (
                         isset($record['Phone number 2']) &&
                         strtolower($record['Phone type 2']) == 'wireless' &&
+                        strtolower($record['Phone type 1']) == 'wireless' &&
+                        in_array(strtolower($record['Phone usage 1']), $keywordsUsage) &&
                         !in_array(strtolower($record['Phone usage 2']), $keywordsUsage)
                     ) {
                         $record['Phone number 1'] = $record['Phone number 2'];
@@ -200,15 +201,47 @@ class CSVProcessorController extends Controller
                     }
                 }
 
-                $processedFilePath = $uploadDirectory . "/{$file_name}_landline_processed_numbers.csv";
-                $writer = Writer::createFromPath($processedFilePath, 'w+');
+                $wirelessProcessedFilePath = $uploadDirectory . "/{$file_name}_wireless_processed_numbers.csv";
+                $writer = Writer::createFromPath( $wirelessProcessedFilePath, 'w+');
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
-                $csvFilePaths[] = $processedFilePath;
+                $csvFilePaths[] =  $wirelessProcessedFilePath;
                 if ($request->sms_workflow_id) {
-                    dispatch(new \App\Jobs\ProcessCsvFile($processedFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
+                    dispatch(new \App\Jobs\ProcessCsvFile( $wirelessProcessedFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
                 }
-                Log::info("Processed CSV saved: $processedFilePath");
+                Log::info("Processed CSV saved:  $wirelessProcessedFilePath");
+                // This is for landline processed numbers
+                $reader = Reader::createFromPath($file->getPathname(), 'r');
+                $reader->setHeaderOffset(0);
+                $header = $reader->getHeader();
+                $records = $reader->getRecords();
+
+                $updatedRows = [];
+                foreach ($records as $record) {
+                    if (
+                        isset($record['Phone number 2']) &&
+                        strtolower($record['Phone type 2']) == 'landline' &&
+                        strtolower($record['Phone type 1']) == 'landline' &&
+                        in_array(strtolower($record['Phone usage 1']), $keywordsUsage) &&
+                        !in_array(strtolower($record['Phone usage 2']), $keywordsUsage)
+                    ) {
+                        $record['Phone number 1'] = $record['Phone number 2'];
+                        $record['Phone type 1'] = $record['Phone type 2'];
+                        $record['Phone usage 1'] = $record['Phone usage 2'];
+                        $record['Likely owner 1'] = $record['Likely owner 2'];
+                        $updatedRows[] = $record;
+                    }
+                }
+
+                $landlineProcessedFilePath = $uploadDirectory . "/{$file_name}_landline_processed_numbers.csv";
+                $writer = Writer::createFromPath( $landlineProcessedFilePath, 'w+');
+                $writer->insertOne($header);
+                $writer->insertAll($updatedRows);
+                $csvFilePaths[] =  $landlineProcessedFilePath;
+                if ($request->calls_workflow_id) {
+                    dispatch(new \App\Jobs\ProcessCsvFile( $landlineProcessedFilePath, $request->calls_workflow_id, $folder_id,auth()->user()));
+                }
+                Log::info("Processed CSV saved:  $landlineProcessedFilePath");
             } catch (\Exception $e) {
                 Log::error("Error processing file {$file->getClientOriginalName()}: " . $e->getMessage());
             }
