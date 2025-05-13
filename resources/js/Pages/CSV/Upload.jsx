@@ -1,37 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-export default function Upload({ auth, success, csvFiles, zipfile }) {
+export default function Upload({ auth, success, zipfile, workflows }) {
     const { data, setData, post, errors, processing, reset } = useForm({
-        csv_file: null, // Default state for the file input
+        csv_files: [],
+        sms_workflow_id: "",
+        calls_workflow_id: ""
     });
-console.log(zipfile);
-    const [fileName, setFileName] = useState("");
+
+    const [fileNames, setFileNames] = useState([]);
+    const [showWorkflowSelect, setShowWorkflowSelect] = useState(false);
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setFileName(file ? file.name : "");
-        setData("csv_file", file);
+        const files = Array.from(e.target.files);
+        setFileNames(files.map((file) => file.name));
+        setData("csv_files", files);
     };
 
     const onSubmit = (e) => {
         e.preventDefault();
-
         const formData = new FormData();
-        formData.append("csv_file", data.csv_file);
+        data.csv_files.forEach((file, index) => {
+            formData.append(`csv_files[${index}]`, file);
+        });
+        formData.append("workflow_id", data.workflow_id);
 
-        post(route("process.csv"), formData, {
+        post(route("process.csv"), {
+            preserveScroll: true,
+            forceFormData: true,
             onSuccess: () => {
                 reset();
-                setFileName(""); // Reset file name after upload
-                // Optionally, refetch CSV files
-                fetch(route("csv-files.index"))
-                    .then((response) => response.json())
-                    .then((data) => setCsvFiles(data));
+                setFileNames([]);
+                setShowWorkflowSelect(false);
             },
         });
     };
@@ -39,155 +43,118 @@ console.log(zipfile);
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Upload CSV" />
-            <div className="container mt-5 mx-auto min-h-screen">
-                <div className="flex flex-col items-center justify-center min-h-screen">
-                    <div className="w-full max-w-md p-4 bg-white shadow-md rounded-md mb-6">
-                        {success && (
-                            <div className="bg-green-500 text-center text-white p-2 rounded mb-4">
-                                {success}
+            <div className="container mx-auto px-4 py-10 max-w-3xl">
+                <div className="bg-white shadow-xl rounded-xl p-8 space-y-6">
+                    {success && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            {success}
+                        </div>
+                    )}
+
+                    <h2 className="text-3xl font-bold text-gray-800 text-center">
+                        Upload CSV Files
+                    </h2>
+
+                    <form onSubmit={onSubmit} className="space-y-6">
+                        <div>
+                            <InputLabel htmlFor="csv-files">CSV Files</InputLabel>
+                            <input
+                                id="csv-files"
+                                type="file"
+                                accept=".csv"
+                                multiple
+                                required
+                                onChange={handleFileChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                            {fileNames.length > 0 && (
+                                <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
+                                    {fileNames.map((name, idx) => (
+                                        <li key={idx}>{name}</li>
+                                    ))}
+                                </ul>
+                            )}
+                            <InputError message={errors.csv_files} className="mt-2" />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="workflowToggle"
+                                className="form-checkbox rounded text-indigo-600 focus:ring-indigo-500"
+                                checked={showWorkflowSelect}
+                                onChange={(e) => setShowWorkflowSelect(e.target.checked)}
+                            />
+                            <label htmlFor="workflowToggle" className="text-sm text-gray-700">
+                                Create workflows too?
+                            </label>
+                        </div>
+
+                        {showWorkflowSelect && (
+                            <div className="space-y-4">
+                                <div>
+                                    <InputLabel htmlFor="sms_workflow_id">
+                                        Copy Steps From (SMS Workflow)
+                                    </InputLabel>
+                                    <select
+                                        id="sms_workflow_id"
+                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        value={data.sms_workflow_id}
+                                        onChange={(e) => setData("sms_workflow_id", e.target.value)}
+                                    >
+                                        <option value="">-- Select Workflow --</option>
+                                        {workflows.map((workflow) => (
+                                            <option key={workflow.id} value={workflow.id}>
+                                                {workflow.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.sms_workflow_id} className="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="calls_workflow_id">
+                                        Copy Steps From (Calls Workflow)
+                                    </InputLabel>
+                                    <select
+                                        id="calls_workflow_id"
+                                        className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        value={data.calls_workflow_id}
+                                        onChange={(e) => setData("calls_workflow_id", e.target.value)}
+                                    >
+                                        <option value="">-- Select Workflow --</option>
+                                        {workflows.map((workflow) => (
+                                            <option key={workflow.id} value={workflow.id}>
+                                                {workflow.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError message={errors.calls_workflow_id} className="mt-2" />
+                                </div>
                             </div>
                         )}
-                        <h2 className="text-2xl font-semibold text-center mb-6">
-                            Upload CSV File
-                        </h2>
-                        <form onSubmit={onSubmit}>
-                            <div className="mb-4">
-                                <InputLabel
-                                    htmlFor="csv-file"
-                                    className="block text-sm font-medium"
-                                >
-                                    CSV File
-                                </InputLabel>
-                                <input
-                                    id="csv-file"
-                                    type="file"
-                                    accept=".csv"
-                                    required
-                                    onChange={handleFileChange}
-                                    className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                />
-                                {fileName && (
-                                    <p className="text-sm text-gray-600 mt-2">
-                                        Selected file: {fileName}
-                                    </p>
-                                )}
-                                <InputError
-                                    message={errors.csv_file}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div className="flex justify-end">
-                                <PrimaryButton
-                                    type="submit"
-                                    disabled={processing}
-                                    className="w-full"
-                                >
-                                    {processing ? "Uploading..." : "Upload"}
-                                </PrimaryButton>
-                            </div>
-                        </form>
-                    </div>
-                    {zipfile && (
-                <div>
-                    <p classname="h1 text-center">Download your processed file:</p>
-                    <a className="text-2xl text-blue-700 " href={zipfile} download>
-                        Download  {zipfile}
-                    </a>
-                </div>
-            )}
-                    {/* Table Section */}
-                    {/* <div className="w-full max-w-4xl bg-white shadow-md rounded-md p-4">
-                        <h3 className="text-xl font-semibold mb-4">My CSV Files</h3>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Original Filename
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Wireless csv
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Landline only csv
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Processed landline csv
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            No Usage csv
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {csvFiles.length > 0 ? (
-                                        csvFiles.map((file) => (
-                                            <tr key={file.id}>
-                                                <td className="px-6 py-4 text-sm text-gray-900">
-                                                    {file.original_filename}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                        <a
-                                                        href={`https://internaltools.godspeedoffers.com/uploads/${file.original_filename}_wireless_numbers.csv`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download
-                                                            className="text-indigo-600 hover:underline"
-                                                        >
-                                                            Download {file.original_filename} Wireless CSV
-                                                        </a>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                        <a
-                                                        href={`https://internaltools.godspeedoffers.com/uploads/${file.original_filename}_landline_only_numbers.csv`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download
-                                                            className="text-indigo-600 hover:underline"
-                                                        >
-                                                            Download {file.original_filename} Landline Only CSV
-                                                        </a>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                        <a
-                                                        href={`https://internaltools.godspeedoffers.com/uploads/${file.original_filename}_processed_numbers.csv`}
-                                                        target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download
-                                                            className="text-indigo-600 hover:underline"
-                                                        >
-                                                            Download {file.original_filename} Processed Landline CSV
-                                                        </a>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                        <a
-                                                        href={`https://internaltools.godspeedoffers.com/uploads/${file.original_filename}_no_usage_numbers.csv`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download
-                                                            className="text-indigo-600 hover:underline"
-                                                        >
-                                                            Download {file.original_filename} No usage CSV
-                                                        </a>
-                                                
-                                                </td>
 
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td
-                                                colSpan="5"
-                                                className="px-6 py-4 text-center text-sm text-gray-500"
-                                            >
-                                                No files uploaded yet.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        <PrimaryButton
+                            type="submit"
+                            disabled={processing}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+                        >
+                            {processing ? "Uploading..." : "Upload"}
+                        </PrimaryButton>
+                    </form>
+
+                    {zipfile && (
+                        <div className="text-center mt-6">
+                            <p className="text-lg font-medium mb-2">Download your processed file:</p>
+                            <a
+                                className="text-indigo-600 hover:underline font-semibold text-base"
+                                href={zipfile}
+                                download
+                            >
+                                Download ZIP
+                            </a>
                         </div>
-                    </div> */}
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

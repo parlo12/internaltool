@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CRMAPIRequestsService
 {
@@ -195,4 +197,52 @@ class CRMAPIRequestsService
 
         return false; // The group has no contacts
     }
+
+    public function createGroup($name)
+    {
+        $response = Http::withToken($this->api_key)
+            ->acceptJson()
+            ->post('https://www.godspeedoffers.com/api/v3/contacts', [
+                'name' => $name,
+            ]);
+
+        if ($response->successful()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->json(),
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => $response->json('message') ?? 'Failed to create group.',
+            ], $response->status());
+        }
+    }
+
+
+public function createContact(string $groupUid, array $contactData)
+{
+    $token = $this->api_key; // Replace with your token
+
+    $response = Http::withToken($token)
+        ->acceptJson()
+        ->post("https://www.godspeedoffers.com/api/v3/contacts/{$groupUid}/store", $contactData);
+
+    if ($response->successful()) {
+        return response()->json([
+            'status' => 'success',
+            'data' => $response->json('data'),
+        ]);
+    } else {
+        Log::error('Failed to create contact', [
+            'response' => $response->json(),
+            'status_code' => $response->status(),
+        ]);
+        return response()->json([
+            'status' => 'error',
+            'message' => $response->json('message') ?? 'Failed to create contact.',
+        ], $response->status());
+    }
+}
+
 }
