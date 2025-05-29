@@ -544,7 +544,7 @@ export default function Create({
                                             <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{workflow.name}</td>
                                             <td className="px-2 py-1 text-gray-500 hidden md:table-cell max-w-[120px] break-words whitespace-pre-wrap">{workflow.contact_group}</td>
                                             <td className="px-1 py-1 max-w-[80px]">
-                                                <div className="flex justify-end gap-1">
+                                                <div className="flex justify-center gap-1">
                                                     <button
                                                         onClick={() => handleCopyClick(workflow)}
                                                         className="p-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"

@@ -161,7 +161,7 @@ class WorkflowController extends Controller
         if ($request->search_folder) {
             $query->where('name', 'like', '%' . $request->search_folder . '%');
         }
-        $folders = $query->where('organisation_id', $organisationId)->paginate(1)->appends(['search_folder' => $request->search_folder]);
+        $folders = $query->where('organisation_id', $organisationId)->paginate(10)->appends(['search_folder' => $request->search_folder]);
 
         $calling_numbers = Number::where('purpose', 'calling')
             ->where('organisation_id', $organisationId)
