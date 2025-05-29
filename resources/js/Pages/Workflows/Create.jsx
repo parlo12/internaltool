@@ -518,13 +518,13 @@ export default function Create({
                     </form>
                     {/* Workflows Table */}
                     <div className="mt-10">
-                        <h3 className="text-2xl font-bold text-center text-gray-800 mb-4">Workflows</h3>
+                        <h3 className="text-xl font-bold text-center text-gray-800 mb-2">Workflows</h3>
                         <div className="overflow-x-auto max-w-full">
-                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-xs">
                                 <thead>
                                     <tr>
-                                        <th className="px-4 py-3 bg-gray-100 text-left text-xs w-16">ID</th>
-                                        <th className="px-4 py-3 bg-gray-100 text-left text-xs">
+                                        <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">
                                             <input
                                                 type="text"
                                                 placeholder="Search Name"
@@ -533,21 +533,17 @@ export default function Create({
                                                 className="w-full p-1 border rounded text-xs"
                                             />
                                         </th>
-                                        <th className="px-4 py-3 bg-gray-100 text-left text-xs hidden md:table-cell">
-                                            Contact Group
-                                        </th>
-                                        <th className="px-4 py-3 bg-gray-100 text-xs w-32">Actions</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left hidden md:table-cell max-w-[120px]">Contact Group</th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[80px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {workflows.data.map((workflow) => (
                                         <tr key={workflow.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 text-sm text-gray-700">{workflow.id}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-700">{workflow.name}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-500 hidden md:table-cell">
-                                                {workflow.contact_group}
-                                            </td>
-                                            <td className="px-2 py-2">
+                                            <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{workflow.id}</td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{workflow.name}</td>
+                                            <td className="px-2 py-1 text-gray-500 hidden md:table-cell max-w-[120px] break-words whitespace-pre-wrap">{workflow.contact_group}</td>
+                                            <td className="px-1 py-1 max-w-[80px]">
                                                 <div className="flex justify-end gap-1">
                                                     <button
                                                         onClick={() => handleCopyClick(workflow)}
@@ -574,9 +570,8 @@ export default function Create({
                                 </tbody>
                             </table>
                         </div>
-
                         {/* Pagination Controls */}
-                        <div className="flex flex-wrap justify-center items-center mt-4 gap-1">
+                        <div className="flex flex-wrap justify-center items-center mt-2 gap-1">
                             {workflows.links.map((link, index) => (
                                 <button
                                     key={index}
@@ -636,11 +631,11 @@ export default function Create({
                     {/* Folders Table */}
                     <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                         <div className="overflow-x-auto max-w-full">
-                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-xs">
                                 <thead>
                                     <tr>
-                                        <th className="px-4 py-3 bg-gray-100 text-left text-xs w-16">ID</th>
-                                        <th className="px-4 py-3 bg-gray-100 text-left text-xs">
+                                        <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">
                                             <input
                                                 type="text"
                                                 placeholder="Search Name"
@@ -649,15 +644,15 @@ export default function Create({
                                                 className="w-full p-1 border rounded text-xs"
                                             />
                                         </th>
-                                        <th className="px-4 py-3 bg-gray-100 text-xs w-24">Actions</th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[60px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {folders.data.map((folder) => (
                                         <tr key={folder.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 text-sm text-gray-700">{folder.id}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-700">{folder.name}</td>
-                                            <td className="px-2 py-2">
+                                            <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{folder.id}</td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{folder.name}</td>
+                                            <td className="px-1 py-1 max-w-[60px]">
                                                 <div className="flex justify-end gap-1">
                                                     <button
                                                         onClick={() => deleteFolder(folder.id)}
@@ -678,9 +673,8 @@ export default function Create({
                                 </tbody>
                             </table>
                         </div>
-
                         {/* Pagination Controls */}
-                        <div className="flex flex-wrap justify-center items-center mt-4 gap-1">
+                        <div className="flex flex-wrap justify-center items-center mt-2 gap-1">
                             {folders.links.map((link, index) => (
                                 <button
                                     key={index}
