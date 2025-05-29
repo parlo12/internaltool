@@ -203,7 +203,7 @@ export default function Create({
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Create workflow" />
-            <div className="container mx-auto px-4 py-8 min-h-screen">
+            <div className=" py-8 min-h-screen">
                 <div className="w-full p-4">
                     {success && (
                         <div className="bg-green-500 text-center text-white py-2 rounded shadow-md">
