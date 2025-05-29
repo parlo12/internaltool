@@ -203,7 +203,7 @@ export default function Create({
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Create workflow" />
-            <div className=" py-8 min-h-screen">
+            <div className="mx-auto max-w-full py-8 min-h-screen">
                 <div className="w-full p-4">
                     {success && (
                         <div className="bg-green-500 text-center text-white py-2 rounded shadow-md">
@@ -520,7 +520,7 @@ export default function Create({
                     <div className="mt-10">
                         <h3 className="text-xl font-bold text-center text-gray-800 mb-2">Workflows</h3>
                         <div className="overflow-x-auto max-w-full">
-                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-xs">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
                                 <thead>
                                     <tr>
                                         <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
@@ -534,7 +534,7 @@ export default function Create({
                                             />
                                         </th>
                                         <th className="px-2 py-1 bg-gray-100 text-left hidden md:table-cell max-w-[120px]">Contact Group</th>
-                                        <th className="px-2 py-1 bg-gray-100 max-w-[80px]">Actions</th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[60px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
@@ -631,7 +631,7 @@ export default function Create({
                     {/* Folders Table */}
                     <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
                         <div className="overflow-x-auto max-w-full">
-                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-xs">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
                                 <thead>
                                     <tr>
                                         <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
