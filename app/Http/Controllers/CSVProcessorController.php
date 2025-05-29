@@ -189,7 +189,7 @@ class CSVProcessorController extends Controller
                     if (
                         isset($record['Phone number 2']) &&
                         strtolower($record['Phone type 2']) == 'wireless' &&
-                        strtolower($record['Phone type 1']) == 'wireless' &&
+                        //strtolower($record['Phone type 1']) == 'wireless' &&
                         in_array(strtolower($record['Phone usage 1']), $keywordsUsage) &&
                         !in_array(strtolower($record['Phone usage 2']), $keywordsUsage)
                     ) {
@@ -221,7 +221,8 @@ class CSVProcessorController extends Controller
                     if (
                         isset($record['Phone number 2']) &&
                         strtolower($record['Phone type 2']) == 'landline' &&
-                        strtolower($record['Phone type 1']) == 'landline' &&
+                        (strtolower($record['Phone type 1']) == 'landline'|| 
+                        strtolower($record['Phone type 1']) == 'wireless') &&
                         in_array(strtolower($record['Phone usage 1']), $keywordsUsage) &&
                         !in_array(strtolower($record['Phone usage 2']), $keywordsUsage)
                     ) {
