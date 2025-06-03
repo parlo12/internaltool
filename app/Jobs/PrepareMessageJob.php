@@ -48,8 +48,9 @@ class PrepareMessageJob implements ShouldQueue
                     $this->step->workflow_id,
                     $this->step->type,
                     $this->contact->id,
-                    $this->contact->organisation_id
-                )->delay($this->dispatchTime);
+                    $this->contact->organisation_id,
+                    $this->dispatchTime
+                );
                 $step_delay = (int)$this->step->delay;
                 $next_step_after = Carbon::parse($this->dispatchTime)->addSeconds($step_delay * 60);
                 $contactModel = Contact::find($this->contact->id);
@@ -75,6 +76,10 @@ class PrepareMessageJob implements ShouldQueue
                 Log::info('Skiiping queaue since this is a generated step and the contact has an empty generated step');
             }
         } else {
+            Log::info("Preparing message for contact", [
+                'contact_id' => $this->contact->id,
+                'step_id' => $this->step->id
+            ]);
             $DynamicTagsService = new DynamicTagsService($this->api_key);
             // Compose and spintax the message
             $message =  $DynamicTagsService->composeMessage($this->contact, $this->step->content);
@@ -87,8 +92,9 @@ class PrepareMessageJob implements ShouldQueue
                 $this->step->workflow_id,
                 $this->step->type,
                 $this->contact->id,
-                $this->contact->organisation_id
-            )->delay($this->dispatchTime);
+                $this->contact->organisation_id,
+                $this->dispatchTime
+            );
 
             // Update the contact's status and next step time
             $step_delay = (int)$this->step->delay;

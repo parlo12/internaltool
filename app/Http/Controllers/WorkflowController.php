@@ -115,7 +115,7 @@ class WorkflowController extends Controller
             ->with('success', 'Workflow created successfulyy.');
     }
 
-  
+
 
     public function create_contacts_for_workflows($contact_uid, $contact_group, $workflow_id, $contact_phone, $organisationId)
     {
@@ -161,7 +161,7 @@ class WorkflowController extends Controller
         if ($request->search_folder) {
             $query->where('name', 'like', '%' . $request->search_folder . '%');
         }
-        $folders = $query->where('organisation_id', $organisationId)->paginate(10)->appends(['search_folder' => $request->search_folder]);
+        $folders = $query->where('organisation_id', $organisationId)->get();
 
         $calling_numbers = Number::where('purpose', 'calling')
             ->where('organisation_id', $organisationId)
@@ -173,6 +173,7 @@ class WorkflowController extends Controller
             ->get();
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
         $query = Workflow::query();
+        $query->whereNull('folder_id');
 
         if ($request->search_name) {
             $query->where('name', 'like', '%' . $request->search_name . '%');
@@ -413,6 +414,26 @@ class WorkflowController extends Controller
             'texting_numbers' => $texting_numbers,
             'numberPools' => $number_pools
         ]);
+    }
+
+    public function delete_multiple_workflows(Request $request)
+    {
+        $workflowIds = $request->input('ids');
+        if (empty($workflowIds)) {
+            return redirect()->route('create-workflow')
+                ->with('error', 'No workflows selected for deletion.');
+        }
+        foreach ($workflowIds as $id) {
+            $workflow = Workflow::find($id);
+            if ($workflow) {
+                $workflow->delete();
+                Log::info("Workflow with ID {$id} deleted successfully.");
+            } else {
+                Log::warning("Workflow with ID {$id} not found for deletion.");
+            }
+        }
+        return redirect()->route('create-workflow')
+            ->with('success', 'Selected workflows deleted successfully.');
     }
 
     private function getVoices()

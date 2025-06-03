@@ -104,6 +104,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/delete-workflow/{id}', [WorkflowController::class, 'destroy'])->name('delete-workflow');
     Route::put('/workflows/{id}', [WorkflowController::class, 'update'])->name('workflows.update');
     Route::post('/copy-workflow', [WorkflowController::class, 'copy']);
+    Route::post('/delete-multiple-workflows', [WorkflowController::class, 'delete_multiple_workflows'])->name('delete-multiple-workflows');
 
     //WORKFLOWREPORTS CONTROLLER
     Route::get('/workflow-reports', [WorkflowReportsController::class, 'index'])->name('workflow-reports.index');
@@ -123,7 +124,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/execute-contract/{id}', [ContactController::class, 'execute_contract'])->name('execute-contract');
     Route::get('/cancel-contract/{id}', [ContactController::class, 'cancel_contract'])->name('cancel-contract');
     Route::get('/close-deal/{id}', [ContactController::class, 'close_deal'])->name('close-deal');
-    Route::get('/test', [CSVProcessorController::class, 'test'])->name('test');
+    Route::get('/test', [ContactController::class, 'test'])->name('test');
 
     //FOLDER CONTROLLER
     Route::post('/create-folder', [FolderController::class, 'create']);

@@ -28,11 +28,11 @@ class FolderController extends Controller
     }
     public function assign(Request $request){
         $validated_data = $request->validate([
-            'folder' => 'required|string|max:255',
+            'folder_id' => 'required|string|max:255',
             'id' => 'required|integer|max:255',
         ]);
         $workflow=Workflow::find($validated_data['id']);
-        $workflow->folder_id=$validated_data['folder'];
+        $workflow->folder_id=$validated_data['folder_id'];
         $workflow->save();
         return redirect()->route('create-workflow')->with('success', "workflow moved to folder successfully");
     }

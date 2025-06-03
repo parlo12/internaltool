@@ -104,6 +104,32 @@ export default function Create({
         id: null,
         workflow_name: "",
     });
+    const [selectedWorkflows, setSelectedWorkflows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+
+    const handleWorkflowSelect = (id) => {
+        setSelectedWorkflows((prev) =>
+            prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedWorkflows([]);
+        } else {
+            setSelectedWorkflows(workflows.data.map((w) => w.id));
+        }
+        setSelectAll(!selectAll);
+    };
+
+    const handleMassDelete = () => {
+        if (selectedWorkflows.length === 0) return;
+        if (window.confirm(`Are you sure you want to delete ${selectedWorkflows.length} workflow(s)?`)) {
+            router.post('/delete-multiple-workflows', { ids: selectedWorkflows }, {
+                onSuccess: () => setSelectedWorkflows([])
+            });
+        }
+    };
 
     const validatePhoneNumber = (phoneNumber) => {
         return true;
@@ -183,6 +209,7 @@ export default function Create({
                 );
             });
     };
+
     useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
@@ -518,11 +545,27 @@ export default function Create({
                     </form>
                     {/* Workflows Table */}
                     <div className="mt-10">
-                        <h3 className="text-xl font-bold text-center text-gray-800 mb-2">Workflows</h3>
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold text-center text-gray-800">Workflows</h3>
+                            <button
+                                onClick={handleMassDelete}
+                                disabled={selectedWorkflows.length === 0}
+                                className={`ml-2 px-3 py-1 rounded text-xs font-semibold ${selectedWorkflows.length === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                            >
+                                Delete Selected
+                            </button>
+                        </div>
                         <div className="overflow-x-auto max-w-full">
                             <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
                                 <thead>
                                     <tr>
+                                        <th className="px-2 py-1 bg-gray-100 text-center w-8 max-w-[32px]">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectAll}
+                                                onChange={handleSelectAll}
+                                            />
+                                        </th>
                                         <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
                                         <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">
                                             <input
@@ -540,6 +583,13 @@ export default function Create({
                                 <tbody className="divide-y divide-gray-200">
                                     {workflows.data.map((workflow) => (
                                         <tr key={workflow.id} className="hover:bg-gray-50">
+                                            <td className="px-2 py-1 text-center max-w-[32px]">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedWorkflows.includes(workflow.id)}
+                                                    onChange={() => handleWorkflowSelect(workflow.id)}
+                                                />
+                                            </td>
                                             <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{workflow.id}</td>
                                             <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{workflow.name}</td>
                                             <td className="px-2 py-1 text-gray-500 hidden md:table-cell max-w-[120px] break-words whitespace-pre-wrap">{workflow.contact_group}</td>
@@ -648,7 +698,7 @@ export default function Create({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {folders.data.map((folder) => (
+                                    {folders.map((folder) => (
                                         <tr key={folder.id} className="hover:bg-gray-50">
                                             <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{folder.id}</td>
                                             <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{folder.name}</td>
@@ -673,7 +723,7 @@ export default function Create({
                                 </tbody>
                             </table>
                         </div>
-                        {/* Pagination Controls */}
+                        {/* Pagination Controls
                         <div className="flex flex-wrap justify-center items-center mt-2 gap-1">
                             {folders.links.map((link, index) => (
                                 <button
@@ -687,7 +737,7 @@ export default function Create({
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             ))}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
