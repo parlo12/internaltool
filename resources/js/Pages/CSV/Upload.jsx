@@ -66,7 +66,6 @@ export default function Upload({ auth, success, zipfile, workflows }) {
             console.log('Connection state changed:', states.current);
         });
 
-        // Clean up listener when component unmounts
         return () => {
             if (channel) {
                 channel.stopListening('.csv.progress');
