@@ -101,7 +101,6 @@ export default function Upload({ auth, success, zipfile, workflows }) {
         });
     };
 
-    // Get status display properties
     const getStatusProperties = (status) => {
         switch (status) {
             case 'processing':
