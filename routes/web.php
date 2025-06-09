@@ -59,6 +59,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     //CSV CONTROLLER
     Route::get('/csv/upload', [CSVProcessorController::class, 'showForm'])->name('upload.csv');
     Route::post('/csv/process', [CSVProcessorController::class, 'processCSV'])->name('process.csv');
+    Route::get('/workflow/progress', [CSVProcessorController::class, 'getWorkflowProgress'])->name('workflow.progress');
 
     //PROFILE CONTROLLER
     Route::get('/create', [CallController::class, 'create'])->name('create');
@@ -124,7 +125,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/execute-contract/{id}', [ContactController::class, 'execute_contract'])->name('execute-contract');
     Route::get('/cancel-contract/{id}', [ContactController::class, 'cancel_contract'])->name('cancel-contract');
     Route::get('/close-deal/{id}', [ContactController::class, 'close_deal'])->name('close-deal');
-    Route::get('/test', [ContactController::class, 'test'])->name('test');
+    Route::get('/test', [CSVProcessorController::class, 'test'])->name('test');
 
     //FOLDER CONTROLLER
     Route::post('/create-folder', [FolderController::class, 'create']);
@@ -152,7 +153,6 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/under-contract', [UnderContractController::class, 'index'])->name('under-contracts.index');
     //UNDERCONTRACTCONTROLLER
     Route::get('/fresh-lead', [FreshleadController::class, 'index'])->name('fresh-leads.index');
-    
 });
 
 require __DIR__ . '/auth.php';

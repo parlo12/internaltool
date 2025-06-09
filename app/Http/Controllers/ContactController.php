@@ -292,8 +292,9 @@ class ContactController extends Controller
                 $workflow_id,
                 $type,
                 $contact_id,
-                $organisation_id
-            )->delay($dispatchTime);
+                $organisation_id,
+                $dispatchTime
+            );
             $date = Carbon::createFromFormat('Y-m-d H:i:s', $dispatchTime);
             $contactModel = Contact::find($contact_id);
             $step_delay = (int)Step::find($contactModel->current_step)->delay;
@@ -491,8 +492,9 @@ class ContactController extends Controller
                     $workflow_id,
                     $type,
                     $contact_id,
-                    $organisation_id
-                )->delay($dispatchTime);
+                    $organisation_id,
+                    $dispatchTime
+                );
                 $date = Carbon::createFromFormat('Y-m-d H:i:s', $dispatchTime);
                 $contactModel = Contact::find($contact_id);
                 $step_delay = (int)Step::find($contactModel->current_step)->delay;
@@ -545,8 +547,9 @@ class ContactController extends Controller
                     $workflow_id,
                     $type,
                     $contact_id,
-                    $organisation_id
-                )->delay($dispatchTime);
+                    $organisation_id,
+                    $dispatchTime
+                );
                 $date = Carbon::createFromFormat('Y-m-d H:i:s', $dispatchTime);
                 $contactModel = Contact::find($contact_id);
                 $step_delay = (int)Step::find($contactModel->current_step)->delay;
@@ -604,8 +607,9 @@ class ContactController extends Controller
                     $workflow_id,
                     $type,
                     $contact_id,
-                    $organisation_id
-                )->delay($dispatchTime);
+                    $organisation_id,
+                    $dispatchTime
+                );
                 $date = Carbon::createFromFormat('Y-m-d H:i:s', $dispatchTime);
                 $contactModel = Contact::find($contact_id);
                 $step_delay = (int)Step::find($contactModel->current_step)->delay;

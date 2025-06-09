@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CsvProcessingProgress;
 use App\Models\CsvFile;
 use App\Models\Folder;
 use App\Models\Workflow;
@@ -26,10 +27,19 @@ class CSVProcessorController extends Controller
 
     public function test()
     {
-        $crm_api = new \App\Services\CRMAPIRequestsService('4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0');
-        $response = $crm_api->createGroup('Test Group');
-        $content = json_decode($response->getContent(), true);
-        $uid = $content['data']['data']['uid'] ?? null;
+
+        broadcast(new CsvProcessingProgress(
+            jobId: 999,
+            userId: 4,
+            workflowId: 1,
+            fileName: 'test_file.csv',
+            current: 5,
+            total: 10,
+            status: 'processing',
+            message: 'Test event dispatch'
+        ));
+
+        return 'CsvProcessingProgress event dispatched!';
     }
 
 
@@ -67,7 +77,7 @@ class CSVProcessorController extends Controller
                 $file_name = preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName);
                 $file_name = strtolower(trim($file_name, '_'));
                 Log::info("Processing file: $file_name");
-                
+
                 $folder = Folder::create([
                     'name' => $file_name,
                     'organisation_id' => auth()->user()->organisation_id,
@@ -110,7 +120,7 @@ class CSVProcessorController extends Controller
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $wirelessFilePath;
                 if ($request->sms_workflow_id) {
-                    dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
+                    dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Wireless CSV saved: $wirelessFilePath");
 
@@ -141,7 +151,7 @@ class CSVProcessorController extends Controller
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $landlineFilePath;
                 if ($request->calls_workflow_id) {
-                    dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath, $request->calls_workflow_id, $folder_id,auth()->user()));
+                    dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
 
                 Log::info("Landline CSV saved: $landlineFilePath");
@@ -202,12 +212,12 @@ class CSVProcessorController extends Controller
                 }
 
                 $wirelessProcessedFilePath = $uploadDirectory . "/{$file_name}_wireless_processed_numbers.csv";
-                $writer = Writer::createFromPath( $wirelessProcessedFilePath, 'w+');
+                $writer = Writer::createFromPath($wirelessProcessedFilePath, 'w+');
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $wirelessProcessedFilePath;
                 if ($request->sms_workflow_id) {
-                    dispatch(new \App\Jobs\ProcessCsvFile( $wirelessProcessedFilePath, $request->sms_workflow_id, $folder_id,auth()->user()));
+                    dispatch(new \App\Jobs\ProcessCsvFile($wirelessProcessedFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $wirelessProcessedFilePath");
                 // This is for landline processed numbers
@@ -221,8 +231,8 @@ class CSVProcessorController extends Controller
                     if (
                         isset($record['Phone number 2']) &&
                         strtolower($record['Phone type 2']) == 'landline' &&
-                        (strtolower($record['Phone type 1']) == 'landline'|| 
-                        strtolower($record['Phone type 1']) == 'wireless') &&
+                        (strtolower($record['Phone type 1']) == 'landline' ||
+                            strtolower($record['Phone type 1']) == 'wireless') &&
                         in_array(strtolower($record['Phone usage 1']), $keywordsUsage) &&
                         !in_array(strtolower($record['Phone usage 2']), $keywordsUsage)
                     ) {
@@ -235,12 +245,12 @@ class CSVProcessorController extends Controller
                 }
 
                 $landlineProcessedFilePath = $uploadDirectory . "/{$file_name}_landline_processed_numbers.csv";
-                $writer = Writer::createFromPath( $landlineProcessedFilePath, 'w+');
+                $writer = Writer::createFromPath($landlineProcessedFilePath, 'w+');
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $landlineProcessedFilePath;
                 if ($request->calls_workflow_id) {
-                    dispatch(new \App\Jobs\ProcessCsvFile( $landlineProcessedFilePath, $request->calls_workflow_id, $folder_id,auth()->user()));
+                    dispatch(new \App\Jobs\ProcessCsvFile($landlineProcessedFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $landlineProcessedFilePath");
             } catch (\Exception $e) {

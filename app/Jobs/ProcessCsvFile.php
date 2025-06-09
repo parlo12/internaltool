@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Events\CsvProcessingProgress;
 use App\Models\Contact;
-use App\Models\Organisation;
 use App\Models\Step;
 use App\Models\Workflow;
 use Illuminate\Bus\Queueable;
@@ -23,45 +23,93 @@ class ProcessCsvFile implements ShouldQueue
     public int $workflowId;
     public int $folderId;
     public $user;
+    public string $fileName;
+    public ?int $newWorkflowId = null;
+
     public function __construct(string $filePath, int $workflowId, int $folderId, $user)
     {
         $this->filePath = $filePath;
         $this->workflowId = $workflowId;
         $this->folderId = $folderId;
         $this->user = $user;
-    }
 
+        // Compute file name in constructor
+        $fileName = basename($filePath);
+        $fileName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $fileName);
+        $this->fileName = strtolower(trim($fileName, '_'));
+    }
 
     public function handle(): void
     {
-        // Further processing logic here, e.g., parsing, inserting to DB, analytics...
+        Log::info("Starting CSV processing job for file: " . $this->filePath);
+        $path = $this->filePath;
+        $csv = Reader::createFromPath($path, 'r');
+        $csv->setHeaderOffset(0);
+        $totalRecords = $csv->count() - 1;
+        Log::info("Total records in CSV: " . $totalRecords);
+        if ($totalRecords <= 0) {
+            Log::error("CSV file is empty or has no valid records.");
+            $this->broadcastProgress(
+                'unknown',
+                0,
+                0,
+                'failed',
+                'CSV file is empty or has no valid records.'
+            );
+            return;
+        }
+        $workflow_progress = \App\Models\WorkflowProgress::create([
+            'name' => $this->fileName,
+            'user_id' => $this->user->id,
+            'progress' => 0,
+            'processed' => 0,
+            'total' => $totalRecords,
+        ]);
+        $jobId = $workflow_progress->id;
+
+        // Broadcast initialization
+        $this->broadcastProgress($jobId, 0, 0,0,'initializing', 'Starting CSV processing');
+
         Log::info("Processing CSV in job: " . $this->filePath);
         Log::info("Workflow ID: " . $this->workflowId);
         Log::info("Folder ID: " . $this->folderId);
-        $file_name = basename($this->filePath);
-        $file_name = preg_replace('/[^A-Za-z0-9_\-]/', '_', $file_name);
-        $file_name = strtolower(trim($file_name, '_'));
+
+        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Creating contact group');
+
         $crm_api = new \App\Services\CRMAPIRequestsService('4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0');
-        $response = $crm_api->createGroup($file_name);
+        $response = $crm_api->createGroup($this->fileName);
         $content = json_decode($response->getContent(), true);
         Log::info("API response: " . json_encode($content));
+
         if ($content['data']['status'] == 'error') {
-            Log::error("Error creating group.Retrying with a different name: " . json_encode($content));
-            $file_name = $file_name . '_' . Str::random(5);
-            $response = $crm_api->createGroup($file_name);
+            Log::error("Error creating group. Retrying with a different name: " . json_encode($content));
+            $this->fileName = $this->fileName . '_' . Str::random(5);
+            $response = $crm_api->createGroup($this->fileName);
             $content = json_decode($response->getContent(), true);
             Log::info("API response after retry: " . json_encode($content));
+
             if ($content['data']['status'] == 'error') {
                 Log::error("Error creating group after retry: " . json_encode($content));
+                $this->broadcastProgress(
+                    $jobId,
+                    0,
+                    0,
+                    'failed',
+                    'Failed to create contact group: ' . ($content['data']['message'] ?? 'Unknown error')
+                );
                 return;
             }
         }
-        Log::info("Group created successfully: " . $file_name);
+
+        Log::info("Group created successfully: " . $this->fileName);
         $group_id = $content['data']['data']['uid'] ?? null;
+
+        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Creating workflow');
+
         $old_workflow = Workflow::find($this->workflowId);
         $new_workflow = Workflow::create([
-            'name' => $file_name,
-            'contact_group' => $file_name,
+            'name' => $this->fileName,
+            'contact_group' => $this->fileName,
             'active' => 0,
             'group_id' => $group_id,
             'voice' => $old_workflow->voice,
@@ -77,6 +125,9 @@ class ProcessCsvFile implements ShouldQueue
             'folder_id' => $this->folderId,
         ]);
 
+        $this->newWorkflowId = $new_workflow->id;
+
+        $this->broadcastProgress($jobId, 0, 0,0, 'processing', 'Workflow created, copying steps');
 
         if (!empty($old_workflow->steps_flow)) {
             $steps_flow_array = explode(',', $old_workflow->steps_flow);
@@ -104,93 +155,77 @@ class ProcessCsvFile implements ShouldQueue
                     $new_workflow->save();
                 } catch (\Exception $e) {
                     Log::error("Error copying step ID {$step_id}: {$e->getMessage()}");
+                    $this->broadcastProgress(
+                        $jobId,
+                        0,
+                        0,
+                        'warning',
+                        "Error copying step {$step_id}: " . $e->getMessage()
+                    );
                 }
             }
         }
-        $path = $this->filePath; // Update with your CSV path
-        // Load the CSV
-        $csv = Reader::createFromPath($path, 'r');
-        $csv->setHeaderOffset(0); // First row contains headers
 
-        // Get each row as an associative array (header => value)
+        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Processing CSV records');
+
+        $path = $this->filePath;
+        $csv = Reader::createFromPath($path, 'r');
+        $csv->setHeaderOffset(0);
+        $totalRecords = $csv->count() - 1;  // Exclude header row
+
+        // Broadcast processing start with total records
+        $this->broadcastProgress($jobId, 0, $totalRecords,0, 'processing');
+
+        $current = 0;
+        $batchSize = max(1, min(50, (int)($totalRecords / 20))); // Broadcast every 50 records or 5%
+
         foreach ($csv->getRecords() as $record) {
-            $property_address = $record['Property address'] ?? null;
-            $Property_city = $record['Property city'] ?? null;
-            $Property_state = $record['Property state'] ?? null;
-            $Property_zip = $record['Property zip'] ?? null;
-            $Owner_name = $record['Owner name'] ?? null;
-            $Gender = $record['Gender'] ?? null;
-            $Age = $record['Age'] ?? null;
-            $Lead_score = $record['Lead score'] ?? null;
-            $Cash_offer = $record['Cash offer'] ?? null;
-            $Novation_offer = $record['Novation offer'] ?? null;
-            $Creative_price_offer = $record['Creative price offer'] ?? null;
-            $Monthly_payment_amount = $record['Monthly payment amount'] ?? null;
-            $Down_payment_amount = $record['Down payment amount'] ?? null;
-            $Phone_number_1 = $record['Phone number 1'] ?? null;
-            Log::info("Property address: " . $property_address);
-            Log::info("Property city: " . $Property_city);
-            Log::info("Property state: " . $Property_state);
-            Log::info("Property zip: " . $Property_zip);
-            Log::info("Owner name: " . $Owner_name);
-            Log::info("Gender: " . $Gender);
-            Log::info("Age: " . $Age);
-            Log::info("Lead score: " . $Lead_score);
-            Log::info("Cash offer: " . $Cash_offer);
-            Log::info("Novation offer: " . $Novation_offer);
-            Log::info("Creative price offer: " . $Creative_price_offer);
-            Log::info("Monthly payment amount: " . $Monthly_payment_amount);
-            Log::info("Down payment amount: " . $Down_payment_amount);
-            Log::info("Phone number 1: " . $Phone_number_1);
-            $contact = Contact::create(
-                [
-                    'uuid' => Str::uuid(),
-                    'workflow_id' => $new_workflow->id,
-                    'phone' => $this->normalizePhoneNumber($Phone_number_1),
-                    'can_send' => 1,
-                    'response' => 'No',
-                    'contact_name' => $Owner_name,
-                    'status' => 'WAITING_FOR_QUEAUE',
-                    'cost' => 0,
-                    'subscribed' => 1,
-                    'organisation_id' => $this->user->organisation_id,
-                    'user_id' => $this->user->id,
-                    'zipcode' => $Property_zip,
-                    'city' => $Property_city,
-                    'state' => $Property_state,
-                    'offer' => $Cash_offer,
-                    'address' => $property_address,
-                    'agent' => $this->user->name,
-                    'email' => "",
-                    'lead_score' => $Lead_score,
-                    'gender' => $Gender,
-                    'age' => $Age,
-                    'novation' => $Novation_offer,
-                    'creative_price' => $Creative_price_offer,
-                    'monthly' => $Monthly_payment_amount,
-                    'downpayment' => $Down_payment_amount,
-                    'generated_message' => ""
-                ]
-            );
-            $crm_api->createContact($group_id, [
-                'PHONE' => $this->normalizePhoneNumber($Phone_number_1),
-                'FIRST_NAME' => $Owner_name,
-                "ADDRESS" => $property_address,
-                "CITY" => $Property_city,
-                "STATE" => $Property_state,
-                "ZIPCODE" => $Property_zip,
-                "OFFER_AMOUNT" => $Cash_offer,
-                "SALES_PERSON" => $this->user->name,
-                "AGE" => $Age,
-                "Gender" => $Gender,
-                "LEAD_SCORE" => $Lead_score,
-                "NOVATION" => $Novation_offer,
-                "CREATIVEPRICE" => $Creative_price_offer,
-                "MONTHLY" => $Monthly_payment_amount,
-                "DOWNPAYMENT" => $Down_payment_amount,
-            ]);
+            $current++;
+
+            // Dispatch each record processing as a job
+            ProcessCsvRecord::dispatch($record, $new_workflow, $this->user, $crm_api, $group_id, $workflow_progress, $current, $batchSize)
+                ->delay(now()->addSeconds(1)); // Delay to avoid overwhelming the queue
+
+
+        }
+
+
+
+        // Broadcast completion
+    }
+
+    public function failed(\Throwable $exception)
+    {
+        $jobId = $this->job ? $this->job->getJobId() : 'unknown';
+        $this->broadcastProgress(
+            $jobId,
+            0,
+            0,
+            'failed',
+            'Job failed: ' . $exception->getMessage()
+        );
+        Log::error("CSV processing job failed: " . $exception->getMessage());
+    }
+
+    private function broadcastProgress($jobId, $current, $total,$progress,$status = 'processing', $message = null)
+    {
+        try {
+            broadcast(new CsvProcessingProgress(
+                $jobId,
+                $this->user->id,
+                $this->newWorkflowId,
+                $this->fileName,
+                $current,
+                $total,
+                $progress,
+                $status,
+                $message
+            ));
+        } catch (\Exception $e) {
+            Log::error("Failed to broadcast progress: " . $e->getMessage());
         }
     }
+
     private function normalizePhoneNumber($phone)
     {
         $digits = preg_replace('/\D+/', '', $phone);
