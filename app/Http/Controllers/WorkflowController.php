@@ -143,6 +143,7 @@ class WorkflowController extends Controller
 
     public function create(Request $request)
     {
+        // dd($request->all());
         // if (!auth()->user()->godspeedoffers_api) {
         //     return redirect()->route('admin.index')
         //         ->with('error', 'Add a working godspeedoffers key first.');
@@ -179,7 +180,11 @@ class WorkflowController extends Controller
             $query->where('name', 'like', '%' . $request->search_name . '%');
         }
 
-        $workflows = $query->paginate(10)->appends(['search_name' => $request->search_name]);
+        $workflows = $query->paginate(10);
+
+        if ($request->has('search_name')) {
+            $workflows->appends(['search_name' => $request->search_name]);
+        }
 
         return inertia("Workflows/Create", [
             'success' => session('success'),
@@ -370,8 +375,8 @@ class WorkflowController extends Controller
                     }
                 }
             }
-            return redirect()->route('create-workflow')
-                ->with('success', 'Workflow copied successfully.');
+            return redirect()->route('add_steps', ['workflow' => $new_workflow->id])
+                ->with('success', 'Workflow created successfulyy.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error("Validation error: " . $e->getMessage());
             return redirect()->back()->withErrors($e->errors());
@@ -403,6 +408,7 @@ class WorkflowController extends Controller
                 array_push($steps, Step::findorfail($step_flow_array));
             }
         }
+        $referer = url()->previous(); // Gets full previous URL
         return inertia("Workflows/AddSteps", [
             'success' => session('success'),
             'workflow' => $workflow,
@@ -412,7 +418,8 @@ class WorkflowController extends Controller
             'voices' => $voices,
             'calling_numbers' => $calling_numbers,
             'texting_numbers' => $texting_numbers,
-            'numberPools' => $number_pools
+            'numberPools' => $number_pools,
+            'refererr' => $referer,
         ]);
     }
 
