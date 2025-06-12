@@ -78,7 +78,7 @@ const CopyWorkflowPopup = ({
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 sm:mx-auto">
                 <div>
                     {workflowData && (
-                        <div className="overflow-x-auto max-w-full">
+                        <div className="overflow-x-auto max-w-full" style={{ height: '75vh', overflowY: 'auto' }}>
                             <div className="flex items-center justify-between mb-2">
                                 <span className="font-semibold text-gray-700">Workflows in Folder</span>
                                 <button
