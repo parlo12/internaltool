@@ -626,7 +626,7 @@ export default function Create({
                                 <button
                                     key={index}
                                     disabled={!link.url}
-                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
+                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}
                                     className={`px-2 py-1 text-xs rounded ${link.active
                                         ? "bg-blue-500 text-white"
                                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
