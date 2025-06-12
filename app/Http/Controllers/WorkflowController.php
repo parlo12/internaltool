@@ -174,6 +174,7 @@ class WorkflowController extends Controller
             ->get();
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
         $query = Workflow::query();
+        $query->where('organisation_id', $organisationId);
         $query->whereNull('folder_id');
 
         if ($request->search_name) {
