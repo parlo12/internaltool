@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Models\ScheduledMessages;
 use App\Models\Step;
 use App\Models\Workflow;
 use Illuminate\Http\Request;
@@ -144,6 +145,17 @@ class StepController extends Controller
                 array_push($steps, Step::findOrFail($step_flow_array));
             }
         }
+
+        //edit existing workflows
+        $contacts = ScheduledMessages::where('workflow_id', $workflow->id)->get();
+        foreach ($contacts as $contact) {
+            $contact_in_contacts = Contact::find($contact->contact_id);
+            $contact_in_contacts->can_send=1;
+            $contact_in_contacts->save();
+            $contact->delete();
+            Log::info("Deleted scheduled message for contact: " . $contact->contact_id);
+        }
+
         return response()->json([
             'success' => session('success'),
             'workflow' => $workflow,

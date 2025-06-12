@@ -59,6 +59,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     //CSV CONTROLLER
     Route::get('/csv/upload', [CSVProcessorController::class, 'showForm'])->name('upload.csv');
     Route::post('/csv/process', [CSVProcessorController::class, 'processCSV'])->name('process.csv');
+    Route::get('/workflow/progress', [CSVProcessorController::class, 'getWorkflowProgress'])->name('workflow.progress');
 
     //PROFILE CONTROLLER
     Route::get('/create', [CallController::class, 'create'])->name('create');
@@ -104,6 +105,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/delete-workflow/{id}', [WorkflowController::class, 'destroy'])->name('delete-workflow');
     Route::put('/workflows/{id}', [WorkflowController::class, 'update'])->name('workflows.update');
     Route::post('/copy-workflow', [WorkflowController::class, 'copy']);
+    Route::post('/delete-multiple-workflows', [WorkflowController::class, 'delete_multiple_workflows'])->name('delete-multiple-workflows');
 
     //WORKFLOWREPORTS CONTROLLER
     Route::get('/workflow-reports', [WorkflowReportsController::class, 'index'])->name('workflow-reports.index');
@@ -151,7 +153,6 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/under-contract', [UnderContractController::class, 'index'])->name('under-contracts.index');
     //UNDERCONTRACTCONTROLLER
     Route::get('/fresh-lead', [FreshleadController::class, 'index'])->name('fresh-leads.index');
-    
 });
 
 require __DIR__ . '/auth.php';

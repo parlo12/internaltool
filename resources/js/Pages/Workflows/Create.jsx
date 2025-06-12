@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -29,8 +29,56 @@ export default function Create({
     numberPools,
     folders,
     error,
-    organisation
+    organisation,
+    filters = {}
 }) {
+    const [searchName, setSearchName] = useState(filters.search_name || "");
+    const [debounceTimer, setDebounceTimer] = useState(null);
+    const [searchFolderName, setSearchFolderName] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleFolderSearch = () => {
+        setLoading(true);
+
+        router.get(route("create-workflow"), { search_folder: searchFolderName }, {
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => setLoading(false),
+
+        });
+    };
+
+    useEffect(() => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        const timer = setTimeout(() => {
+            handleFolderSearch();
+        }, 500);
+        setDebounceTimer(timer);
+        return () => clearTimeout(timer);
+    }, [searchFolderName]);
+
+    const handleSearch = () => {
+        console.log("Searching for:", searchName);
+        router.get(
+            route("create-workflow"),
+            { search_name: searchName },
+            {
+                preserveState: true,
+                preserveScroll: true, // 👈 preserve scroll position
+            }
+        );
+    };
+
+    // Debounce search input
+    useEffect(() => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        const timer = setTimeout(() => {
+            handleSearch();
+        }, 1000); // 500ms debounce
+
+        setDebounceTimer(timer);
+        return () => clearTimeout(timer);
+    }, [searchName]);
     const { data, setData, post, errors, processing } = useForm({
         name: "",
         contact_group: "",
@@ -43,8 +91,8 @@ export default function Create({
         workflow_name: "",
         folder_name: "",
         folder_id: "",
-        number_pool_id:"",
-        generated_message:'0'
+        number_pool_id: "",
+        generated_message: '0'
     });
 
     const [showPopup, setShowPopup] = useState(false);
@@ -56,6 +104,32 @@ export default function Create({
         id: null,
         workflow_name: "",
     });
+    const [selectedWorkflows, setSelectedWorkflows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+
+    const handleWorkflowSelect = (id) => {
+        setSelectedWorkflows((prev) =>
+            prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedWorkflows([]);
+        } else {
+            setSelectedWorkflows(workflows.data.map((w) => w.id));
+        }
+        setSelectAll(!selectAll);
+    };
+
+    const handleMassDelete = () => {
+        if (selectedWorkflows.length === 0) return;
+        if (window.confirm(`Are you sure you want to delete ${selectedWorkflows.length} workflow(s)?`)) {
+            router.post('/delete-multiple-workflows', { ids: selectedWorkflows }, {
+                onSuccess: () => setSelectedWorkflows([])
+            });
+        }
+    };
 
     const validatePhoneNumber = (phoneNumber) => {
         return true;
@@ -135,6 +209,7 @@ export default function Create({
                 );
             });
     };
+
     useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
@@ -155,7 +230,7 @@ export default function Create({
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Create workflow" />
-            <div className="container mx-auto px-4 py-8 min-h-screen">
+            <div className="mx-auto max-w-full py-8 min-h-screen">
                 <div className="w-full p-4">
                     {success && (
                         <div className="bg-green-500 text-center text-white py-2 rounded shadow-md">
@@ -449,8 +524,8 @@ export default function Create({
                                     <option value="">
                                         Select An Option
                                     </option>
-                                        <option value='0'>No</option>
-                                        <option value='1'>Yes</option>
+                                    <option value='0'>No</option>
+                                    <option value='1'>Yes</option>
                                 </select>
                             </div>
                             <InputError
@@ -468,74 +543,75 @@ export default function Create({
                             </PrimaryButton>
                         </div>
                     </form>
+                    {/* Workflows Table */}
                     <div className="mt-10">
-                        <h3 className="text-2xl font-bold text-center text-gray-800 mb-4">Workflows</h3>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white shadow-md rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold text-center text-gray-800">Workflows</h3>
+                            <button
+                                onClick={handleMassDelete}
+                                disabled={selectedWorkflows.length === 0}
+                                className={`ml-2 px-3 py-1 rounded text-xs font-semibold ${selectedWorkflows.length === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                            >
+                                Delete Selected
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto max-w-full">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
                                 <thead>
                                     <tr>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            ID
+                                        <th className="px-2 py-1 bg-gray-100 text-center w-8 max-w-[32px]">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectAll}
+                                                onChange={handleSelectAll}
+                                            />
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Name
+                                        <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">
+                                            <input
+                                                type="text"
+                                                placeholder="Search Name"
+                                                value={searchName}
+                                                onChange={(e) => setSearchName(e.target.value)}
+                                                className="w-full p-1 border rounded text-xs"
+                                            />
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Contact Group
-                                        </th>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Actions
-                                        </th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left hidden md:table-cell max-w-[120px]">Contact Group</th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[60px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {folders.map((folder) => (
-                                        <tr key={folder.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-1 text-sm text-gray-700">
-                                                {folder.id}
-                                            </td>
-                                            <td className="px-6 py-1  text-sm text-gray-700">
-                                                <FontAwesomeIcon icon={faFolderOpen} className="fa-xs" />
-                                            </td>
-                                            <td className="px-6 py-1  text-sm text-gray-700">
-                                                {folder.name}
-                                            </td>
-                                            <td className="py-1 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex flex-wrap justify-end space-x-2">
-                                                    <button onClick={() => deleteFolder(folder.id)} className={`px-1 py-1 bg-red-500 text-white rounded-md hover:bg-red-600`}>
-                                                        <FontAwesomeIcon icon={faTrash} className="text-sm sm:text-base" />
-                                                    </button>
-                                                    <button onClick={() => handleViewFolder(folder)} className="px-1 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600">
-                                                        <FontAwesomeIcon icon={faEye} className="text-sm sm:text-base" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {workflows.map((workflow) => (
+                                    {workflows.data.map((workflow) => (
                                         <tr key={workflow.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 text-sm text-gray-700">{workflow.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-700">{workflow.name}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">{workflow.contact_group}</td>
-                                            <td className="py-4 text-right text-sm font-medium">
-                                                <div className="flex flex-wrap justify-end space-x-2">
+                                            <td className="px-2 py-1 text-center max-w-[32px]">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedWorkflows.includes(workflow.id)}
+                                                    onChange={() => handleWorkflowSelect(workflow.id)}
+                                                />
+                                            </td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{workflow.id}</td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{workflow.name}</td>
+                                            <td className="px-2 py-1 text-gray-500 hidden md:table-cell max-w-[120px] break-words whitespace-pre-wrap">{workflow.contact_group}</td>
+                                            <td className="px-1 py-1 max-w-[80px]">
+                                                <div className="flex justify-center gap-1">
                                                     <button
                                                         onClick={() => handleCopyClick(workflow)}
-                                                        className="px-1 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                                        className="p-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                                                     >
-                                                        <FontAwesomeIcon icon={faCopy} className="text-sm sm:text-base" />
+                                                        <FontAwesomeIcon icon={faCopy} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleAssignFolder(workflow)}
-                                                        className="px-1 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                                                        className="p-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                                                     >
-                                                        <FontAwesomeIcon icon={faFolderOpen} className="text-sm sm:text-base" />
+                                                        <FontAwesomeIcon icon={faFolderOpen} />
                                                     </button>
                                                     <Link
                                                         href={route("add_steps", workflow.id)}
-                                                        className="px-1 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+                                                        className="p-1 bg-green-500 text-white rounded-md hover:bg-green-600"
                                                     >
-                                                        <FontAwesomeIcon icon={faPen} className="text-sm sm:text-base" />
+                                                        <FontAwesomeIcon icon={faPen} />
                                                     </Link>
                                                 </div>
                                             </td>
@@ -543,6 +619,21 @@ export default function Create({
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="flex flex-wrap justify-center items-center mt-2 gap-1">
+                            {workflows.links.map((link, index) => (
+                                <button
+                                    key={index}
+                                    disabled={!link.url}
+                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
+                                    className={`px-2 py-1 text-xs rounded ${link.active
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -568,6 +659,7 @@ export default function Create({
                                     onChange={handleChange}
                                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                 />
+
                                 <InputError
                                     message={errors.folder_name}
                                     className="mt-2 text-red-500 text-sm"
@@ -586,58 +678,43 @@ export default function Create({
                             </div>
                         </form>
                     </div>
+                    {/* Folders Table */}
                     <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                        <div className=" bg-white border-b border-gray-200 overflow-x-auto">
-                            <table className="min-w-full bg-white shadow-md rounded-lg">
+                        <div className="overflow-x-auto max-w-full">
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
                                 <thead>
                                     <tr>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Id
+                                        <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">
+                                            <input
+                                                type="text"
+                                                placeholder="Search Name"
+                                                value={searchFolderName}
+                                                onChange={(e) => setSearchFolderName(e.target.value)}
+                                                className="w-full p-1 border rounded text-xs"
+                                            />
                                         </th>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Folder Name
-                                        </th>
-                                        <th className="px-6 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                            Action
-                                        </th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[60px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {folders.map((folder) => (
                                         <tr key={folder.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-1 text-sm text-gray-700">
-                                                {folder.id}
-                                            </td>
-                                            <td className="px-6 py-1 text-sm text-gray-700">
-                                                {folder.name}
-                                            </td>
-                                            <td className="px-1 py-1 text-right text-sm font-medium">
-                                                <div className="flex flex-wrap justify-end space-x-2">
+                                            <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{folder.id}</td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{folder.name}</td>
+                                            <td className="px-1 py-1 max-w-[60px]">
+                                                <div className="flex justify-end gap-1">
                                                     <button
-                                                        onClick={() =>
-                                                            deleteFolder(
-                                                                folder.id
-                                                            )
-                                                        }
-                                                        className={`px-1 py-1 bg-red-500 text-white rounded-md hover:bg-red-600`}
+                                                        onClick={() => deleteFolder(folder.id)}
+                                                        className="p-1 bg-red-500 text-white rounded-md hover:bg-red-600"
                                                     >
-                                                        <FontAwesomeIcon
-                                                            icon={faTrash}
-                                                            className="text-sm sm:text-base"
-                                                        />
+                                                        <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                     <button
-                                                        onClick={() =>
-                                                            handleViewFolder(
-                                                                folder
-                                                            )
-                                                        }
-                                                        className="px-1 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                                                        onClick={() => handleViewFolder(folder)}
+                                                        className="p-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                                                     >
-                                                        <FontAwesomeIcon
-                                                            icon={faEye}
-                                                            className="text-sm sm:text-base"
-                                                        />
+                                                        <FontAwesomeIcon icon={faEye} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -646,6 +723,21 @@ export default function Create({
                                 </tbody>
                             </table>
                         </div>
+                        {/* Pagination Controls
+                        <div className="flex flex-wrap justify-center items-center mt-2 gap-1">
+                            {folders.links.map((link, index) => (
+                                <button
+                                    key={index}
+                                    disabled={!link.url}
+                                    onClick={() => link.url && router.get(link.url, {}, { preserveState: true, preserveScroll: true })}
+                                    className={`px-2 py-1 text-xs rounded ${link.active
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ))}
+                        </div> */}
                     </div>
                 </div>
             </div>

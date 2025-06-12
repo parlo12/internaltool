@@ -8,6 +8,7 @@ import axios from "axios";
 import EditWorkflowModal from "@/Components/EditWorkflowModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
+import { usePage } from "@inertiajs/react";
 export default function Create({
     auth,
     workflow,
@@ -17,8 +18,11 @@ export default function Create({
     voices,
     calling_numbers,
     texting_numbers,
-    numberPools
+    numberPools,
+    refererr
 }) {
+    console.log(refererr);
+    const { back } = usePage().props;
     const [stepsState, setStepsState] = useState(steps);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newStepData, setNewStepData] = useState({
@@ -177,7 +181,7 @@ export default function Create({
 
 
     const openEditModal = (step) => {
-        
+
         setSelectedStep(step);
         setEditModalOpen(true);
     };
@@ -313,6 +317,9 @@ export default function Create({
                     )}
                     <div className="w-full max-w-4xl p-6 rounded-lg shadow-lg bg-white">
                         <div>
+                            
+
+
                             {stepsState.map((step, index) => (
                                 <div key={step.id} className="mb-6">
                                     <div
@@ -371,11 +378,10 @@ export default function Create({
                                 <div className="w-full flex flex-col sm:flex-row justify-center gap-4">
                                     <PrimaryButton
                                         onClick={workflow.active ? pauseWorkflow : startWorkflow}
-                                        className={`w-full max-w-xs py-2 text-white rounded-lg shadow ${
-                                            workflow.active
-                                                ? "bg-yellow-600 hover:bg-yellow-700"
-                                                : "bg-green-600 hover:bg-green-700"
-                                        }`}
+                                        className={`w-full max-w-xs py-2 text-white rounded-lg shadow ${workflow.active
+                                            ? "bg-yellow-600 hover:bg-yellow-700"
+                                            : "bg-green-600 hover:bg-green-700"
+                                            }`}
                                     >
                                         {workflow.active ? "Pause Workflow" : "Start Workflow"}
                                     </PrimaryButton>

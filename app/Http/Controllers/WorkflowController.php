@@ -79,7 +79,7 @@ class WorkflowController extends Controller
                 'batch_delay' => $this->convertToMinutes('2', 'hours'),
                 'step_quota_balance' => '20',
                 'days_of_week' => '{"Sunday":true,"Monday":true,"Tuesday":true,"Wednesday":true,"Thursday":true,"Friday":true,"Saturday":true}',
-                'generated_message'=>1
+                'generated_message' => 1
             ]);
             if (!empty($workflow->steps_flow)) {
                 $steps_flow_array = explode(',', $workflow->steps_flow);
@@ -115,6 +115,8 @@ class WorkflowController extends Controller
             ->with('success', 'Workflow created successfulyy.');
     }
 
+
+
     public function create_contacts_for_workflows($contact_uid, $contact_group, $workflow_id, $contact_phone, $organisationId)
     {
         $workflow = Workflow::find($workflow_id);
@@ -139,23 +141,29 @@ class WorkflowController extends Controller
         FillContactDetails::dispatch($contact);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        if (!auth()->user()->godspeedoffers_api) {
-            return redirect()->route('admin.index')
-                ->with('error', 'Add a working godspeedoffers key first.');
-        }
+        // dd($request->all());
+        // if (!auth()->user()->godspeedoffers_api) {
+        //     return redirect()->route('admin.index')
+        //         ->with('error', 'Add a working godspeedoffers key first.');
+        // }
         $organisationId = auth()->user()->organisation_id;
         $CRMAPIRequestsService = new CRMAPIRequestsService(auth()->user()->godspeedoffers_api);
-        $contactGroups = $CRMAPIRequestsService->get_contact_groups();
-        if (!isset($contactGroups['data'])) {
-            return redirect()->route('admin.index')
-                ->with('error', 'Add a working godspeedoffers key first.');
-        }
+        // $contactGroups = $CRMAPIRequestsService->get_contact_groups();
+        // if (!isset($contactGroups['data'])) {
+        //     return redirect()->route('admin.index')
+        //         ->with('error', 'Add a working godspeedoffers key first.');
+        // }
         $contact_groups = $CRMAPIRequestsService->get_contact_groups()['data'];
         $voices = $this->getVoices();
-        $workflows = Workflow::where('organisation_id', $organisationId)->get();
-        $folders = Folder::where('organisation_id', $organisationId)->get();
+
+        $query = Folder::query();
+        if ($request->search_folder) {
+            $query->where('name', 'like', '%' . $request->search_folder . '%');
+        }
+        $folders = $query->where('organisation_id', $organisationId)->get();
+
         $calling_numbers = Number::where('purpose', 'calling')
             ->where('organisation_id', $organisationId)
             ->get();
@@ -165,6 +173,19 @@ class WorkflowController extends Controller
         $number_pools = NumberPool::where('organisation_id', $organisationId)
             ->get();
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
+        $query = Workflow::query();
+        $query->whereNull('folder_id');
+
+        if ($request->search_name) {
+            $query->where('name', 'like', '%' . $request->search_name . '%');
+        }
+
+        $workflows = $query->paginate(10);
+
+        if ($request->has('search_name')) {
+            $workflows->appends(['search_name' => $request->search_name]);
+        }
+
         return inertia("Workflows/Create", [
             'success' => session('success'),
             'contactGroups' => $contact_groups,
@@ -174,7 +195,7 @@ class WorkflowController extends Controller
             'texting_numbers' => $texting_numbers,
             'folders' => $folders,
             'organisation' => $current_org,
-            'numberPools' => $number_pools
+            'numberPools' => $number_pools,
         ]);
     }
 
@@ -316,7 +337,7 @@ class WorkflowController extends Controller
                 'generated_message' => $old_workflow->generated_message,
                 'user_id' => auth()->user()->id
             ]);
-            
+
             foreach ($contacts as $contact) {
                 try {
                     CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $new_workflow->id, $contact['phone'], $organisation_id)
@@ -354,8 +375,8 @@ class WorkflowController extends Controller
                     }
                 }
             }
-            return redirect()->route('create-workflow')
-                ->with('success', 'Workflow copied successfully.');
+            return redirect()->route('add_steps', ['workflow' => $new_workflow->id])
+                ->with('success', 'Workflow created successfulyy.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error("Validation error: " . $e->getMessage());
             return redirect()->back()->withErrors($e->errors());
@@ -387,6 +408,7 @@ class WorkflowController extends Controller
                 array_push($steps, Step::findorfail($step_flow_array));
             }
         }
+        $referer = url()->previous(); // Gets full previous URL
         return inertia("Workflows/AddSteps", [
             'success' => session('success'),
             'workflow' => $workflow,
@@ -396,8 +418,29 @@ class WorkflowController extends Controller
             'voices' => $voices,
             'calling_numbers' => $calling_numbers,
             'texting_numbers' => $texting_numbers,
-            'numberPools' => $number_pools
+            'numberPools' => $number_pools,
+            'refererr' => $referer,
         ]);
+    }
+
+    public function delete_multiple_workflows(Request $request)
+    {
+        $workflowIds = $request->input('ids');
+        if (empty($workflowIds)) {
+            return redirect()->route('create-workflow')
+                ->with('error', 'No workflows selected for deletion.');
+        }
+        foreach ($workflowIds as $id) {
+            $workflow = Workflow::find($id);
+            if ($workflow) {
+                $workflow->delete();
+                Log::info("Workflow with ID {$id} deleted successfully.");
+            } else {
+                Log::warning("Workflow with ID {$id} not found for deletion.");
+            }
+        }
+        return redirect()->route('create-workflow')
+            ->with('success', 'Selected workflows deleted successfully.');
     }
 
     private function getVoices()

@@ -5,7 +5,7 @@ import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 
-const CopyWorkflowPopup = ({
+const AsignFolderPopup = ({
     showFolderPopup,
     setShowFolderPopup,
     data,
@@ -14,7 +14,7 @@ const CopyWorkflowPopup = ({
     handleAssignFolderSubmit,
     folders,
 }) => {
-    console.log(showFolderPopup)
+    console.log(data)
     if (!showFolderPopup) return null;
 
     return (
@@ -29,9 +29,9 @@ const CopyWorkflowPopup = ({
                             Folder
                         </InputLabel>
                         <select
-                            id="folder"
+                            id="folder_id"
                             required
-                            name="folder"
+                            name="folder_id"
                             value={data.folder_id}
                             onChange={handleChange}
                             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
@@ -68,4 +68,4 @@ const CopyWorkflowPopup = ({
     );
 };
 
-export default CopyWorkflowPopup;
+export default AsignFolderPopup;

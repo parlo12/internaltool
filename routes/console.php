@@ -1,7 +1,9 @@
 <?php
 
 use App\Jobs\PrepareMessageJob;
+use App\Jobs\sendSheduledMessages;
 use App\Models\Contact;
+use App\Models\ScheduledMessages;
 use App\Models\Step;
 use App\Models\Workflow;
 use Carbon\Carbon;
@@ -178,7 +180,7 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
         // Log::error('InternalTools queue worker 12 failed.');
     });
 
-    Schedule::call(function () {
+Schedule::call(function () {
     ini_set('memory_limit', '300M');
     $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
     $now = Carbon::now();
@@ -356,4 +358,40 @@ Schedule::call(function () {
     })
     ->onSuccess(function () {
         Log::info('prepare-messages-console finished successfully.');
+    });
+
+Schedule::call(function () {
+    ini_set('max_execution_time', 0);
+    ini_set('memory_limit', '256M');
+    $expiredMessages = ScheduledMessages::where('dispatch_time', '<', Carbon::now())->get();
+    foreach ($expiredMessages as $message) {
+        $contact = Contact::find($message->contact_id);
+        if (!$contact) {
+            Log::error("Contact with ID {$message->contact_id} not found for scheduled message.");
+            continue;
+        }
+        $workflow = Workflow::find($message->workflow_id);
+        if (!$workflow) {
+            Log::error("Workflow with ID {$message->workflow_id} not found for scheduled message.");
+            continue;
+        }
+        Log::info("Sending scheduled message to contact ID {$contact->id} in workflow ID {$workflow->id}.");
+        sendSheduledMessages::dispatch(
+            $contact->phone,
+            $message->content,
+            $workflow->id,
+            $contact->id,
+            $contact->organisation_id,
+            $message->id,
+            $message->type
+
+        );
+    }
+})->name('send_ready_messages')
+    ->everyThreeMinutes()->withoutOverlapping(3)
+    ->onFailure(function () {
+        Log::error('send_ready_messages-console failed.');
+    })
+    ->onSuccess(function () {
+        Log::info('send_ready_messages-console finished successfully.');
     });

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('organisation_id');
             $table->string('number_pool_id')->nullable();
             $table->string('generated_message')->nullable();
+            $table->string('job_id')->nullable();
 
         });
     }

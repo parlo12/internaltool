@@ -12,6 +12,6 @@ class WorkflowSeeder extends Seeder
      */
     public function run(): void
     {
-        Workflow::factory()->count(10)->create();
+        Workflow::factory()->count(100)->create();
     }
 }

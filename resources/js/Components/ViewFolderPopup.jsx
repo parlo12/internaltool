@@ -18,10 +18,13 @@ const CopyWorkflowPopup = ({
     setShowViewFolderPopup,
     data,
     handleCopyClick,
-    handleAssignFolder 
+    handleAssignFolder
 }) => {
     const [workflowData, setWorkflowData] = useState(null);
-    console.log(workflowData);
+    const [selectedWorkflows, setSelectedWorkflows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+    const [searchName, setSearchName] = useState("");
+
     useEffect(() => {
         // Define the URL of the route
         const url = `/folder-workflows/${data.folder_id}`;
@@ -41,6 +44,33 @@ const CopyWorkflowPopup = ({
                 console.error(error);
             });
     }, [showViewFolderPopup]);
+
+    const handleWorkflowSelect = (id) => {
+        setSelectedWorkflows((prev) =>
+            prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
+        );
+    };
+
+    const handleSelectAll = () => {
+        if (selectAll) {
+            setSelectedWorkflows([]);
+        } else if (workflowData) {
+            setSelectedWorkflows(workflowData.map((w) => w.id));
+        }
+        setSelectAll(!selectAll);
+    };
+
+    const handleMassDelete = () => {
+        if (selectedWorkflows.length === 0) return;
+        if (window.confirm(`Are you sure you want to delete ${selectedWorkflows.length} workflow(s)?`)) {
+            axios.post('/delete-multiple-workflows', { ids: selectedWorkflows })
+                .then(() => {
+                    setSelectedWorkflows([]);
+                    setWorkflowData((prev) => prev.filter(w => !selectedWorkflows.includes(w.id)));
+                });
+        }
+    };
+
     if (!showViewFolderPopup) return null;
 
     return (
@@ -48,82 +78,81 @@ const CopyWorkflowPopup = ({
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4 sm:mx-auto">
                 <div>
                     {workflowData && (
-                        <div className="max-w-full ">
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                                <div className=" bg-white border-b border-gray-200 overflow-x-auto">
-                                    <div className="max-h-96 overflow-y-auto">
-                                        <table className="min-w-full divide-y divide-gray-200 text-sm sm:text-base">
-                                            <thead>
-                                                <tr>
-                                                    <th className="px-4 sm:px-6 py-3 bg-gray-50 text-left font-medium text-gray-700 uppercase tracking-wider">
-                                                        Name
-                                                    </th>
-                                                    <th className="px-4 sm:px-6 py-3 bg-gray-50 text-left font-medium text-gray-700 uppercase tracking-wider">
-                                                        Contact Group
-                                                    </th>
-                                                    <th className="px-4 sm:px-6 py-3 bg-gray-50 text-left font-medium text-gray-700 uppercase tracking-wider">
-                                                        Actions
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {workflowData.map((workflow) => (
-                                                    <tr key={workflow.id}>
-                                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-900">
-                                                            {workflow.name}
-                                                        </td>
-                                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500">
-                                                            {workflow.contact_group}
-                                                        </td>
-                                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right">
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleCopyClick(
-                                                                        workflow
-                                                                    )
-                                                                }
-                                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
-                                                            >
-                                                                <FontAwesomeIcon
-                                                                    icon={faCopy}
-                                                                    className="fa-xs"
-                                                                />
-                                                            </button>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleAssignFolder(
-                                                                        workflow
-                                                                    )
-                                                                }
-                                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
-                                                            >
-                                                                <FontAwesomeIcon
-                                                                    icon={
-                                                                        faFolderOpen
-                                                                    }
-                                                                    className="fa-xs"
-                                                                />
-                                                            </button>
-                                                            <Link
-                                                                href={route(
-                                                                    "add_steps",
-                                                                    workflow.id
-                                                                )}
-                                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                                            >
-                                                                <FontAwesomeIcon
-                                                                    icon={faPen}
-                                                                    className="fa-xs"
-                                                                />
-                                                            </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                        <div className="overflow-x-auto max-w-full">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="font-semibold text-gray-700">Workflows in Folder</span>
+                                <button
+                                    onClick={handleMassDelete}
+                                    disabled={selectedWorkflows.length === 0}
+                                    className={`ml-2 px-3 py-1 rounded text-xs font-semibold ${selectedWorkflows.length === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                                >
+                                    Delete Selected
+                                </button>
                             </div>
+                            <div className="mb-2 flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Search workflow name..."
+                                    value={searchName}
+                                    onChange={e => setSearchName(e.target.value)}
+                                    className="w-64 p-1 border rounded text-xs"
+                                />
+                            </div>
+                            <table className="min-w-full table-auto bg-white shadow-md rounded-lg text-sm">
+                                <thead>
+                                    <tr>
+                                        <th className="px-2 py-1 bg-gray-100 text-center w-8 max-w-[32px]">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectAll}
+                                                onChange={handleSelectAll}
+                                            />
+                                        </th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left w-12 max-w-[60px]">ID</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left max-w-[120px]">Name</th>
+                                        <th className="px-2 py-1 bg-gray-100 text-left hidden md:table-cell max-w-[120px]">Contact Group</th>
+                                        <th className="px-2 py-1 bg-gray-100 max-w-[60px]">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {(workflowData.filter(w => w.name.toLowerCase().includes(searchName.toLowerCase()))).map((workflow) => (
+                                        <tr key={workflow.id} className="hover:bg-gray-50">
+                                            <td className="px-2 py-1 text-center max-w-[32px]">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedWorkflows.includes(workflow.id)}
+                                                    onChange={() => handleWorkflowSelect(workflow.id)}
+                                                />
+                                            </td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[60px] break-words whitespace-pre-wrap">{workflow.id}</td>
+                                            <td className="px-2 py-1 text-gray-700 max-w-[120px] break-words whitespace-pre-wrap">{workflow.name}</td>
+                                            <td className="px-2 py-1 text-gray-500 hidden md:table-cell max-w-[120px] break-words whitespace-pre-wrap">{workflow.contact_group}</td>
+                                            <td className="px-1 py-1 max-w-[80px]">
+                                                <div className="flex justify-center gap-1">
+                                                    <button
+                                                        onClick={() => handleCopyClick(workflow)}
+                                                        className="p-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                                    >
+                                                        <FontAwesomeIcon icon={faCopy} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleAssignFolder(workflow)}
+                                                        className="p-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                                                    >
+                                                        <FontAwesomeIcon icon={faFolderOpen} />
+                                                    </button>
+                                                    <Link
+                                                        href={route("add_steps", workflow.id)}
+                                                        className="p-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+                                                    >
+                                                        <FontAwesomeIcon icon={faPen} />
+                                                    </Link>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     )}
                 </div>
