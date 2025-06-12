@@ -76,7 +76,7 @@ class ProcessCsvFile implements ShouldQueue
 
         $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Creating contact group');
 
-        $crm_api = new \App\Services\CRMAPIRequestsService('4|jXPTqiIGVtOSvNDua3TfSlRXLFU4lqWPcPZNgfN3f6bacce0');
+        $crm_api = new \App\Services\CRMAPIRequestsService($this->user->godspeedoffers_api);
         $response = $crm_api->createGroup($this->fileName);
         $content = json_decode($response->getContent(), true);
         Log::info("API response: " . json_encode($content));
