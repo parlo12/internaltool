@@ -770,64 +770,64 @@ class ContactController extends Controller
     }
     public function get_and_record_cost($contact)
     {
-        $communication_id = $contact->contact_communication_id;
-        $cost = 0;
-        $organisation = Organisation::find($contact->organisation_id);
+        // $communication_id = $contact->contact_communication_id;
+        // $cost = 0;
+        // $organisation = Organisation::find($contact->organisation_id);
 
-        if (strpos($communication_id, 'SM') === 0 || strpos($communication_id, 'MM') === 0) {
-            $client = new TwilioClient($organisation->twilio_texting_account_sid, $organisation->twilio_texting_auth_token);
-            try {
-                $message = $client->messages($communication_id)->fetch();
-                $price = $message->price;
-                $currency = $message->priceUnit;
-                $cost = $cost + $price;
-                $contact = TextSent::find($contact->id);
-                $contact->cost = abs($cost);
-                $contact->save();
-            } catch (\Exception $e) {
-                return 'Error: ' . $e->getMessage();
-            }
-        } elseif ($contact->marketing_channel == "SMS") {
-            try {
-                $client = new SignalWireClient(
-                    $organisation->signalwire_texting_project_id,
-                    $organisation->signalwire_texting_api_token,
-                    ['signalwireSpaceUrl' => $organisation->signalwire_texting_space_url]
-                );
-                $message = $client->messages($communication_id)->fetch();
-                $price = $message->price;
-                $currency = $message->priceUnit;
-                $cost = abs($price);
-                $contact = TextSent::find($contact->id);
-                if ($contact) {
-                    $contact->cost = $cost;
-                    $contact->save();
-                } else {
-                    Log::warning("No TextSent record found for contact ID: $contact->id.");
-                }
-            } catch (\Exception $e) {
-                Log::error("Error fetching message cost from SignalWire: " . $e->getMessage());
-                return 'Error: ' . $e->getMessage();
-            }
-        } else {
-            $signalWireSpaceUrl = $organisation->signalwire_calling_space_url;
-            $projectId = $organisation->signalwire_calling_project_id;
-            $authToken = $organisation->signalwire_calling_api_token;
-            $client = new SignalWireClient(
-                $projectId,
-                $authToken,
-                ['signalwireSpaceUrl' => $signalWireSpaceUrl]
-            );
-            try {
-                $call = $client->calls($communication_id)->fetch();
-                $cost = $call->price;
-            } catch (\Exception $e) {
-                Log::info("Error $e when fetching call price");
-            }
-            $contact = CallsSent::find($contact->id);
-            $contact->cost = abs($cost);
-            $contact->save();
-        }
+        // if (strpos($communication_id, 'SM') === 0 || strpos($communication_id, 'MM') === 0) {
+        //     $client = new TwilioClient($organisation->twilio_texting_account_sid, $organisation->twilio_texting_auth_token);
+        //     try {
+        //         $message = $client->messages($communication_id)->fetch();
+        //         $price = $message->price;
+        //         $currency = $message->priceUnit;
+        //         $cost = $cost + $price;
+        //         $contact = TextSent::find($contact->id);
+        //         $contact->cost = abs($cost);
+        //         $contact->save();
+        //     } catch (\Exception $e) {
+        //         return 'Error: ' . $e->getMessage();
+        //     }
+        // } elseif ($contact->marketing_channel == "SMS") {
+        //     try {
+        //         $client = new SignalWireClient(
+        //             $organisation->signalwire_texting_project_id,
+        //             $organisation->signalwire_texting_api_token,
+        //             ['signalwireSpaceUrl' => $organisation->signalwire_texting_space_url]
+        //         );
+        //         $message = $client->messages($communication_id)->fetch();
+        //         $price = $message->price;
+        //         $currency = $message->priceUnit;
+        //         $cost = abs($price);
+        //         $contact = TextSent::find($contact->id);
+        //         if ($contact) {
+        //             $contact->cost = $cost;
+        //             $contact->save();
+        //         } else {
+        //             Log::warning("No TextSent record found for contact ID: $contact->id.");
+        //         }
+        //     } catch (\Exception $e) {
+        //         Log::error("Error fetching message cost from SignalWire: " . $e->getMessage());
+        //         return 'Error: ' . $e->getMessage();
+        //     }
+        // } else {
+        //     $signalWireSpaceUrl = $organisation->signalwire_calling_space_url;
+        //     $projectId = $organisation->signalwire_calling_project_id;
+        //     $authToken = $organisation->signalwire_calling_api_token;
+        //     $client = new SignalWireClient(
+        //         $projectId,
+        //         $authToken,
+        //         ['signalwireSpaceUrl' => $signalWireSpaceUrl]
+        //     );
+        //     try {
+        //         $call = $client->calls($communication_id)->fetch();
+        //         $cost = $call->price;
+        //     } catch (\Exception $e) {
+        //         Log::info("Error $e when fetching call price");
+        //     }
+        //     $contact = CallsSent::find($contact->id);
+        //     $contact->cost = abs($cost);
+        //     $contact->save();
+        // }
     }
     // public function test(Request $request)
     // {
