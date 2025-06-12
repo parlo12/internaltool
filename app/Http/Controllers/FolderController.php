@@ -36,6 +36,17 @@ class FolderController extends Controller
         $workflow->save();
         return redirect()->route('create-workflow')->with('success', "workflow moved to folder successfully");
     }
+    public function remove_workflow_from_folder(Request $request){
+        $validated_data = $request->validate([
+            'workflow_id' => 'required',
+        ]);
+        $workflow=Workflow::find($validated_data['workflow_id']);
+        $workflow->folder_id=null;
+        $workflow->save();
+        return response()->json([
+            'workflow' => $workflow
+        ], 200);
+    }
     function get_folder_workflows($id){
        
         $workflows = Workflow::where('folder_id', $id)->get();

@@ -132,7 +132,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::delete('/delete-folder/{id}', [FolderController::class, 'delete']);
     Route::post('/assign-folder', [FolderController::class, 'assign']);
     Route::get('/folder-workflows/{id}', [FolderController::class, 'get_folder_workflows'])->name('folder-workflows');
-
+    Route::post('/remove-workflow-from-folder', [FolderController::class, 'remove_workflow_from_folder'])->name('remove-workflow-from-folder');
     //AiSALESPERSON CONTROLLER
     Route::get('/ai-sales', [AISalesPersonController::class, 'index'])->name('ai.index');
     Route::get('/assistants/{id}/view', [AISalesPersonController::class, 'view'])->name('assistants.view');

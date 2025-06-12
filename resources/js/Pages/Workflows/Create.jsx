@@ -545,6 +545,9 @@ export default function Create({
                     </form>
                     {/* Workflows Table */}
                     <div className="mt-10">
+                        <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 rounded">
+                            <strong>Note:</strong> Workflows assigned to a folder will only be found inside a folder.
+                        </div>
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xl font-bold text-center text-gray-800">Workflows</h3>
                             <button

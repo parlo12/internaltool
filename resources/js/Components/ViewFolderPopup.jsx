@@ -71,6 +71,15 @@ const CopyWorkflowPopup = ({
         }
     };
 
+    const handleRemoveFromFolder = (workflowId) => {
+        if (!window.confirm('Remove this workflow from the folder?')) return;
+        axios.post('/remove-workflow-from-folder', { workflow_id: workflowId, folder_id: data.folder_id })
+            .then(() => {
+                setWorkflowData((prev) => prev.filter(w => w.id !== workflowId));
+                setSelectedWorkflows((prev) => prev.filter(id => id !== workflowId));
+            });
+    };
+
     if (!showViewFolderPopup) return null;
 
     return (
@@ -147,6 +156,13 @@ const CopyWorkflowPopup = ({
                                                     >
                                                         <FontAwesomeIcon icon={faPen} />
                                                     </Link>
+                                                    <button
+                                                        onClick={() => handleRemoveFromFolder(workflow.id)}
+                                                        className="p-1 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+                                                        title="Remove from folder"
+                                                    >
+                                                        Remove
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
