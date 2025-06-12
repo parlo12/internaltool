@@ -40,8 +40,11 @@ class QueaueMessagesJob implements ShouldQueue
      */
     public function handle(ContactController $controller): void
     {
+        $rawPhone = $this->phone;
+        $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone); // Keep digits only
+        $formattedPhone = '+' . $cleanPhone;
         Log::info("QueaueMessagesJob started", [
-            'phone' => $this->phone,
+            'phone' => $formattedPhone,
             'content' => $this->content,
             'workflow_id' => $this->workflow_id,
             'type' => $this->type,
@@ -50,7 +53,7 @@ class QueaueMessagesJob implements ShouldQueue
             'dispatch_time' => $this->dispatch_time
         ]);
         ScheduledMessages::Create([
-            'phone' => $this->phone,
+            'phone' => $formattedPhone,
             'content' => $this->content,
             'workflow_id' => $this->workflow_id,
             'type' => $this->type,
