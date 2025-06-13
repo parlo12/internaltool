@@ -41,6 +41,17 @@ class ProcessCsvFile implements ShouldQueue
 
     public function handle(): void
     {
+        $csv = Reader::createFromPath('testing_file_4_wireless_numbers.csv', 'r');
+        $csv->setHeaderOffset(0); // Use the first row as header
+
+        // Set enclosure character for quoted fields (critical!)
+        $csv->setEnclosure('"');
+
+        // Get records
+        $records = $csv->getRecords();
+        foreach ($records as $record) {
+            print_r($record); // Records will now appear
+        }
         Log::info("Starting CSV processing job for file: " . $this->filePath);
         $path = $this->filePath;
         $csv = Reader::createFromPath($path, 'r');
@@ -68,13 +79,13 @@ class ProcessCsvFile implements ShouldQueue
         $jobId = $workflow_progress->id;
 
         // Broadcast initialization
-        $this->broadcastProgress($jobId, 0, 0,0,'initializing', 'Starting CSV processing');
+        $this->broadcastProgress($jobId, 0, 0, 0, 'initializing', 'Starting CSV processing');
 
         Log::info("Processing CSV in job: " . $this->filePath);
         Log::info("Workflow ID: " . $this->workflowId);
         Log::info("Folder ID: " . $this->folderId);
 
-        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Creating contact group');
+        $this->broadcastProgress($jobId, 0, 0, 0, 'processing', 'Creating contact group');
 
         $crm_api = new \App\Services\CRMAPIRequestsService($this->user->godspeedoffers_api);
         $response = $crm_api->createGroup($this->fileName);
@@ -104,7 +115,7 @@ class ProcessCsvFile implements ShouldQueue
         Log::info("Group created successfully: " . $this->fileName);
         $group_id = $content['data']['data']['uid'] ?? null;
 
-        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Creating workflow');
+        $this->broadcastProgress($jobId, 0, 0, 0, 'processing', 'Creating workflow');
 
         $old_workflow = Workflow::find($this->workflowId);
         $new_workflow = Workflow::create([
@@ -127,7 +138,7 @@ class ProcessCsvFile implements ShouldQueue
 
         $this->newWorkflowId = $new_workflow->id;
 
-        $this->broadcastProgress($jobId, 0, 0,0, 'processing', 'Workflow created, copying steps');
+        $this->broadcastProgress($jobId, 0, 0, 0, 'processing', 'Workflow created, copying steps');
 
         if (!empty($old_workflow->steps_flow)) {
             $steps_flow_array = explode(',', $old_workflow->steps_flow);
@@ -166,7 +177,7 @@ class ProcessCsvFile implements ShouldQueue
             }
         }
 
-        $this->broadcastProgress($jobId, 0, 0, 0,'processing', 'Processing CSV records');
+        $this->broadcastProgress($jobId, 0, 0, 0, 'processing', 'Processing CSV records');
 
         $path = $this->filePath;
         $csv = Reader::createFromPath($path, 'r');
@@ -174,7 +185,7 @@ class ProcessCsvFile implements ShouldQueue
         $totalRecords = $csv->count() - 1;  // Exclude header row
 
         // Broadcast processing start with total records
-        $this->broadcastProgress($jobId, 0, $totalRecords,0, 'processing');
+        $this->broadcastProgress($jobId, 0, $totalRecords, 0, 'processing');
 
         $current = 0;
         $batchSize = max(1, min(50, (int)($totalRecords / 20))); // Broadcast every 50 records or 5%
@@ -207,7 +218,7 @@ class ProcessCsvFile implements ShouldQueue
         Log::error("CSV processing job failed: " . $exception->getMessage());
     }
 
-    private function broadcastProgress($jobId, $current, $total,$progress,$status = 'processing', $message = null)
+    private function broadcastProgress($jobId, $current, $total, $progress, $status = 'processing', $message = null)
     {
         try {
             broadcast(new CsvProcessingProgress(

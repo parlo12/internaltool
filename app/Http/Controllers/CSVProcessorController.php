@@ -119,7 +119,8 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $wirelessFilePath;
-                if ($request->sms_workflow_id) {
+                Log::info("No of filtered wireless rows: " . count($filteredRows));
+                if (!empty($filteredRows)&& $request->sms_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Wireless CSV saved: $wirelessFilePath");
@@ -150,7 +151,7 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $landlineFilePath;
-                if ($request->calls_workflow_id) {
+                if (!empty($filteredRows) &&$request->calls_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
 
@@ -216,7 +217,7 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $wirelessProcessedFilePath;
-                if ($request->sms_workflow_id) {
+                if (!empty($filteredRows) &&$request->sms_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($wirelessProcessedFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $wirelessProcessedFilePath");
@@ -249,7 +250,7 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $landlineProcessedFilePath;
-                if ($request->calls_workflow_id) {
+                if (!empty($filteredRows) &&$request->calls_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($landlineProcessedFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $landlineProcessedFilePath");
