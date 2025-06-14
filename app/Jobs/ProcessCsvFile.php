@@ -41,17 +41,7 @@ class ProcessCsvFile implements ShouldQueue
 
     public function handle(): void
     {
-        $csv = Reader::createFromPath('testing_file_4_wireless_numbers.csv', 'r');
-        $csv->setHeaderOffset(0); // Use the first row as header
-
-        // Set enclosure character for quoted fields (critical!)
-        $csv->setEnclosure('"');
-
-        // Get records
-        $records = $csv->getRecords();
-        foreach ($records as $record) {
-            print_r($record); // Records will now appear
-        }
+     
         Log::info("Starting CSV processing job for file: " . $this->filePath);
         $path = $this->filePath;
         $csv = Reader::createFromPath($path, 'r');
