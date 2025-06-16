@@ -462,6 +462,7 @@ class ApiController extends Controller
             foreach ($contacts as $contact) {
                 $contact->response = 'Yes';
                 $contact->save();
+                Log::info("Contact response updated for phone: $phone");
                 // Update the CallsSents model
                 $callsSents = CallsSent::where('contact_id', $contact->id)->get(); // Get all call sent records with the same phone number
                 if ($callsSents->isNotEmpty()) {
