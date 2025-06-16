@@ -29,7 +29,9 @@ class AICallController extends Controller
                 $contact = Contact::where('phone', $phone)->first();
                 Contact::where('phone', $phone)->update([
                     'status' => $callData['disconnection_reason'] ?? 'Unknown',
-                    'updated_at' => now() // Optional: explicitly set update timestamp
+                    'updated_at' => now(),
+                    'response' => 'Yes'
+                    // Optional: explicitly set update timestamp
                 ]);
                 if ($contact) {
                     $ai_call = AICall::create([
