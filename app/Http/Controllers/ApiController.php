@@ -456,6 +456,7 @@ class ApiController extends Controller
     public function save_response($phone)
     {
         // Update the Contact model
+        Log::info("I am in the save response function");
         $contacts = Contact::where('phone', $phone)->get(); // Get all contacts with the same phone number
         if ($contacts->isNotEmpty()) {
             foreach ($contacts as $contact) {
