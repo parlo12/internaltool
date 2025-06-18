@@ -136,7 +136,7 @@ class ContactController extends Controller
     {
         // Keep the commented code for the purpose of local testing.
         Log::info("scheduled task running: process_workflows");
-                    ini_set('memory_limit', '300M');
+        ini_set('memory_limit', '300M');
         $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
         $now = Carbon::now();
         foreach ($contacts as $contact) {
@@ -322,10 +322,9 @@ class ContactController extends Controller
                 ->with('success', "$contact->contact_name Unmarked as a valid lead");
         } else {
             $workflow = Workflow::find($contact->workflow_id);
-            $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-            $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
-            $city = $contact_info['custom_fields']['CITY'] ?? null;
-            $state = $contact_info['custom_fields']['STATE'] ?? null;
+            $zipcode = $contact->zipcode;
+            $city = $contact->city;
+            $state = $contact->state;
             $contact->valid_lead = 1;
             $contact->save();
             $valid_deal = ValidLead::create([
@@ -356,10 +355,9 @@ class ContactController extends Controller
                 ->with('success', "$contact->contact_name Unmarked as an offer");
         } else {
             $workflow = Workflow::find($contact->workflow_id);
-            $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-            $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
-            $city = $contact_info['custom_fields']['CITY'] ?? null;
-            $state = $contact_info['custom_fields']['STATE'] ?? null;
+            $zipcode = $contact->zipcode;
+            $city = $contact->city;
+            $state = $contact->state;
             $contact->offer_made = 1;
             $contact->save();
             $offer = Offers::create([
@@ -391,10 +389,9 @@ class ContactController extends Controller
                 ->with('success', "$contact->contact_name Unmarked as an executed contract");
         } else {
             $workflow = Workflow::find($contact->workflow_id);
-            $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-            $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
-            $city = $contact_info['custom_fields']['CITY'] ?? null;
-            $state = $contact_info['custom_fields']['STATE'] ?? null;
+            $zipcode = $contact->zipcode;
+            $city = $contact->city;
+            $state = $contact->state;
             $contact->contract_executed = 1;
             $contact->save();
             $executedContracts = ExecutedContracts::create([
@@ -426,10 +423,9 @@ class ContactController extends Controller
                 ->with('success', "$contact->contact_name Unmarked as a closed deal");
         } else {
             $workflow = Workflow::find($contact->workflow_id);
-            $contact_info = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-            $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
-            $city = $contact_info['custom_fields']['CITY'] ?? null;
-            $state = $contact_info['custom_fields']['STATE'] ?? null;
+            $zipcode = $contact->zipcode;
+            $city = $contact->city;
+            $state = $contact->state;
             $contact->deal_closed = 1;
             $contact->save();
             $deal_closed = ClosedDeal::create([
@@ -685,12 +681,12 @@ class ContactController extends Controller
         $sending_server = SendingServer::find($calling_number->sending_server_id);
         if ($sending_server) {
             if ($sending_server->service_provider == 'retell') {
-                $retellService = new RetellService('retell',$sending_server->retell_api); // Change provider as needed
+                $retellService = new RetellService('retell', $sending_server->retell_api); // Change provider as needed
                 $retellService->AICall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
             } else {
                 Log::info("AI Cal with retell only");
             }
-        } 
+        }
     }
     public function handleCall(Request $request) // this can move to their own controller
     {
@@ -1069,7 +1065,8 @@ class ContactController extends Controller
         }
     }
 
-    public function Send_scheduled_messages(){
+    public function Send_scheduled_messages()
+    {
         $expiredMessages = ScheduledMessages::where('dispatch_time', '<', Carbon::now())->get();
         foreach ($expiredMessages as $message) {
             $contact = Contact::find($message->contact_id);
