@@ -6,6 +6,7 @@ use App\Models\Contact;
 use App\Models\ScheduledMessages;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RemoveDuplicateScheduledMessages extends Command
 {
@@ -21,6 +22,10 @@ class RemoveDuplicateScheduledMessages extends Command
                 // Update contact
                 $contact = Contact::find($message->contact_id);
                 if ($contact) {
+                    Log::info("Updating contact for message ID: {$message->id}", [
+                        'contact_id' => $contact->id,
+                        'phone' => $contact->phone,
+                    ]);
                     $contact->can_send = 1;
                     $contact->save();
                 }
