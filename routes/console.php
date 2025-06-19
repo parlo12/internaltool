@@ -182,7 +182,9 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
 
 Schedule::call(function () {
     ini_set('memory_limit', '300M');
-    $contacts = Contact::where('current_step', null)->get(); // Retrieve all contacts
+    $contacts = Contact::whereNull('current_step')
+        ->where('created_at', '>=', Carbon::now()->subDay())
+        ->get(); // Retrieve all contacts
     $now = Carbon::now();
     foreach ($contacts as $contact) {
         // Initializ current step if it's not set
