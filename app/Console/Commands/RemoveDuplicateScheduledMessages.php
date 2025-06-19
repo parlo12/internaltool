@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Contact;
+use App\Models\ScheduledMessages;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -12,24 +14,25 @@ class RemoveDuplicateScheduledMessages extends Command
 
     public function handle()
     {
-        $this->info("🧹 Removing duplicate scheduled messages using raw SQL...");
+        $this->info("Processing scheduled messages...");
 
-        $deleted = DB::statement("
-            DELETE sm1 FROM scheduled_messages sm1
-            INNER JOIN scheduled_messages sm2
-            ON
-                sm1.phone = sm2.phone AND
-                sm1.content = sm2.content AND
-                sm1.workflow_id = sm2.workflow_id AND
-                sm1.type = sm2.type AND
-                sm1.contact_id = sm2.contact_id AND
-                sm1.organisation_id = sm2.organisation_id AND
-                sm1.dispatch_time = sm2.dispatch_time AND
-                sm1.id > sm2.id
-        ");
+        ScheduledMessages::chunkById(100, function ($messages) {
+            foreach ($messages as $message) {
+                // Update contact
+                $contact = Contact::find($message->contact_id);
+                if ($contact) {
+                    $contact->can_send = 1;
+                    $contact->save();
+                }
 
-        $this->info("✅ Duplicates removed using SQL join. (Query completed; number of rows deleted may not be returned)");
+                // Delete message
+                $message->delete();
+            }
+        });
 
+        $this->info("✅ All scheduled messages deleted and related contacts updated.");
         return 0;
     }
 }
+
+
