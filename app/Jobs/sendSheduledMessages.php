@@ -43,22 +43,22 @@ class sendSheduledMessages implements ShouldQueue
      */
     public function handle(ContactController $controller): void
     {
-        // Log::info("sendSheduledMessages started", [
-        //     'phone' => '+'.$this->phone,
-        //     'content' => $this->content,
-        //     'workflow_id' => $this->workflow_id,
-        //     'contact_id' => $this->contact_id,
-        //     'organisation_id' => $this->organisation_id
-        // ]);
-        // $message = ScheduledMessages::find($this->message_id);
+        Log::info("sendSheduledMessages started", [
+            'phone' => '+'.$this->phone,
+            'content' => $this->content,
+            'workflow_id' => $this->workflow_id,
+            'contact_id' => $this->contact_id,
+            'organisation_id' => $this->organisation_id
+        ]);
+        $message = ScheduledMessages::find($this->message_id);
 
-        // if ($message) {
-        //     $message->delete();
-        // }
-        // $controller->send_message('+'.$this->phone, $this->content, $this->workflow_id, $this->type, $this->contact_id, $this->organisation_id);
+        if ($message) {
+            $message->delete();
+        }
+        $controller->send_message('+'.$this->phone, $this->content, $this->workflow_id, $this->type, $this->contact_id, $this->organisation_id);
 
-        // Log::info("Message sent and deleted from scheduled messages", [
-        //     'message_id' => $this->message_id
-        // ]);
+        Log::info("Message sent and deleted from scheduled messages", [
+            'message_id' => $this->message_id
+        ]);
     }
 }
