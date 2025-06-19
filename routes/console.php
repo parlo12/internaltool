@@ -265,102 +265,102 @@ Schedule::call(function () {
     }
 })->hourly();
 
-// Schedule::call(function () {
-//     ini_set('max_execution_time', 0);
-//     ini_set('memory_limit', '256M');
-//     $steps = Step::where('created_at', '>=', now()->subDays(21))
-//         ->get();
-//     foreach ($steps as $step) {
-//         $workflow = Workflow::find($step->workflow_id);
-//         $days_of_week = json_decode($step->days_of_week, true);
+Schedule::call(function () {
+    ini_set('max_execution_time', 0);
+    ini_set('memory_limit', '256M');
+    $steps = Step::where('created_at', '>=', now()->subDays(21))
+        ->get();
+    foreach ($steps as $step) {
+        $workflow = Workflow::find($step->workflow_id);
+        $days_of_week = json_decode($step->days_of_week, true);
 
-//         if ($workflow != null && $workflow->active) {
-//             //Log::info("Processing workflow $workflow->id with step $step->id");
-//             $contacts = DB::table('contacts')
-//                 ->where('response', 'No')
-//                 ->where('can_send', 1)
-//                 ->where('subscribed', 1)
-//                 ->where('current_step', $step->id)
-//                 ->get();
-//             // foreach ($contacts as $contact) {
-//             //     Log::info("Got $contact->id of workflow $contact->workflow_id") ;
-//             // }
+        if ($workflow != null && $workflow->active) {
+            //Log::info("Processing workflow $workflow->id with step $step->id");
+            $contacts = DB::table('contacts')
+                ->where('response', 'No')
+                ->where('can_send', 1)
+                ->where('subscribed', 1)
+                ->where('current_step', $step->id)
+                ->get();
+            // foreach ($contacts as $contact) {
+            //     Log::info("Got $contact->id of workflow $contact->workflow_id") ;
+            // }
 
-//             $start_time = $step->start_time ?: '08:00';
-//             $end_time = $step->end_time ?: '20:00';
-//             $chunk_size = $step->batch_size ?: '20';
-//             $interval = (int) $step->batch_delay * 60;
-//             $contactsChunks = $contacts->chunk($chunk_size);
+            $start_time = $step->start_time ?: '08:00';
+            $end_time = $step->end_time ?: '20:00';
+            $chunk_size = $step->batch_size ?: '20';
+            $interval = (int) $step->batch_delay * 60;
+            $contactsChunks = $contacts->chunk($chunk_size);
 
-//             $now = Carbon::now();
-//             $startTime = Carbon::today()->setTimeFromTimeString($start_time);
-//             $endTime = Carbon::today()->setTimeFromTimeString($end_time);
+            $now = Carbon::now();
+            $startTime = Carbon::today()->setTimeFromTimeString($start_time);
+            $endTime = Carbon::today()->setTimeFromTimeString($end_time);
 
-//             if ($now->between($startTime, $endTime)) {
-//                 $startTime = $now;
-//             } elseif ($now->isAfter($endTime)) {
-//                 $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
-//                 $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
-//             }
+            if ($now->between($startTime, $endTime)) {
+                $startTime = $now;
+            } elseif ($now->isAfter($endTime)) {
+                $startTime = Carbon::tomorrow()->setTimeFromTimeString($start_time);
+                $endTime = Carbon::tomorrow()->setTimeFromTimeString($end_time);
+            }
 
-//             while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-//                 $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-//                 $endTime = $endTime->addDay();
-//             }
+            while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                $endTime = $endTime->addDay();
+            }
 
-//             foreach ($contactsChunks as $chunk) {
-//                 if ($startTime->greaterThanOrEqualTo($endTime)) {
-//                     do {
-//                         $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-//                         $endTime = $endTime->addDay();
-//                     } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
-//                 }
+            foreach ($contactsChunks as $chunk) {
+                if ($startTime->greaterThanOrEqualTo($endTime)) {
+                    do {
+                        $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                        $endTime = $endTime->addDay();
+                    } while (($days_of_week[$startTime->format('l')] ?? 0) == 0);
+                }
 
-//                 $dispatchTime = $startTime->copy();
-//                 foreach ($chunk as $contact) {
-//                     // Log::info("Dispatching PrepareMessageJob for contact $contact->id of workflow $contact->workflow_id");
-//                     // Check if the job already exists in the queue
-//                     $existingJob = DB::table('jobs')
-//                         ->where('payload', 'like', '%PrepareMessageJob%')
-//                         ->where('payload', 'like', "%{$contact->uuid}%")
-//                         ->exists();
-//                     // Dispatch a job to prepare the message without making third-party requests here
-//                     if (!$existingJob) {
+                $dispatchTime = $startTime->copy();
+                foreach ($chunk as $contact) {
+                    // Log::info("Dispatching PrepareMessageJob for contact $contact->id of workflow $contact->workflow_id");
+                    // Check if the job already exists in the queue
+                    $existingJob = DB::table('jobs')
+                        ->where('payload', 'like', '%PrepareMessageJob%')
+                        ->where('payload', 'like', "%{$contact->uuid}%")
+                        ->exists();
+                    // Dispatch a job to prepare the message without making third-party requests here
+                    if (!$existingJob) {
 
-//                         PrepareMessageJob::dispatch(
-//                             $contact->uuid,
-//                             $workflow->group_id,
-//                             $workflow->godspeedoffers_api,
-//                             $step,
-//                             $contact,
-//                             $dispatchTime
-//                         );
-//                         $contact = Contact::find($contact->id);
-//                         $contact->can_send = 0;
-//                         $contact->status = 'Waiting_For_Queau_Job';
-//                         $contact->save();
-//                     } else {
-//                         Log::info("This job exists, skipping");
-//                     }
-//                 }
+                        PrepareMessageJob::dispatch(
+                            $contact->uuid,
+                            $workflow->group_id,
+                            $workflow->godspeedoffers_api,
+                            $step,
+                            $contact,
+                            $dispatchTime
+                        );
+                        $contact = Contact::find($contact->id);
+                        $contact->can_send = 0;
+                        $contact->status = 'Waiting_For_Queau_Job';
+                        $contact->save();
+                    } else {
+                        Log::info("This job exists, skipping");
+                    }
+                }
 
-//                 $startTime->addSeconds($interval);
+                $startTime->addSeconds($interval);
 
-//                 while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
-//                     $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
-//                     $endTime = $endTime->addDay();
-//                 }
-//             }
-//         }
-//     }
-// })->name('prepare-messages')
-//     ->everyThreeMinutes()->withoutOverlapping(3)
-//     ->onFailure(function () {
-//         Log::error('prepare-messages-console failed.');
-//     })
-//     ->onSuccess(function () {
-//         Log::info('prepare-messages-console finished successfully.');
-//     });
+                while (($days_of_week[$startTime->format('l')] ?? 0) == 0) {
+                    $startTime = $startTime->addDay()->setTimeFromTimeString($start_time);
+                    $endTime = $endTime->addDay();
+                }
+            }
+        }
+    }
+})->name('prepare-messages')
+    ->everyThreeMinutes()->withoutOverlapping(3)
+    ->onFailure(function () {
+        Log::error('prepare-messages-console failed.');
+    })
+    ->onSuccess(function () {
+        Log::info('prepare-messages-console finished successfully.');
+    });
 
 Schedule::call(function () {
     ini_set('max_execution_time', 0);
