@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\ScheduledMessages;
 use Illuminate\Support\Facades\DB;
 
 class RemoveDuplicateScheduledMessages extends Command
@@ -13,65 +12,23 @@ class RemoveDuplicateScheduledMessages extends Command
 
     public function handle()
     {
-        $this->info("Scanning for duplicate scheduled messages...");
+        $this->info("🧹 Removing duplicate scheduled messages using raw SQL...");
 
-        $duplicates = ScheduledMessages::select(
-                'phone',
-                'content',
-                'workflow_id',
-                'type',
-                'contact_id',
-                'organisation_id',
-                'dispatch_time',
-                DB::raw('MIN(id) as keep_id')
-            )
-            ->groupBy(
-                'phone',
-                'content',
-                'workflow_id',
-                'type',
-                'contact_id',
-                'organisation_id',
-                'dispatch_time'
-            )
-            ->get();
+        $deleted = DB::statement("
+            DELETE sm1 FROM scheduled_messages sm1
+            INNER JOIN scheduled_messages sm2
+            ON
+                sm1.phone = sm2.phone AND
+                sm1.content = sm2.content AND
+                sm1.workflow_id = sm2.workflow_id AND
+                sm1.type = sm2.type AND
+                sm1.contact_id = sm2.contact_id AND
+                sm1.organisation_id = sm2.organisation_id AND
+                sm1.dispatch_time = sm2.dispatch_time AND
+                sm1.id > sm2.id
+        ");
 
-        $keepIds = $duplicates->pluck('keep_id')->toArray();
-
-        // Optional: confirm count before delete
-        $toDelete = ScheduledMessages::whereNotIn('id', $keepIds)
-            ->whereIn(DB::raw('(phone, content, workflow_id, type, contact_id, organisation_id, dispatch_time)'), function ($query) {
-                $query->select(
-                        'phone',
-                        'content',
-                        'workflow_id',
-                        'type',
-                        'contact_id',
-                        'organisation_id',
-                        'dispatch_time'
-                    )
-                    ->from('scheduled_messages')
-                    ->groupBy(
-                        'phone',
-                        'content',
-                        'workflow_id',
-                        'type',
-                        'contact_id',
-                        'organisation_id',
-                        'dispatch_time'
-                    )
-                    ->havingRaw('COUNT(*) > 1');
-            });
-
-        $count = $toDelete->count();
-        $this->warn("Found $count duplicate messages to delete...");
-
-        if ($count > 0) {
-            $deleted = $toDelete->delete();
-            $this->info("✅ Deleted $deleted duplicate scheduled messages.");
-        } else {
-            $this->info("No duplicates found.");
-        }
+        $this->info("✅ Duplicates removed using SQL join. (Query completed; number of rows deleted may not be returned)");
 
         return 0;
     }
