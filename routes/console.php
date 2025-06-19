@@ -388,6 +388,9 @@ Schedule::call(function () {
             $message->type
 
         );
+        $scheduledMessage = ScheduledMessages::find($message->id);
+        $scheduledMessage->delete(); // Delete the message after sending
+        Log::info("Deleted scheduled message ID {$message->id} after sending.");
     }
 })->name('send_ready_messages')
     ->everyThreeMinutes()->withoutOverlapping(3)
