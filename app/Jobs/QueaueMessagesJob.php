@@ -52,7 +52,7 @@ class QueaueMessagesJob implements ShouldQueue
             'organisation_id' => $this->organisation_id,
             'dispatch_time' => $this->dispatch_time
         ]);
-        ScheduledMessages::Create([
+        ScheduledMessages::firstOrCreate([
             'phone' => $formattedPhone,
             'content' => $this->content,
             'workflow_id' => $this->workflow_id,
@@ -61,6 +61,7 @@ class QueaueMessagesJob implements ShouldQueue
             'organisation_id' => $this->organisation_id,
             'dispatch_time' => $this->dispatch_time
         ]);
+
         //$controller->send_message($this->phone, $this->content,$this->workflow_id,$this->type,$this->contact_id,$this->organisation_id);
     }
 }
