@@ -30,9 +30,42 @@ class AICallController extends Controller
                 Contact::where('phone', $phone)->update([
                     'status' => $callData['disconnection_reason'] ?? 'Unknown',
                     'updated_at' => now(),
-                    'response' => 'Yes'
                     // Optional: explicitly set update timestamp
                 ]);
+                $abnormalReasons = [
+                    'concurrency_limit_reached',
+                    'no_valid_payment',
+                    'scam_detected',
+                    'error_inbound_webhook',
+                    'dial_busy',
+                    'dial_failed',
+                    'dial_no_answer',
+                    'error_llm_websocket_open',
+                    'error_llm_websocket_lost_connection',
+                    'error_llm_websocket_runtime',
+                    'error_llm_websocket_corrupt_payload',
+                    'error_frontend_corrupted_payload',
+                    'error_twilio',
+                    'error_no_audio_received',
+                    'error_asr',
+                    'error_retell',
+                    'error_unknown',
+                    'error_user_not_joined',
+                    'registered_call_timeout',
+                ];
+
+                if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
+                    // Abnormal disconnection handling
+                    Log::warning("Abnormal disconnection: {$callData['disconnection_reason']}");
+                    // e.g., notify admin, retry call, store for review, etc.
+                } else {
+                    // Normal/expected disconnection
+                    Contact::where('phone', $phone)->update([
+                        'response' => 'Yes',
+                        // Optional: explicitly set update timestamp
+                    ]);
+                    Log::info("Call ended normally: {$callData['disconnection_reason']}");
+                }
                 if ($contact) {
                     $ai_call = AICall::create([
                         'name' => $contact->contact_name,
@@ -106,7 +139,7 @@ class AICallController extends Controller
                 'Authorization' => 'Bearer ' . $token,
                 'Accept' => 'application/json',
             ])
-                ->timeout(30) 
+                ->timeout(30)
                 ->post($url, [
                     'phone' => $phone,
                     'sending_number' => $sending_number,
