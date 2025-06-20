@@ -481,7 +481,7 @@ class ContactController extends Controller
                 }
             } else {
                 Log::info('we did not find an available number reqeuing');
-                $dispatchTime = Carbon::now()->addMinute();
+                $dispatchTime = Carbon::now()->addMinutes(5);
                 QueaueMessagesJob::dispatch(
                     '+' . $phone,
                     $content,
