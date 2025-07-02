@@ -229,10 +229,7 @@ class WorkflowController extends Controller
             'generated_message' => 'nullable|max:255'
         ]);
         $workflow = Workflow::findOrFail($id);
-        return response()->json([
-            'message' => 'Workflow updated successfully',
-            'workflow' => $validatedData
-        ]);
+        
         $workflow->update([
             'name' => $validatedData['name'],
             'voice' => $validatedData['voice'] ?? $workflow->voice,

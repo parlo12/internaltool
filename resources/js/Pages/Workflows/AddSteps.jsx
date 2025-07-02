@@ -84,7 +84,7 @@ export default function Create({
                 console.log(response);
                 setEditWorkflowModalOpen(false);
                 setSuccess("Workflow Edited successfully!");
-                //window.location.reload();
+                window.location.reload();
             })
             .catch((error) => {
                 console.log(error.response.data.errors);
