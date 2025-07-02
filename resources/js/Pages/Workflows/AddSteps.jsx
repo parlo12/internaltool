@@ -80,9 +80,10 @@ export default function Create({
         axios
             .put(`/workflows/${workflow.id}`, workflowData)
             .then((response) => {
+                console.log(response.data);
                 setEditWorkflowModalOpen(false);
                 setSuccess("Workflow Edited successfully!");
-                window.location.reload();
+                //window.location.reload();
             })
             .catch((error) => {
                 console.log(error.response.data.errors);
