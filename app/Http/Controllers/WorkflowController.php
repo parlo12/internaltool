@@ -222,7 +222,7 @@ class WorkflowController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'voice' => 'nullable|string|max:255',
-            'agent_phone_number' => 'nullable|string|max:255',
+            'agent_number' => 'nullable|string|max:255',
             'calling_number' => 'nullable|string|max:255',
             'texting_number' => 'nullable|string|max:255',
             'number_pool_id' => 'nullable|max:255',
@@ -236,7 +236,7 @@ class WorkflowController extends Controller
         $workflow->update([
             'name' => $validatedData['name'],
             'voice' => $validatedData['voice'] ?? $workflow->voice,
-            'agent_number' => $validatedData['agent_phone_number'] ?? $workflow->agent_number,
+            'agent_number' => $validatedData['agent_number'] ?? $workflow->agent_number,
             'calling_number' => $validatedData['calling_number'] ?? $workflow->calling_number,
             'texting_number' => $validatedData['texting_number'] ?? $workflow->texting_number,
             'number_pool_id' => $validatedData['number_pool_id'] ?? $workflow->number_pool_id,

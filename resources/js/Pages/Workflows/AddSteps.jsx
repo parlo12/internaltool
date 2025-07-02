@@ -65,6 +65,7 @@ export default function Create({
         country_code: workflow.country_code,
         calling_number: workflow.calling_number,
         texting_number: workflow.texting_number,
+        number_pool_id: workflow.number_pool_id
     });
     const [errors, setErrors] = useState({});
 
