@@ -68,10 +68,7 @@ class AICallController extends Controller
                             sleep(5);
                             $retellService = new RetellService('retell');
                             $retellService->AICall(
-                                $contact->phone,
-                                'content',
                                 $contact->workflow_id,
-                                '1',
                                 $contact->id,
                                 $contact->organisation_id,
                                 'agent_18875e77fc4b56d3bc0f90a316',
