@@ -48,6 +48,8 @@ return new class extends Migration
             $table->string('monthly')->nullable();
             $table->string('downpayment')->nullable();
             $table->string('generated_message')->nullable();
+            $table->string('no_second_call')->nullable();
+
 
         });
     }
