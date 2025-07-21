@@ -43,7 +43,8 @@ class Contact extends Model
         'creative_price',
         'monthly',
         'downpayment',
-        'generated_message'
+        'generated_message',
+        'no_second_call'
     ];
     public function workflow()
     {
