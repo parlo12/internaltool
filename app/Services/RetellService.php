@@ -38,9 +38,9 @@ class RetellService
                 ->where('organisation_id', $organisation_id)
                 ->first();
             $sending_server = SendingServer::find($number->sending_server_id);
+            $retell_api = $sending_server->retell_api;
             if (empty($retell_agent_id)) {
                 if ($sending_server) {
-                    $retell_api = $sending_server->retell_api;
                     $retell_agent_id = $sending_server->retell_agent_id;
                 } else {
                     log::error('Sending server not found for the number', ['number' => $calling_number]);
