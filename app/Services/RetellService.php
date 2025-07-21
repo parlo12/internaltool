@@ -24,7 +24,7 @@ class RetellService
         $this->apiKey = $api_key;
 
         if (empty($this->apiKey)) {
-            throw new \RuntimeException('Retell API key not configured');
+            Log::info('Retell API key not configured');
         }
     }
     public function AICall($workflow_id, $contact_id, $organisation_id, $retell_agent_id)
