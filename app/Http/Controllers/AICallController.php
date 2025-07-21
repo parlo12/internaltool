@@ -61,7 +61,7 @@ class AICallController extends Controller
                 ];
 
                 if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
-                    $contact = Contact::where('phone', $phone)->first();
+                    $contact = Contact::where('phone', $phone)->latest()->first();
                     if ($contact) {
                         if ($contact->age >= '20') {
                             Log::info("Abnormal disconnection: Trying to retell the call");
