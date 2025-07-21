@@ -64,7 +64,7 @@ class AICallController extends Controller
                     $contact = Contact::where('phone', $phone)->latest()->first();
                     if ($contact) {
                         if ($contact->age >= '45') {
-                            Log::info("Abnormal disconnection: Trying to retell the call");
+                            Log::info("Abnormal donnection: Trying to retell the call");
                             sleep(5);
                             // $retellService = new RetellService('retell');
                             // $retellService->AICall(
