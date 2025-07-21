@@ -682,7 +682,7 @@ class ContactController extends Controller
         if ($sending_server) {
             if ($sending_server->service_provider == 'retell') {
                 $retellService = new RetellService('retell', $sending_server->retell_api); // Change provider as needed
-                $retellService->AICall($phone, $content, $workflow_id, '3', $contact_id, $organisation_id);
+                $retellService->AICall($workflow_id, $contact_id, $organisation_id,null);
             } else {
                 Log::info("AI Cal with retell only");
             }
@@ -980,7 +980,7 @@ class ContactController extends Controller
     private function send_Email($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
     {
         $EmailService = new EmailService(); // Change provider as needed
-        $EmailService->sendEmail($phone, $content, $workflow_id, $type, $contact_id, $organisation_id);
+        $EmailService->sendEmail($content,  $contact_id, $organisation_id);
     }
     public function contact_search(Request $request)
     {

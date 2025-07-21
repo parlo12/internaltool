@@ -54,10 +54,10 @@ class ProcessCsvRecord implements ShouldQueue
             'offer' => $this->record['Cash offer'] ?? null,
             'address' => $this->record['Property address'] ?? null,
             'agent' => $this->user->name,
-            'email' => "",
+            'email' => $this->record['email'] ?? null,
             'lead_score' => $this->record['Lead score'] ?? null,
             'gender' => $this->record['Gender'] ?? null,
-            'age' => $this->record['Age'] ?? null,
+            'age' => $this->record['Phone owner age 1'] ?? null,
             'novation' => $this->record['Novation offer'] ?? null,
             'creative_price' => $this->record['Creative price offer'] ?? null,
             'monthly' => $this->record['Monthly payment amount'] ?? null,
@@ -75,13 +75,14 @@ class ProcessCsvRecord implements ShouldQueue
             'ZIPCODE' => $this->record['Property zip'] ?? null,
             'OFFER_AMOUNT' => $this->record['Cash offer'] ?? null,
             'SALES_PERSON' => $this->user->name,
-            'AGE' => $this->record['Age'] ?? null,
+            'AGE' => $this->record['Phone owner age 1'] ?? null,
             'Gender' => $this->record['Gender'] ?? null,
             'LEAD_SCORE' => $this->record['Lead score'] ?? null,
             'NOVATION' => $this->record['Novation offer'] ?? null,
             'CREATIVEPRICE' => $this->record['Creative price offer'] ?? null,
             'MONTHLY' => $this->record['Monthly payment amount'] ?? null,
             'DOWNPAYMENT' => $this->record['Down payment amount'] ?? null,
+            'EMAIL' => $this->record['email'] ?? null,
         ]);
 
         $workflow_progress = WorkflowProgress::find($this->workflow_progress->id);

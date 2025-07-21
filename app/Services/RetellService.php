@@ -10,7 +10,7 @@ use App\Models\Workflow;
 
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log as log;
 
 class RetellService
 {
@@ -27,7 +27,7 @@ class RetellService
             throw new \RuntimeException('Retell API key not configured');
         }
     }
-    public function AICall($phone, $content, $workflow_id, $detection_duration, $contact_id, $organisation_id)
+    public function AICall($workflow_id, $contact_id, $organisation_id, $retell_agent_id)
     {
         $httpCode = null;
         $contact = null;
@@ -38,14 +38,16 @@ class RetellService
                 ->where('organisation_id', $organisation_id)
                 ->first();
             $sending_server = SendingServer::find($number->sending_server_id);
-
-            if ($sending_server) {
-                $retell_api = $sending_server->retell_api;
-                $retell_agent_id = $sending_server->retell_agent_id;
-            } else {
-                Log::error('Sending server not found for the number', ['number' => $calling_number]);
-                throw new \Exception("Sending server not configured");
+            if (empty($retell_agent_id)) {
+                if ($sending_server) {
+                    $retell_api = $sending_server->retell_api;
+                    $retell_agent_id = $sending_server->retell_agent_id;
+                } else {
+                    log::error('Sending server not found for the number', ['number' => $calling_number]);
+                    throw new \Exception("Sending server not configured");
+                }
             }
+
 
             $contact = Contact::find($contact_id);
             if (!$contact) {
@@ -82,7 +84,7 @@ class RetellService
                 'opt_out_sensitive_data_storage' => true
             ];
 
-            Log::info('Preparing outbound call payload', $payload);
+            log::info('Preparing outbound call payload', $payload);
 
             $ch = curl_init();
             curl_setopt_array($ch, [
@@ -117,7 +119,7 @@ class RetellService
                 case 201: // Success
                     $contact->status = 'call_initiated';
                     $contact->save();
-                    Log::info('Call initiated successfully', [
+                    log::info('Call initiated successfully', [
                         'call_id' => $responseData['call_id'] ?? null,
                         'telephony_identifier' => $responseData['telephony_identifier'] ?? null,
                         'response' => $responseData
@@ -125,7 +127,7 @@ class RetellService
                     return response()->json($responseData);
 
                 case 400:
-                    Log::error('API Request Failed', [
+                    log::error('API Request Failed', [
                         'status_code' => $httpCode,
                         'response' => $responseData,
                         'payload' => $payload,
@@ -169,7 +171,7 @@ class RetellService
                     throw new \Exception("Unexpected response: HTTP $httpCode");
             }
         } catch (\Exception $e) {
-            Log::error('Outbound call failed', [
+            log::error('Outbound call failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'payload' => $payload ?? null
@@ -194,11 +196,11 @@ class RetellService
 
     public function getRecentCalls($minutes = 30, $limit = 50)
     {
-        \Log::info("Retrieving recent calls", ['minutes' => $minutes, 'limit' => $limit]);
+        log::info("Retrieving recent calls", ['minutes' => $minutes, 'limit' => $limit]);
 
         $apiKey = env('RETELL_API_KEY');
         if (empty($apiKey)) {
-            \Log::error('Retell API key not configured');
+            log::error('Retell API key not configured');
             throw new \RuntimeException('Retell API key not configured in .env');
         }
 
@@ -207,7 +209,7 @@ class RetellService
             $now = now()->getTimestamp() * 1000;
             $lowerThreshold = $now - ($minutes * 60 * 1000);
 
-            \Log::debug("Timestamp thresholds calculated", [
+            log::debug("Timestamp thresholds calculated", [
                 'lower_threshold' => $lowerThreshold,
                 'upper_threshold' => $now,
                 'human_readable_lower' => date('Y-m-d H:i:s', $lowerThreshold / 1000),
@@ -241,7 +243,7 @@ class RetellService
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             ]);
 
-            \Log::debug("API request prepared", ['payload' => $requestPayload]);
+            log::debug("API request prepared", ['payload' => $requestPayload]);
             $startTime = microtime(true);
 
             $response = curl_exec($curl);
@@ -251,26 +253,26 @@ class RetellService
 
             curl_close($curl);
 
-            \Log::debug("API response received", [
+            log::debug("API response received", [
                 'status_code' => $httpCode,
                 'duration_ms' => $duration,
                 'response_size' => strlen($response)
             ]);
 
             if ($err) {
-                \Log::error("API request failed", ['error' => $err]);
+                log::error("API request failed", ['error' => $err]);
                 throw new \RuntimeException("API connection failed: $err");
             }
 
             // Validate response
             if (empty($response)) {
-                \Log::warning("Empty API response received");
+                log::warning("Empty API response received");
                 return [];
             }
 
             $data = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                \Log::error("Invalid JSON response", [
+                log::error("Invalid JSON response", [
                     'error' => json_last_error_msg(),
                     'response_sample' => substr($response, 0, 200)
                 ]);
@@ -280,7 +282,7 @@ class RetellService
             // Handle API errors
             if ($httpCode >= 400) {
                 $errorMsg = $data['message'] ?? 'Unknown API error';
-                \Log::error("API returned error", [
+                log::error("API returned error", [
                     'status_code' => $httpCode,
                     'error' => $errorMsg
                 ]);
@@ -291,13 +293,13 @@ class RetellService
             $calls = $data['calls'] ?? $data; // Handle both wrapped and direct array responses
             $callCount = count($calls);
 
-            \Log::info("Calls retrieved successfully", [
+            log::info("Calls retrieved successfully", [
                 'count' => $callCount,
                 'duration_ms' => $duration
             ]);
 
             if ($callCount > 0) {
-                \Log::debug("Sample call data", [
+                log::debug("Sample call data", [
                     'first_call' => $calls[0]['call_id'] ?? null,
                     'last_call' => $calls[$callCount - 1]['call_id'] ?? null,
                     'time_range' => [
@@ -313,7 +315,7 @@ class RetellService
 
             return $calls;
         } catch (\Exception $e) {
-            \Log::error("Failed to retrieve calls", [
+            log::error("Failed to retrieve calls", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -437,7 +439,7 @@ class RetellService
     }
     public function getAllAgents()
     {
-        \Log::info("Retrieving all agents");
+        log::info("Retrieving all agents");
 
         try {
             $curl = curl_init();
@@ -456,7 +458,7 @@ class RetellService
                 ],
             ]);
 
-            \Log::debug("API request prepared for getting agents");
+            log::debug("API request prepared for getting agents");
             $startTime = microtime(true);
 
             $response = curl_exec($curl);
@@ -466,26 +468,26 @@ class RetellService
 
             curl_close($curl);
 
-            \Log::debug("API response received", [
+            log::debug("API response received", [
                 'status_code' => $httpCode,
                 'duration_ms' => $duration,
                 'response_size' => strlen($response)
             ]);
 
             if ($err) {
-                \Log::error("cURL Error while getting agents", ['error' => $err]);
+                log::error("cURL Error while getting agents", ['error' => $err]);
                 throw new \RuntimeException("cURL Error: " . $err);
             }
 
             // Validate response
             if (empty($response)) {
-                \Log::warning("Empty API response received when getting agents");
+                log::warning("Empty API response received when getting agents");
                 return [];
             }
 
             $data = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                \Log::error("Invalid JSON response when getting agents", [
+                log::error("Invalid JSON response when getting agents", [
                     'error' => json_last_error_msg(),
                     'response_sample' => substr($response, 0, 200)
                 ]);
@@ -495,7 +497,7 @@ class RetellService
             // Handle API errors
             if ($httpCode >= 400) {
                 $errorMsg = $data['message'] ?? 'Unknown API error';
-                \Log::error("API returned error when getting agents", [
+                log::error("API returned error when getting agents", [
                     'status_code' => $httpCode,
                     'error' => $errorMsg
                 ]);
@@ -503,13 +505,13 @@ class RetellService
             }
 
             $agentCount = count($data);
-            \Log::info("Agents retrieved successfully", [
+            log::info("Agents retrieved successfully", [
                 'count' => $agentCount,
                 'duration_ms' => $duration
             ]);
 
             if ($agentCount > 0) {
-                \Log::debug("Sample agent data", [
+                log::debug("Sample agent data", [
                     'first_agent' => $data[0]['agent_id'] ?? null,
                     'last_agent' => $data[$agentCount - 1]['agent_id'] ?? null
                 ]);
@@ -517,7 +519,7 @@ class RetellService
 
             return $data;
         } catch (\Exception $e) {
-            \Log::error("Failed to retrieve agents", [
+            log::error("Failed to retrieve agents", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

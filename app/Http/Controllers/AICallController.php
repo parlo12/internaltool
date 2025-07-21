@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\AICall;
 use App\Models\Contact;
+use App\Models\Step;
+use App\Services\EmailService;
+use App\Services\RetellService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -52,17 +55,36 @@ class AICallController extends Controller
                     'error_unknown',
                     'error_user_not_joined',
                     'registered_call_timeout',
+                    'agent_hangup',
+                    'voicemail_reached',
+                    'inactivity	'
                 ];
 
                 if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
-                    // Abnormal disconnection handling
+                    $contact = Contact::where('phone', $phone)->first();
+                    if ($contact) {
+                        if ($contact->age >= '45') {
+                            sleep(5);
+                            $retellService = new RetellService('retell');
+                            $retellService->AICall(
+                                $contact->phone,
+                                'content',
+                                $contact->workflow_id,
+                                '1',
+                                $contact->id,
+                                $contact->organisation_id,
+                                'agent_id'
+                            );
+                        } else if ($contact->age < '45') {
+                            $content=Step::find($contact->current_step)->content;
+                            $EmailService = new EmailService(); // Change provider as needed
+                            $EmailService->sendEmail($content,  $contact->id, $contact->organisation_id);
+                        }
+                    }
                     Log::warning("Abnormal disconnection: {$callData['disconnection_reason']}");
-                    // e.g., notify admin, retry call, store for review, etc.
                 } else {
-                    // Normal/expected disconnection
                     Contact::where('phone', $phone)->update([
                         'response' => 'Yes',
-                        // Optional: explicitly set update timestamp
                     ]);
                     Log::info("Call ended normally: {$callData['disconnection_reason']}");
                 }
@@ -84,7 +106,6 @@ class AICallController extends Controller
                 }
             }
             if (($webhookData['event'] ?? null) !== 'call_analyzed') {
-                Log::info("Skipping non-call_analyzed event");
                 return response()->json(['status' => 'ignored'], 200);
             }
             $callData = $webhookData['call'] ?? [];
@@ -99,7 +120,6 @@ class AICallController extends Controller
                 ($callData['call_analysis']['custom_analysis_data']['_qualified_lead'] ? 'Qualified' : 'Not Qualified') .
                 "\nSentiment: " .
                 ($callData['call_analysis']['user_sentiment'] ?? 'N/A');
-            Log::info("Note generated", ['note' => $note]);
             $this->sendAiCallSummary($phone, $sending_number, $callData['transcript'], $note,);
             return response()->json(['status' => 'success'], 200);
         } catch (\Exception $e) {

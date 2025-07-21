@@ -61,6 +61,10 @@ const AddStepModal = ({
     };
 
     const handleAddStep = () => {
+        if (newStepData.type === "AICall" && (!newStepData.emailSubject || newStepData.emailSubject.trim() === "")) {
+            setValidationMessage("Email subject is required for AI Call steps, since the AI might decide to send an email instead.");
+            return;
+        }
         if (validateTimes()) {
             addStep();
             onClose();
@@ -179,7 +183,7 @@ const AddStepModal = ({
                         </div>
                     </div>
                     <div>
-                        <InputLabel forInput="content" value="Content" className="text-lg font-semibold" />
+                        <InputLabel forInput="content" value="Content (This also doubles as the email body if the step involves email sending)" className="text-lg font-semibold" />
                         <TextAreaInput
                             type="text"
                             name="content"

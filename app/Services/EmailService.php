@@ -20,7 +20,7 @@ class EmailService
     {
     }
 
-    public function sendEmail($phone, $content, $workflow_id, $type, $contact_id, $organisation_id)
+    public function sendEmail( $content, $contact_id, $organisation_id)
     {
         Log::info('Attempting to send email');
         try {
@@ -40,14 +40,10 @@ class EmailService
             $subject = $step->email_subject ?? 'New Email'; // Fallback to a default subject if not set
             $workflow = Workflow::find($contact->workflow_id);
             $contactInfo = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
-
-            // Compose and spintax the message
             $subject = $this->composeMessage($contactInfo, $subject);
             $subject = $this->spintax($subject);
-            // Log contact email and subject
             Log::info("Sending to: {$contact->email}, Subject: $subject");
 
-            // Email details
             $details = [
                 'name' => $sending_email,
                 'email' => $sending_email,
