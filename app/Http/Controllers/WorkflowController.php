@@ -180,6 +180,7 @@ class WorkflowController extends Controller
         if ($request->search_name) {
             $query->where('name', 'like', '%' . $request->search_name . '%');
         }
+        $query->orderBy('created_at', 'desc');
 
         $workflows = $query->paginate(10);
 
@@ -229,7 +230,7 @@ class WorkflowController extends Controller
             'generated_message' => 'nullable|max:255'
         ]);
         $workflow = Workflow::findOrFail($id);
-        
+
         $workflow->update([
             'name' => $validatedData['name'],
             'voice' => $validatedData['voice'] ?? $workflow->voice,
