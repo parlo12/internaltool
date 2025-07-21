@@ -65,7 +65,6 @@ class ProcessCsvRecord implements ShouldQueue
             'generated_message' => ""
         ]);
 
-        // Add to CRM
         $this->crm_api->createContact($this->group_id, [
             'PHONE' => $phone,
             'FIRST_NAME' => $this->record['Owner name'] ?? null,

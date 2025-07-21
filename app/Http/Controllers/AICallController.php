@@ -63,7 +63,7 @@ class AICallController extends Controller
                 if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
                     $contact = Contact::where('phone', $phone)->first();
                     if ($contact) {
-                        if ($contact->age >= '45') {
+                        if ($contact->age >= '20') {
                             sleep(5);
                             $retellService = new RetellService('retell');
                             $retellService->AICall(
@@ -73,10 +73,10 @@ class AICallController extends Controller
                                 '1',
                                 $contact->id,
                                 $contact->organisation_id,
-                                'agent_id'
+                                'agent_18875e77fc4b56d3bc0f90a316',
                             );
-                        } else if ($contact->age < '45') {
-                            $content=Step::find($contact->current_step)->content;
+                        } else if ($contact->age < '20') {
+                            $content = Step::find($contact->current_step)->content;
                             $EmailService = new EmailService(); // Change provider as needed
                             $EmailService->sendEmail($content,  $contact->id, $contact->organisation_id);
                         }
