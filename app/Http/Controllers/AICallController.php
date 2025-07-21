@@ -66,13 +66,13 @@ class AICallController extends Controller
                         if ($contact->age >= '45') {
                             Log::info("Abnormal disconnection: Trying to retell the call");
                             sleep(5);
-                            $retellService = new RetellService('retell');
-                            $retellService->AICall(
-                                $contact->workflow_id,
-                                $contact->id,
-                                $contact->organisation_id,
-                                'agent_18875e77fc4b56d3bc0f90a316',
-                            );
+                            // $retellService = new RetellService('retell');
+                            // $retellService->AICall(
+                            //     $contact->workflow_id,
+                            //     $contact->id,
+                            //     $contact->organisation_id,
+                            //     'agent_18875e77fc4b56d3bc0f90a316',
+                            // );
                         } else if ($contact->age < '45') {
                             $content = Step::find($contact->current_step)->content;
                             $EmailService = new EmailService(); // Change provider as needed
