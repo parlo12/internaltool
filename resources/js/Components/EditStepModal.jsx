@@ -472,7 +472,7 @@ const EditStepModal = ({
                             className="mr-2"
                         />
                         <label htmlFor="makeSecondCall" className="text-lg font-semibold text-gray-700">
-                            Make Second Call (if checked, a second call will be made)
+                            Make Second Call (if checked, a second call will be made for AI calls only)
                         </label>
                     </div>
                     {validationMessage && (
