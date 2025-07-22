@@ -44,7 +44,7 @@ class Contact extends Model
         'monthly',
         'downpayment',
         'generated_message',
-        'no_second_call'
+        'no_second_call',
     ];
     public function workflow()
     {

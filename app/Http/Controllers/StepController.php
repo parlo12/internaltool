@@ -16,6 +16,7 @@ class StepController extends Controller
         $messages = [
             'daysOfWeek.*' => 'The :attribute must be a valid day of the week.',
         ];
+        
         $validated_data = $request->validate([
             'stepName' => 'required|string|max:255',
             'content' => 'required|string',
@@ -30,7 +31,8 @@ class StepController extends Controller
             'batchDelayUnit' => 'nullable|max:255',
             'offerExpiry' => 'nullable|max:255',
             'emailSubject' => 'nullable|max:255',
-            'isCustomSending' => 'nullable|integer|max:1'
+            'isCustomSending' => 'nullable|integer|max:1',
+            'make_second_call'=> 'nullable',
         ]);
         if (empty($request->daysOfWeek)) {
             $validated_data['daysOfWeek'] = null;
@@ -56,6 +58,7 @@ class StepController extends Controller
             'batch_delay' => $this->convertToMinutes($validated_data['batchDelay'], $validated_data['batchDelayUnit']),
             'step_quota_balance' => $validated_data['batchSize'],
             'days_of_week' => json_encode($validated_data['daysOfWeek']),
+            'make_second_call'=> $validated_data['make_second_call'] ? 1 : 0,
         ]);
         $workflow = Workflow::findorfail($request->workflow);
         if (!empty($workflow->steps_flow)) {
@@ -101,6 +104,8 @@ class StepController extends Controller
             'custom_sending' => 'nullable',
             'offerExpiry' => 'nullable|max:255',
             'emailSubject' => 'nullable|max:255',
+            'make_second_call'=> 'nullable',
+
         ]);
         // Filter daysOfWeek to include only the selected days (true)
         $filteredDaysOfWeek = array();
@@ -135,6 +140,8 @@ class StepController extends Controller
             'days_of_week' => $validated_data['daysOfWeek'],
             'offer_expiry' => $validated_data['offerExpiry'],
             'email_subject' => $validated_data['emailSubject'],
+            'make_second_call'=> $validated_data['make_second_call'] ? 1 : 0,
+
         ]);
 
         $workflow = Workflow::findOrFail($request->workflow);

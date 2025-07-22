@@ -62,20 +62,21 @@ class AICallController extends Controller
 
                 if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
                     $contact = Contact::where('phone', $phone)->latest()->first();
-                    if ($contact && $contact->no_second_call != 'Yes') {
+                    if ($contact && $contact->no_second_call != 'Yes'&& Step::find($contact->current_step)->make_second_call=='1') {
+                        Log::info("make second call::".Step::find($contact->current_step)->make_second_call);
                         Contact::where('phone', $phone)->update([
                             'no_second_call' => 'Yes',
                         ]);
                         if ($contact->age >= '45') {
-                            // Log::info("Abnormal donnection: Trying to retell the call");
-                            // sleep(5);
-                            // $retellService = new RetellService('retell');
-                            // $retellService->AICall(
-                            //     $contact->workflow_id,
-                            //     $contact->id,
-                            //     $contact->organisation_id,
-                            //     'agent_18875e77fc4b56d3bc0f90a316',
-                            // );
+                            Log::info("Abnormal donnection: Trying to retell the call");
+                            sleep(5);
+                            $retellService = new RetellService('retell');
+                            $retellService->AICall(
+                                $contact->workflow_id,
+                                $contact->id,
+                                $contact->organisation_id,
+                                'agent_18875e77fc4b56d3bc0f90a316',
+                            );
                         } else if ($contact->age < '45') {
                             //     $content = Step::find($contact->current_step)->content;
                             //     $EmailService = new EmailService(); // Change provider as needed

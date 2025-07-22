@@ -15,6 +15,14 @@ const AddStepModal = ({
 }) => {
     const [validationMessage, setValidationMessage] = useState("");
 
+    // Ensure make_second_call defaults to 0
+    React.useEffect(() => {
+        setNewStepData(prev => ({
+            ...prev,
+            make_second_call: typeof prev.make_second_call === 'undefined' ? 0 : prev.make_second_call
+        }));
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleChange = (e) => {
@@ -388,6 +396,18 @@ const AddStepModal = ({
                             </div>
                         </div>
                     )}
+                    <div>
+                        <label className="flex items-center mt-2">
+                            <input
+                                type="checkbox"
+                                name="make_second_call"
+                                checked={!!newStepData.make_second_call}
+                                onChange={e => setNewStepData(prev => ({ ...prev, make_second_call: e.target.checked ? 1 : 0 }))}
+                                className="mr-2"
+                            />
+                            <span className="text-gray-800">Make Second Call (If doing AI calls)_</span>
+                        </label>
+                    </div>
 
                     {validationMessage && (
                         <div className="mt-4 text-red-500 text-sm font-medium">

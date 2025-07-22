@@ -51,6 +51,7 @@ return new class extends Migration
             $table->string('no_second_call')->nullable();
 
 
+
         });
     }
 

@@ -72,8 +72,9 @@ const EditStepModal = ({
         offerExpiry: stepData.offer_expiry,
         emailSubject: stepData.email_subject,
         batchDelayUnit: batchDelayUnit,
-        generatedMessage:stepData.generated_message,
+        generatedMessage: stepData.generated_message,
         daysOfWeek: daysOfWeek, // Parse JSON string to object
+        make_second_call: stepData.make_second_call === 1 ? true : false // ensure boolean
     });
     // Update state if stepData changes (optional, depending on how you manage updates)
     useEffect(() => {
@@ -93,8 +94,9 @@ const EditStepModal = ({
             emailSubject: stepData.email_subject,
             emailMessage: stepData.email_message,
             batchDelayUnit: batchDelayUnit,
-            generatedMessage:stepData.generated_message,
+            generatedMessage: stepData.generated_message,
             daysOfWeek: daysOfWeek,
+            make_second_call: stepData.make_second_call == 1 ? true : false // ensure boolean
         });
     }, [stepData]);
     console.log(editedStep)
@@ -117,7 +119,11 @@ const EditStepModal = ({
     };
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        const newValue = type === "checkbox" ? checked : value;
+        let newValue = type === "checkbox" ? checked : value;
+        // For make_second_call, always send 0/1 to backend
+        if (name === "make_second_call") {
+            newValue = checked;
+        }
         setEditedStep((prevStep) => ({ ...prevStep, [name]: newValue }));
         // If custom_sending is unchecked, reset optional fields
         if (name === "custom_sending" && !checked) {
@@ -287,9 +293,9 @@ const EditStepModal = ({
                         </div>
                     </div>
                     <InputLabel forInput="content" value="Content (This also doubles as the email body if the step involves email sending)" className="text-lg font-semibold text-gray-700" />
-                    {editedStep.generatedMessage==1 ? (
-                           <div className="text-gray-500 italic bg-gray-50 p-4 rounded-md shadow-inner">{editedStep.content}</div>      
-                            ) : (
+                    {editedStep.generatedMessage == 1 ? (
+                        <div className="text-gray-500 italic bg-gray-50 p-4 rounded-md shadow-inner">{editedStep.content}</div>
+                    ) : (
                         <TextAreaInput
                             type="text"
                             name="content"
@@ -320,12 +326,13 @@ const EditStepModal = ({
                     </SelectInput>
                     <InputLabel forInput="offerExpiry" value="Offer Expiry Date (if Offer selected)" className="text-lg font-semibold text-gray-700" />
                     <input
-                        type="date"  // Changed from "text" to "date"
+                        type="date"
                         name="offerExpiry"
                         value={editedStep.offerExpiry}
                         onChange={handleChange}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
+
                     <InputLabel forInput="emailSubject" value="Email Subject (if Email selected)" className="text-lg font-semibold text-gray-700" />
                     <input
                         type="text"  // Changed from "text" to "date"
@@ -455,6 +462,19 @@ const EditStepModal = ({
                             <div className="mt-2">{renderDaysGrid()}</div>
                         </>
                     )}
+                    <div className="mt-2">
+                        <input
+                            type="checkbox"
+                            id="makeSecondCall"
+                            name="make_second_call"
+                            checked={!!editedStep.make_second_call}
+                            onChange={handleChange}
+                            className="mr-2"
+                        />
+                        <label htmlFor="makeSecondCall" className="text-lg font-semibold text-gray-700">
+                            Make Second Call (if checked, a second call will be made)
+                        </label>
+                    </div>
                     {validationMessage && (
                         <div className="mt-4 text-red-500">
                             {validationMessage}

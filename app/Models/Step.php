@@ -24,6 +24,8 @@ class Step extends Model
         'name',
         'offer_expiry',
         'email_subject',
-        'generated_message'
+        'generated_message',
+        'make_second_call',
+
     ];
 }
