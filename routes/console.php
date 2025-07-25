@@ -281,7 +281,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     ini_set('max_execution_time', 0);
     ini_set('memory_limit', '256M');
-    $steps = Step::where('created_at', '>=', now()->subDays(21))
+    $steps = Step::where('created_at', '>=', now()->subDays(14))
         ->get();
     foreach ($steps as $step) {
         $workflow = Workflow::find($step->workflow_id);
