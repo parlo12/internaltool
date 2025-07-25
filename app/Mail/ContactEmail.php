@@ -17,11 +17,14 @@ class ContactEmail extends Mailable
         $this->details = $details;
     }
 
-    public function build()
-    {
-        return $this->from($this->details['from_email'], $this->details['from_name']) // Set dynamic "From" address
-                    ->subject($this->details['subject']) 
-                    ->view('emails.contact') 
-                    ->with('details', $this->details);
-    }
+  public function build()
+{
+    return $this->from($this->details['from_email'], $this->details['from_name']) // Dynamic "From"
+                ->subject($this->details['subject']) // Dynamic subject
+                ->view('emails.contact') // Dynamic body from Blade view
+                ->with([
+                    'details' => $this->details // Pass full dynamic data to the view
+                ]);
+}
+
 }
