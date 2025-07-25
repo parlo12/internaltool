@@ -102,7 +102,7 @@ class WorkflowController extends Controller
         foreach ($contacts as $contact) {
             $organisationId = auth()->user()->organisation_id;
             CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $workflow->id, $contact['phone'], $organisationId)
-                ->delay(now()->addSeconds(30));
+                ->onQueue('Contacts');
         }
         $steps = array();
         if (!empty($workflow->steps_flow)) {
@@ -138,7 +138,7 @@ class WorkflowController extends Controller
                 'user_id' => $workflow->user_id
             ]
         );
-        FillContactDetails::dispatch($contact);
+        FillContactDetails::dispatch($contact)->onQueue('Contacts');
     }
 
     public function create(Request $request)
