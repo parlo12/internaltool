@@ -214,31 +214,31 @@ Schedule::call(function () {
     });
 
 
-Schedule::call(function () {
-    $url = config('app.url'); // Uses the value from config/app.php
-    $urls = [
-        $url . '/calculate-cost',
-    ];
+// Schedule::call(function () {
+//     $url = config('app.url'); // Uses the value from config/app.php
+//     $urls = [
+//         $url . '/calculate-cost',
+//     ];
 
-    foreach ($urls as $url) {
-        try {
-            $response = Http::withHeaders([
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0'
-            ])->get($url);
+//     foreach ($urls as $url) {
+//         try {
+//             $response = Http::withHeaders([
+//                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
+//                 'Pragma' => 'no-cache',
+//                 'Expires' => '0'
+//             ])->get($url);
 
-            if ($response->successful()) {
-                //  Log::info("Successfully called URL: $url");
-                sleep(5);
-            } else {
-                Log::error("Failed to call URL: $url. Status: " . $response->status());
-            }
-        } catch (\Exception $e) {
-            Log::error("Exception occurred while calling URL: $url. Message: " . $e->getMessage());
-        }
-    }
-})->hourly();
+//             if ($response->successful()) {
+//                 //  Log::info("Successfully called URL: $url");
+//                 sleep(5);
+//             } else {
+//                 Log::error("Failed to call URL: $url. Status: " . $response->status());
+//             }
+//         } catch (\Exception $e) {
+//             Log::error("Exception occurred while calling URL: $url. Message: " . $e->getMessage());
+//         }
+//     }
+// })->hourly();
 
 Schedule::call(function () {
     // Log::info('Trying to delete files');
