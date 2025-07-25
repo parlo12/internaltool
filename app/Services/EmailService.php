@@ -56,6 +56,7 @@ class EmailService
             // Attempt to send the email
             Mail::to($contact->email)->send(new ContactEmail($details));
             $contact->status = 'EMAIL_SENT';
+            $contact->save();
             Log::info('Email sent successfully');
             return response()->json(['message' => 'Email sent successfully!'], 200);
         } catch (\Exception $e) {
