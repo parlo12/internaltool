@@ -16,11 +16,9 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailService
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
-    public function sendEmail( $content, $contact_id, $organisation_id)
+    public function sendEmail($content, $contact_id, $organisation_id)
     {
         Log::info('Attempting to send email');
         try {
@@ -55,8 +53,8 @@ class EmailService
 
             // Attempt to send the email
             Mail::to($contact->email)->send(new ContactEmail($details));
-            $contact->status = 'EMAIL_SENT';
-            $contact->save();
+            $contact->update(['status' => 'EMAIL_SENT']);
+
             Log::info('Email sent successfully');
             return response()->json(['message' => 'Email sent successfully!'], 200);
         } catch (\Exception $e) {
@@ -68,6 +66,9 @@ class EmailService
                 'sending_email' => $sending_email ?? null,
                 'contact_email' => $contact->email ?? null
             ]);
+            if ($contact) {
+                $contact->update(['status' => 'EMAIL_FAILED']);
+            }
 
             return response()->json(['error' => 'Failed to send email', 'details' => $e->getMessage()], 500);
         }
