@@ -180,14 +180,14 @@ Schedule::command('queue:work --queue=InternalTools --max-time=60 --stop-when-em
         // Log::error('InternalTools queue worker 12 failed.');
     });
 
-    Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
+Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-        //  Log::info('Starting InternalTools queue worker 10.');
+        Log::info('Starting contacts queue worker 1.');
     })
     ->after(function () {
-        // Log::info('InternalTools queue worker 10 finished.');
+        Log::info('contacts queue worker 1 finished.');
     })
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
