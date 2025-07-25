@@ -352,7 +352,7 @@ class WorkflowController extends Controller
             foreach ($contacts as $contact) {
                 try {
                     CreateWorkflowContactsJob::dispatch($contact['uid'], $request->contact_group, $new_workflow->id, $contact['phone'], $organisation_id)
-                        ->delay(now()->addSeconds(30));
+                        ->onQueue('Contacts');
                 } catch (\Exception $e) {
                     Log::error("Error dispatching contact job for UID {$contact['uid']}: {$e->getMessage()}");
                 }
