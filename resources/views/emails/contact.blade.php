@@ -12,7 +12,6 @@
     </style>
 </head>
 <body>
-    <h2>{{ $details['subject'] }}</h2>
     <p>{!! nl2br(e($details['message'])) !!}</p>
 </body>
 </html>
