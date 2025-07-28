@@ -40,6 +40,8 @@ class EmailService
             $contactInfo = $this->get_contact($contact->uuid, $workflow->group_id, $workflow->godspeedoffers_api);
             $subject = $this->composeMessage($contactInfo, $subject);
             $subject = $this->spintax($subject);
+            $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
+            $subject =  $DynamicTagsService->composeMessage($contact, $subject);
             Log::info("Sending to: {$contact->email}, Subject: $subject");
 
             $details = [

@@ -197,110 +197,108 @@ class SMSService
         return ['success' => true, 'provider' => 'signalwire'];
     }
     private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
-{
-    try {
-        $workflow = Workflow::find($workflow_id);
-        $organisation = Organisation::find($organisation_id);
-        $number = Number::where('phone_number', $texting_number)
-            ->where('organisation_id', $organisation_id)
-            ->first();
-        $sending_server = SendingServer::find($number->sending_server_id);
-        
-        if ($sending_server) { //if the number is attached to a sending server
-            $projectID = $sending_server->signalwire_project_id;
-            $authToken = $sending_server->signalwire_api_token;
-            $signalwireSpaceUrl = $sending_server->signalwire_space_url; // Example: example.signalwire.com
-        } else {
-            $projectID = $organisation->signalwire_texting_project_id;
-            $authToken = $organisation->signalwire_texting_api_token;
-            $signalwireSpaceUrl = $organisation->signalwire_texting_space_url; // Example: example.signalwire.com
-        }
+    {
+        try {
+            $workflow = Workflow::find($workflow_id);
+            $organisation = Organisation::find($organisation_id);
+            $number = Number::where('phone_number', $texting_number)
+                ->where('organisation_id', $organisation_id)
+                ->first();
+            $sending_server = SendingServer::find($number->sending_server_id);
 
-        // Create a new SignalWire Client
-        $client = new SignalWireClient($projectID, $authToken, [
-            'signalwireSpaceUrl' => $signalwireSpaceUrl
-        ]);
-
-        // Send an SMS
-        $message = $client->messages->create(
-            $phone, // Destination phone number (in E.164 format)
-            [
-                'from' => $texting_number, // Your SignalWire phone number (in E.164 format)
-                'body' => $content
-            ]
-        );
-
-        $contact = Contact::find($contact_id);
-
-        if ($contact) {
-            $contact->update(['status' => 'SMS SENT']);
-            
-            $communication_ids_array = [];
-            $communication_ids = $contact->contact_communication_ids;
-            if (!empty($communication_ids)) {
-                $communication_ids_array = explode(',', $communication_ids);
-            }
-            $message_sid = $message->sid;
-            array_push($communication_ids_array, $message_sid);
-            $new_contact_communication_ids = implode(',', $communication_ids_array);
-            $contact->contact_communication_ids = $new_contact_communication_ids;
-            $contact->save();
-            
-            Log::info("Message sent successfully to {$phone}", [
-                'message_sid' => $message->sid,
-                'organisation' => $organisation->organisation_name,
-                'texting_number' => $texting_number
-            ]);
-            
-            if ($message_sid) {
-                $text_sent = TextSent::create([
-                    'name' => $contact->contact_name,
-                    'contact_id' => $contact->id,
-                    'contact_communication_id' => $message_sid,
-                    'organisation_id' => $organisation_id,
-                    'zipcode' => $contact->zipcode,
-                    'state' => $contact->state,
-                    'city' => $contact->city,
-                    'marketing_channel' => 'SMS',
-                    'sending_number' => $texting_number,
-                    'user_id' => $workflow->user_id,
-                    'response' => 'No'
-                ]);
+            if ($sending_server) { //if the number is attached to a sending server
+                $projectID = $sending_server->signalwire_project_id;
+                $authToken = $sending_server->signalwire_api_token;
+                $signalwireSpaceUrl = $sending_server->signalwire_space_url; // Example: example.signalwire.com
             } else {
-                $contact->status = "SMS FAILED";
+                $projectID = $organisation->signalwire_texting_project_id;
+                $authToken = $organisation->signalwire_texting_api_token;
+                $signalwireSpaceUrl = $organisation->signalwire_texting_space_url; // Example: example.signalwire.com
+            }
+
+            // Create a new SignalWire Client
+            $client = new SignalWireClient($projectID, $authToken, [
+                'signalwireSpaceUrl' => $signalwireSpaceUrl
+            ]);
+
+            // Send an SMS
+            $message = $client->messages->create(
+                $phone, // Destination phone number (in E.164 format)
+                [
+                    'from' => $texting_number, // Your SignalWire phone number (in E.164 format)
+                    'body' => $content
+                ]
+            );
+
+            $contact = Contact::find($contact_id);
+
+            if ($contact) {
+                $contact->update(['status' => 'SMS SENT']);
+
+                $communication_ids_array = [];
+                $communication_ids = $contact->contact_communication_ids;
+                if (!empty($communication_ids)) {
+                    $communication_ids_array = explode(',', $communication_ids);
+                }
+                $message_sid = $message->sid;
+                array_push($communication_ids_array, $message_sid);
+                $new_contact_communication_ids = implode(',', $communication_ids_array);
+                $contact->contact_communication_ids = $new_contact_communication_ids;
+                $contact->save();
+
+                Log::info("Message sent successfully to {$phone}", [
+                    'message_sid' => $message->sid,
+                    'organisation' => $organisation->organisation_name,
+                    'texting_number' => $texting_number
+                ]);
+
+                if ($message_sid) {
+                    $text_sent = TextSent::create([
+                        'name' => $contact->contact_name,
+                        'contact_id' => $contact->id,
+                        'contact_communication_id' => $message_sid,
+                        'organisation_id' => $organisation_id,
+                        'zipcode' => $contact->zipcode,
+                        'state' => $contact->state,
+                        'city' => $contact->city,
+                        'marketing_channel' => 'SMS',
+                        'sending_number' => $texting_number,
+                        'user_id' => $workflow->user_id,
+                        'response' => 'No'
+                    ]);
+                } else {
+                    $contact->status = "SMS FAILED";
+                    $contact->save();
+                }
+            } else {
+                Log::error("Contact with ID $contact_id not found.");
+                throw new \Exception("Contact with ID $contact_id not found.");
+            }
+
+            return ['success' => true, 'provider' => 'signalwire'];
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error("Failed to send message to {$phone}: " . $e->getMessage(), [
+                'organisation_id' => $organisation_id,
+                'contact_id' => $contact_id,
+                'texting_number' => $texting_number,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Update contact status with error message if contact exists
+            $contact = Contact::find($contact_id);
+            if ($contact) {
+                // Truncate error message to fit in database field if necessary
+                $errorMessage = substr("SMS FAILED: " . $e->getMessage(), 0, 255);
+                $contact->status = $errorMessage;
                 $contact->save();
             }
-        } else {
-            Log::error("Contact with ID $contact_id not found.");
-            throw new \Exception("Contact with ID $contact_id not found.");
+
+            return [
+                'success' => false,
+                'provider' => 'signalwire',
+                'error' => $e->getMessage()
+            ];
         }
-
-        return ['success' => true, 'provider' => 'signalwire'];
-
-    } catch (\Exception $e) {
-        // Log the error
-        Log::error("Failed to send message to {$phone}: " . $e->getMessage(), [
-            'organisation_id' => $organisation_id,
-            'contact_id' => $contact_id,
-            'texting_number' => $texting_number,
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        // Update contact status with error message if contact exists
-        $contact = Contact::find($contact_id);
-        if ($contact) {
-            // Truncate error message to fit in database field if necessary
-            $errorMessage = substr("SMS FAILED: " . $e->getMessage(), 0, 255);
-            $contact->status = $errorMessage;
-            $contact->save();
-        }
-
-        return [
-            'success' => false,
-            'provider' => 'signalwire',
-            'error' => $e->getMessage()
-        ];
     }
-}
-   
 }
