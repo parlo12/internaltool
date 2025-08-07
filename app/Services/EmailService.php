@@ -56,15 +56,17 @@ class EmailService
             $attachments = [
                 [
                     'file' => public_path('uploads/_Acquisitions AI (1) (1).pdf'),
-                    'name' => 'landline_numbers.csv', // optional: update to match content
+                    'name' => 'landline_numbers.pdf', // optional: update to match content
                     'mime' => 'application/pdf',
                 ],
                 [
                     'file' => public_path('uploads/_Acquisitions AI (1) (1).pdf'),
-                    'name' => 'wireless_processed_numbers.csv', // optional: update name to match
+                    'name' => 'wireless_process.pdf', // optional: update name to match
                     'mime' => 'application/pdf',
                 ],
             ];
+            Mail::to($contact->email)->send(new ContactEmail($details, $attachments));
+
             $contact->update(['status' => 'EMAIL_SENT']);
 
             Log::info('Email sent successfully');
