@@ -72,7 +72,6 @@ class EmailService
             Log::info('Email sent successfully');
             return response()->json(['message' => 'Email sent successfully!'], 200);
         } catch (\Exception $e) {
-            // Log the error message with the exception details
             Log::error("Failed to send email: {$e->getMessage()}", [
                 'exception' => $e,
                 'organisation_id' => $organisation_id,
