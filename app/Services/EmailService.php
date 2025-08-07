@@ -174,7 +174,7 @@ class EmailService
         // Load and replace
         $templateProcessor = new TemplateProcessor($tempDocPath);
 
-        $templateProcessor->setValue('property_address', $contact['property_address'] ?? '');
+        $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('full_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('company_name', 'Godspeed Offers LLC');
         $templateProcessor->setValue('email', 'eliud@godspeed.com');
