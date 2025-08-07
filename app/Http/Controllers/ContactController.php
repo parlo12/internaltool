@@ -1109,14 +1109,15 @@ class ContactController extends Controller
         // Load and replace
         $templateProcessor = new TemplateProcessor($tempDocPath);
 
-        $templateProcessor->setValue('Your Full Name', 'full_name');
-        $templateProcessor->setValue('Your Company Name (if applicable)', 'company_name');
-        $templateProcessor->setValue('Email Address', 'email');
-        $templateProcessor->setValue('Agent’s Name', 'agent_name');
-        $templateProcessor->setValue('Property Address', 'property_address');
-        $templateProcessor->setValue('Insert Offer Price', 'offer_price');
-        $templateProcessor->setValue('Insert Amount', 'earnest_money');
-        $templateProcessor->setValue('Insert Number', 'closing_days');
+        $templateProcessor->setValue('property_address', '123 Main St');
+        $templateProcessor->setValue('full_name', 'Eliud Mitau');
+        $templateProcessor->setValue('company_name', 'Godspeed Offers LLC');
+        $templateProcessor->setValue('email', 'eliud@godspeed.com');
+        $templateProcessor->setValue('date', now()->format('F d, Y'));
+        $templateProcessor->setValue('agent_name', 'Jane Doe');
+        $templateProcessor->setValue('offer_price', '$250,000');
+        $templateProcessor->setValue('earnest_money', '$5,000');
+        $templateProcessor->setValue('closing_days', '30');
 
         $templateProcessor->saveAs($tempDocPath);
 
