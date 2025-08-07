@@ -242,7 +242,9 @@ Schedule::call(function () {
         }
     }
 })->name('process')
-    ->everyThreeMinutes()->withoutOverlapping(3)
+        ->everyMinute()->withoutOverlapping(1)
+
+   // ->everyThreeMinutes()->withoutOverlapping(3)
     ->onFailure(function () {
         Log::error('process-console failed.');
     })
@@ -391,7 +393,9 @@ Schedule::call(function () {
         }
     }
 })->name('prepare-messages')
-    ->everyThreeMinutes()->withoutOverlapping(3)
+        ->everyMinute()->withoutOverlapping(1)
+
+    //->everyThreeMinutes()->withoutOverlapping(3)
     ->onFailure(function () {
         Log::error('prepare-messages-console failed.');
     })
@@ -430,7 +434,9 @@ Schedule::call(function () {
         Log::info("Deleted scheduled message ID {$message->id} after sending.");
     }
 })->name('send_ready_messages')
-    ->everyThreeMinutes()->withoutOverlapping(3)
+    //->everyThreeMinutes()->withoutOverlapping(3)
+        ->everyMinute()->withoutOverlapping(1)
+
     ->onFailure(function () {
         Log::error('send_ready_messages-console failed.');
     })
