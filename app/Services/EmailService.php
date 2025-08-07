@@ -26,22 +26,16 @@ class EmailService
             $sending_email = $organisation->sending_email;
             $password = $organisation->email_password;
 
-            // Log retrieved email credentials
-            Log::info("Sending email from: $sending_email");
-
-            // Set the SMTP username and password dynamically
             Config::set('mail.mailers.smtp.username', $sending_email);
             Config::set('mail.mailers.smtp.password', $password);
 
             $contact = Contact::find($contact_id);
             $step = Step::find($contact->current_step);
-            $subject = $step->email_subject ?? 'New Email'; // Fallback to a default subject if not set
+            $subject = $step->email_subject ?? 'New Email';
             $workflow = Workflow::find($contact->workflow_id);
 
             $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
-            Log::info("subject before processing: $subject");
-            $subject =  $DynamicTagsService->composeMessage($contact, $subject);
-            Log::info("Sending to: {$contact->email}, Subject: $subject");
+            $subject = $DynamicTagsService->composeMessage($contact, $subject);
 
             $details = [
                 'name' => $sending_email,
@@ -52,57 +46,65 @@ class EmailService
                 'from_name' => $sending_email
             ];
 
-            foreach ($step->template_files as $path) {
-                $filePath = storage_path('app/public' . str_replace('/storage', '', $path));
+            // Initialize attachments array
+            $attachments = [];
 
-                if (file_exists($filePath)) {
-                    // Process the template if needed
-                    $processedPath = $this->generate_attachment($filePath, $contact);
+            // Handle template files if they exist
+            if (!empty($step->template_files)) {
+                // Ensure template_files is an array
+                $templateFiles = is_array($step->template_files)
+                    ? $step->template_files
+                    : json_decode($step->template_files, true) ?? [];
 
-                    $attachments[] = [
-                        'file' => $processedPath,
-                        'name' => 'processed_' . basename($path),
-                        'mime' => mime_content_type($processedPath),
-                    ];
+                foreach ($templateFiles as $path) {
+                    $filePath = storage_path('app/public' . str_replace('/storage', '', $path));
+
+                    if (file_exists($filePath)) {
+                        try {
+                            $processedPath = $this->generate_attachment($filePath, $contact);
+                            $attachments[] = [
+                                'file' => $processedPath,
+                                'name' => 'processed_' . basename($path),
+                                'mime' => mime_content_type($processedPath),
+                            ];
+                        } catch (\Exception $e) {
+                            Log::error("Failed to process template {$path}: " . $e->getMessage());
+                        }
+                    } else {
+                        Log::error("Template file not found: {$filePath}");
+                    }
                 }
             }
-            $attachments = [
-                [
-                    'file' => public_path('uploads/Eliud Mitau-cover-mauzo.pdf'),
-                    'name' => 'eliud.pdf', // optional: update to match content
+
+            // Add static attachment
+            $staticAttachment = public_path('uploads/Eliud Mitau-cover-mauzo.pdf');
+            if (file_exists($staticAttachment)) {
+                $attachments[] = [
+                    'file' => $staticAttachment,
+                    'name' => 'eliud.pdf',
                     'mime' => 'application/pdf',
-                ]
-            ];
-
-            // Log if file is missing
-            foreach ($attachments as $file) {
-                if (!file_exists($file['file'])) {
-                    Log::error("Attachment file missing: {$file['file']}");
-                }
+                ];
+            } else {
+                Log::error("Static attachment file missing: {$staticAttachment}");
             }
 
-            // Pass attachments in details (since Laravel expects attachments in build())
             $details['attachments'] = $attachments;
 
-            // Now send the email
             Mail::to($contact->email)->send(new ContactEmail($details));
-
             $contact->update(['status' => 'EMAIL_SENT']);
-
             Log::info('Email sent successfully');
+            // After email is sent
+            // foreach ($attachments as $attachment) {
+            //     if (str_contains($attachment['file'], 'temp_') || str_contains($attachment['file'], 'LOI_')) {
+            //         @unlink($attachment['file']);
+            //     }
+            // }
             return response()->json(['message' => 'Email sent successfully!'], 200);
         } catch (\Exception $e) {
-            Log::error("Failed to send email: {$e->getMessage()}", [
-                'exception' => $e,
-                'organisation_id' => $organisation_id,
-                'contact_id' => $contact_id,
-                'sending_email' => $sending_email ?? null,
-                'contact_email' => $contact->email ?? null
-            ]);
-            if ($contact) {
+            Log::error("Failed to send email: {$e->getMessage()}");
+            if ($contact ?? false) {
                 $contact->update(['status' => 'EMAIL_FAILED']);
             }
-
             return response()->json(['error' => 'Failed to send email', 'details' => $e->getMessage()], 500);
         }
     }
