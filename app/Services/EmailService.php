@@ -61,8 +61,8 @@ class EmailService
                 ]
             ];
             foreach ($attachments as $file) {
-                if (!file_exists($file['file'])) {
-                    Log::error("Attachment file missing: {$file['file']}");
+                if (!file_exists($file['path'])) {
+                    Log::error("Attachment file missing: {$file['path']}");
                 }
             }
             Mail::to($contact->email)->send(new ContactEmail($details, $attachments));
