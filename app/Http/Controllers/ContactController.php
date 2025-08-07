@@ -37,6 +37,8 @@ use App\Services\CallService;
 use App\Services\EmailService;
 use App\Services\RetellService;
 use Illuminate\Support\Facades\Http;
+use PhpOffice\PhpWord\TemplateProcessor;
+
 
 class ContactController extends Controller
 {
@@ -1094,4 +1096,44 @@ class ContactController extends Controller
             //$message->delete();
         }
     }
+
+public function test(): string
+{
+    $templatePath = public_path('uploads/LOI_Standard_Sale.docx');
+    $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
+    $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
+
+    // Copy template to a temp location
+    copy($templatePath, $tempDocPath);
+
+    // Load and replace
+    $templateProcessor = new TemplateProcessor($tempDocPath);
+
+    $templateProcessor->setValue('Your Full Name', 'full_name');
+    $templateProcessor->setValue('Your Company Name (if applicable)', 'company_name');
+    $templateProcessor->setValue('Email Address', 'email');
+    $templateProcessor->setValue('Agent’s Name', 'agent_name');
+    $templateProcessor->setValue('Property Address', 'property_address');
+    $templateProcessor->setValue('Insert Offer Price', 'offer_price');
+    $templateProcessor->setValue('Insert Amount', 'earnest_money');
+    $templateProcessor->setValue('Insert Number', 'closing_days');
+
+    $templateProcessor->saveAs($tempDocPath);
+
+    // Now load it as HTML and convert to PDF
+    $phpWord = \PhpOffice\PhpWord\IOFactory::load($tempDocPath);
+    $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
+
+    // Save as HTML
+    $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
+    $objWriter->save($htmlPath);
+
+    // Convert HTML to PDF
+    $htmlContent = file_get_contents($htmlPath);
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
+    $pdf->save($pdfOutputPath);
+
+    return $pdfOutputPath;
+}
+
 }

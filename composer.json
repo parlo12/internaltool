@@ -5,6 +5,7 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
+        "barryvdh/laravel-dompdf": "^3.1",
         "capcom6/android-sms-gateway": "^2.0",
         "elephantio/elephant.io": "4.12",
         "guzzlehttp/promises": "^2.0",
@@ -18,6 +19,7 @@
         "maatwebsite/excel": "^3.1",
         "openai-php/laravel": "^0.10.1",
         "php-ffmpeg/php-ffmpeg": "^1.2",
+        "phpoffice/phpword": "^1.4",
         "signalwire-community/signalwire": "^1.1",
         "tightenco/ziggy": "^2.0",
         "transloadit/php-sdk": "^3.1"
