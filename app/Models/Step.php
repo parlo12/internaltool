@@ -26,6 +26,11 @@ class Step extends Model
         'email_subject',
         'generated_message',
         'make_second_call',
-
+        'template_files',
     ];
+
+    protected $casts = [
+        'template_files' => 'array',
+    ];
+// removed extra closing brace
 }

@@ -13,6 +13,7 @@ class StepController extends Controller
 {
     public function store(Request $request)
     {
+
         $messages = [
             'daysOfWeek.*' => 'The :attribute must be a valid day of the week.',
         ];
@@ -34,15 +35,28 @@ class StepController extends Controller
             'isCustomSending' => 'nullable|integer|max:1',
             'make_second_call'=> 'nullable',
         ]);
-        if (empty($request->daysOfWeek)) {
+          $daysOfWeek = $request->daysOfWeek;
+    if (is_string($daysOfWeek)) {
+        $daysOfWeek = json_decode($daysOfWeek, true);
+    }
+        if (empty($daysOfWeek)) {
             $validated_data['daysOfWeek'] = null;
         } else {
 
-            $filteredDaysOfWeek = array_filter($request->daysOfWeek, function ($selected) {
+            $filteredDaysOfWeek = array_filter($daysOfWeek, function ($selected) {
                 return $selected;
             });
             $validated_data['daysOfWeek'] = $filteredDaysOfWeek;
         }
+        // Handle template files upload
+        $templateFilePaths = [];
+        if ($request->hasFile('templateFiles')) {
+            foreach ($request->file('templateFiles') as $file) {
+                $path = $file->store('templates', 'public');
+                $templateFilePaths[] = '/storage/' . $path;
+            }
+        }
+
         $step = Step::create([
             'workflow_id' => $validated_data['workflow'],
             'type' => $validated_data['type'],
@@ -59,6 +73,7 @@ class StepController extends Controller
             'step_quota_balance' => $validated_data['batchSize'],
             'days_of_week' => json_encode($validated_data['daysOfWeek']),
             'make_second_call'=> $validated_data['make_second_call'] ? 1 : 0,
+            'template_files' => !empty($templateFilePaths) ? json_encode($templateFilePaths) : null,
         ]);
         $workflow = Workflow::findorfail($request->workflow);
         if (!empty($workflow->steps_flow)) {
@@ -80,6 +95,8 @@ class StepController extends Controller
         return response()->json([
             'success' => session('success'),
             'workflow' => $workflow,
+            'request' => $request->file('templateFiles'),
+            'step' => $step,
             'steps' => $steps
         ], 200);
     }

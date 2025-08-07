@@ -78,7 +78,6 @@ const AddStepModal = ({
             onClose();
         }
     };
-    console.log(spintaxes)
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-lg w-full h-full overflow-auto">
@@ -266,12 +265,31 @@ const AddStepModal = ({
                     />
                     <InputLabel forInput="emailSubject" value="Enter Email Subject (required if you choose Email)" className="text-lg font-semibold" />
                     <input
-                        type="text"  // Changed from "text" to "date"
+                        type="text"
                         name="emailSubject"
                         value={newStepData.emailSubject}
                         onChange={handleChange}
                         className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                     />
+                    <div className="mt-2">
+                        <InputLabel forInput="templateFiles" value="Upload Email Attachment Template Files (Word/PDF only, multiple allowed)" className="text-lg font-semibold" />
+                        <input
+                            type="file"
+                            name="templateFiles"
+                            multiple
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            onChange={e => setNewStepData(prev => ({ ...prev, templateFiles: e.target.files }))}
+                            className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">Only PDF and Word documents are allowed. These files will be used as templates to generate documents.</div>
+                        {newStepData.templateFiles && newStepData.templateFiles.length > 0 && (
+                            <ul className="mt-1 text-xs text-gray-700 list-disc list-inside">
+                                {Array.from(newStepData.templateFiles).map((file, idx) => (
+                                    <li key={idx}>{file.name}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 
                     <div className="mt-4">
                         <input

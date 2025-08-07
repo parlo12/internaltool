@@ -40,6 +40,7 @@ export default function Create({
         batchDelay: "20",
         batchDelayUnit: "minutes",
         isCustomSending: 0,
+        templateFiles: [],
         daysOfWeek: {
             Sunday: true,
             Monday: true,
@@ -116,70 +117,86 @@ export default function Create({
             window.location.href = route('delete-workflow', workflow.id);
         }
     };
-    const addStep = () => {
-        // Check if the required fields are filled
-        if (newStepData.type === "Offer" && newStepData.offerExpiry.trim() === "") {
-            setError("The offer expiry field is required if you are sending an offer.");
-            console.error("The offer expiry field is required if you are sending an offer.");
-            return;
-        }
-        if (newStepData.type === "Email" && newStepData.emailSubject.trim() === "") {
-            setError("The email subject field is required if you are sending an email.");
-            console.error("The  email subject field is required if you are sending an email.");
-            return;
-        }
-        // Check if the step name and content are filled
-        if (newStepData.stepName.trim() !== "" && newStepData.content.trim() !== "") {
-            const newStep = {
-                ...newStepData,
-                id: stepsState.length + 1,
-            };
+   const addStep = () => {
+    // Check if the required fields are filled
+    if (newStepData.type === "Offer" && newStepData.offerExpiry.trim() === "") {
+        setError("The offer expiry field is required if you are sending an offer.");
+        return;
+    }
+    if (newStepData.type === "Email" && newStepData.emailSubject.trim() === "") {
+        setError("The email subject field is required if you are sending an email.");
+        return;
+    }
 
-
-            axios
-                .post("/store-step", newStep)
-                .then((response) => {
-                    setStepsState(response.data.steps);
-                    setIsModalOpen(false);
-                    setSuccess("Step added successfully!");
-
-                    // Reset form data
-                    setNewStepData({
-                        stepName: "",
-                        content: "",
-                        delay: "",
-                        delayUnit: "minutes",
-                        type: "",
-                        startTime: "",
-                        endTime: "",
-                        batchSize: "",
-                        batchDelay: "",
-                        offerExpiry: "",
-                        emailSubject: "",
-                        emailMessage: "", // Reset the offer expiry
-                        batchDelayUnit: "minutes",
-                        isCustomSending: 0,
-                        daysOfWeek: {
-                            Sunday: true,
-                            Monday: true,
-                            Tuesday: true,
-                            Wednesday: true,
-                            Thursday: true,
-                            Friday: true,
-                            Saturday: true,
-                        },
-                        workflow: workflow.id,
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error adding step:", error.response?.data || error.message);
-                });
-        } else {
-            // If step name or content are missing
-            setError("Please fill in all required fields.");
-            console.error("Please fill in all required fields.");
+    // Create FormData object
+    const formData = new FormData();
+    
+    // Append all regular fields
+    Object.keys(newStepData).forEach(key => {
+        if (key !== 'templateFiles' && key !== 'daysOfWeek') {
+            formData.append(key, newStepData[key]);
         }
-    };
+    });
+
+    // Append daysOfWeek as JSON string
+    formData.append('daysOfWeek', JSON.stringify(newStepData.daysOfWeek));
+
+    // Append each file
+    if (newStepData.templateFiles && newStepData.templateFiles.length > 0) {
+        Array.from(newStepData.templateFiles).forEach(file => {
+            formData.append('templateFiles[]', file);
+        });
+    }
+
+    // Check if the step name and content are filled
+    if (newStepData.stepName.trim() !== "" && newStepData.content.trim() !== "") {
+        axios.post("/store-step", formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then((response) => {
+            console.log("Step added successfully:", response);
+            setStepsState(response.data.steps);
+            setIsModalOpen(false);
+            setSuccess("Step added successfully!");
+
+            // Reset form data
+            setNewStepData({
+                stepName: "",
+                content: "",
+                delay: "",
+                delayUnit: "minutes",
+                type: "",
+                startTime: "",
+                endTime: "",
+                batchSize: "",
+                batchDelay: "",
+                offerExpiry: "",
+                emailSubject: "",
+                emailMessage: "",
+                batchDelayUnit: "minutes",
+                isCustomSending: 0,
+                templateFiles: [],
+                daysOfWeek: {
+                    Sunday: true,
+                    Monday: true,
+                    Tuesday: true,
+                    Wednesday: true,
+                    Thursday: true,
+                    Friday: true,
+                    Saturday: true,
+                },
+                workflow: workflow.id,
+            });
+        })
+        .catch((error) => {
+            console.error("Error adding step:", error.response?.data || error.message);
+        });
+    } else {
+        setError("Please fill in all required fields.");
+    }
+};
 
 
     const openEditModal = (step) => {
