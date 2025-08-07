@@ -60,6 +60,11 @@ class EmailService
                     'mime' => 'application/pdf',
                 ]
             ];
+            foreach ($attachments as $file) {
+                if (!file_exists($file['file'])) {
+                    Log::error("Attachment file missing: {$file['file']}");
+                }
+            }
             Mail::to($contact->email)->send(new ContactEmail($details, $attachments));
 
             $contact->update(['status' => 'EMAIL_SENT']);
