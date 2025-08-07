@@ -439,7 +439,6 @@ class RetellService
     }
     public function getAllAgents()
     {
-        log::info("Retrieving all agents");
 
         try {
             $curl = curl_init();
@@ -458,7 +457,6 @@ class RetellService
                 ],
             ]);
 
-            log::debug("API request prepared for getting agents");
             $startTime = microtime(true);
 
             $response = curl_exec($curl);
