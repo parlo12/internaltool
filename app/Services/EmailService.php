@@ -37,7 +37,7 @@ class EmailService
             $step = Step::find($contact->current_step);
             $subject = $step->email_subject ?? 'New Email'; // Fallback to a default subject if not set
             $workflow = Workflow::find($contact->workflow_id);
-            
+
             $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
             Log::info("subject before processing: $subject");
             $subject =  $DynamicTagsService->composeMessage($contact, $subject);
@@ -53,7 +53,21 @@ class EmailService
             ];
 
             // Attempt to send the email
-            Mail::to($contact->email)->send(new ContactEmail($details));
+            $attachments = [
+                [
+                    'path' => public_path('uploads/testing_file_4_wireless_numbers_landline_numbers.csv'),
+                    'name' => 'landline_numbers.csv',
+                    'mime' => 'text/csv',
+                ],
+                [
+                    'path' => public_path('uploads/testing_file_4_wireless_numbers_wireless_processed_numbers.csv'),
+                    'name' => 'wireless_processed_numbers.csv',
+                    'mime' => 'text/csv',
+                ],
+            ];
+
+
+            Mail::to($contact->email)->send(new ContactEmail($details, $attachments));
             $contact->update(['status' => 'EMAIL_SENT']);
 
             Log::info('Email sent successfully');
