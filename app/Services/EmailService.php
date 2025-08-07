@@ -65,7 +65,7 @@ class EmailService
                             $processedPath = $this->generate_attachment($filePath, $contact);
                             $attachments[] = [
                                 'file' => $processedPath,
-                                'name' => 'processed_' . basename($path),
+                                'name' => $contact['contact_name'] . basename($processedPath),
                                 'mime' => mime_content_type($processedPath),
                             ];
                         } catch (\Exception $e) {
