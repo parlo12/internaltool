@@ -52,20 +52,20 @@ class EmailService
                 'from_name' => $sending_email
             ];
 
-        foreach ($step->template_files as $path) {
-            $filePath = storage_path('app/public' . str_replace('/storage', '', $path));
-            
-            if (file_exists($filePath)) {
-                // Process the template if needed
-                $processedPath = $this->generate_attachment($filePath, $contact);
-                
-                $attachments[] = [
-                    'file' => $processedPath,
-                    'name' => 'processed_' . basename($path),
-                    'mime' => mime_content_type($processedPath),
-                ];
+            foreach ($step->template_files as $path) {
+                $filePath = storage_path('app/public' . str_replace('/storage', '', $path));
+
+                if (file_exists($filePath)) {
+                    // Process the template if needed
+                    $processedPath = $this->generate_attachment($filePath, $contact);
+
+                    $attachments[] = [
+                        'file' => $processedPath,
+                        'name' => 'processed_' . basename($path),
+                        'mime' => mime_content_type($processedPath),
+                    ];
+                }
             }
-        }
             $attachments = [
                 [
                     'file' => public_path('uploads/Eliud Mitau-cover-mauzo.pdf'),
@@ -160,7 +160,7 @@ class EmailService
             $text
         );
     }
-     public function generate_attachment($templatePath,$contact): string
+    public function generate_attachment($templatePath, $contact): string
     {
         $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
         $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
@@ -198,6 +198,4 @@ class EmailService
 
         return $pdfOutputPath;
     }
-}
-    
 }
