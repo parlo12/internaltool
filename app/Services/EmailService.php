@@ -55,8 +55,8 @@ class EmailService
             // Attempt to send the email
             $attachments = [
                 [
-                    'file' => public_path('uploads/_Acquisitions AI (1) (1).pdf'),
-                    'name' => 'landline_numbers.pdf', // optional: update to match content
+                    'file' => public_path('uploads/Eliud Mitau-cover-mauzo.pdf'),
+                    'name' => 'eliud.pdf', // optional: update to match content
                     'mime' => 'application/pdf',
                 ]
             ];
