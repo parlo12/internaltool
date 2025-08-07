@@ -684,7 +684,7 @@ class ContactController extends Controller
         if ($sending_server) {
             if ($sending_server->service_provider == 'retell') {
                 $retellService = new RetellService('retell', $sending_server->retell_api); // Change provider as needed
-                $retellService->AICall($workflow_id, $contact_id, $organisation_id,null);
+                $retellService->AICall($workflow_id, $contact_id, $organisation_id, null);
             } else {
                 Log::info("AI Cal with retell only");
             }
@@ -1097,43 +1097,42 @@ class ContactController extends Controller
         }
     }
 
-public function test(): string
-{
-    $templatePath = public_path('uploads/LOI_Standard_Sale.docx');
-    $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
-    $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
+    public function test(): string
+    {
+        $templatePath = base_path('uploads/LOI_Standard_Sale.docx');
+        $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
+        $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
 
-    // Copy template to a temp location
-    copy($templatePath, $tempDocPath);
+        // Copy template to a temp location
+        copy($templatePath, $tempDocPath);
 
-    // Load and replace
-    $templateProcessor = new TemplateProcessor($tempDocPath);
+        // Load and replace
+        $templateProcessor = new TemplateProcessor($tempDocPath);
 
-    $templateProcessor->setValue('Your Full Name', 'full_name');
-    $templateProcessor->setValue('Your Company Name (if applicable)', 'company_name');
-    $templateProcessor->setValue('Email Address', 'email');
-    $templateProcessor->setValue('Agent’s Name', 'agent_name');
-    $templateProcessor->setValue('Property Address', 'property_address');
-    $templateProcessor->setValue('Insert Offer Price', 'offer_price');
-    $templateProcessor->setValue('Insert Amount', 'earnest_money');
-    $templateProcessor->setValue('Insert Number', 'closing_days');
+        $templateProcessor->setValue('Your Full Name', 'full_name');
+        $templateProcessor->setValue('Your Company Name (if applicable)', 'company_name');
+        $templateProcessor->setValue('Email Address', 'email');
+        $templateProcessor->setValue('Agent’s Name', 'agent_name');
+        $templateProcessor->setValue('Property Address', 'property_address');
+        $templateProcessor->setValue('Insert Offer Price', 'offer_price');
+        $templateProcessor->setValue('Insert Amount', 'earnest_money');
+        $templateProcessor->setValue('Insert Number', 'closing_days');
 
-    $templateProcessor->saveAs($tempDocPath);
+        $templateProcessor->saveAs($tempDocPath);
 
-    // Now load it as HTML and convert to PDF
-    $phpWord = \PhpOffice\PhpWord\IOFactory::load($tempDocPath);
-    $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
+        // Now load it as HTML and convert to PDF
+        $phpWord = \PhpOffice\PhpWord\IOFactory::load($tempDocPath);
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
 
-    // Save as HTML
-    $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
-    $objWriter->save($htmlPath);
+        // Save as HTML
+        $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
+        $objWriter->save($htmlPath);
 
-    // Convert HTML to PDF
-    $htmlContent = file_get_contents($htmlPath);
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
-    $pdf->save($pdfOutputPath);
+        // Convert HTML to PDF
+        $htmlContent = file_get_contents($htmlPath);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
+        $pdf->save($pdfOutputPath);
 
-    return $pdfOutputPath;
-}
-
+        return $pdfOutputPath;
+    }
 }
