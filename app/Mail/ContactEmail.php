@@ -4,9 +4,6 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class ContactEmail extends Mailable
@@ -21,65 +18,39 @@ class ContactEmail extends Mailable
     public $details;
 
     /**
-     * The email attachments.
-     *
-     * @var array
-     */
-    public $attachments;
-
-    /**
      * Create a new message instance.
      *
-     * @param array $details
-     * @param array $attachments (optional) - Each item: ['path' => ..., 'name' => ..., 'mime' => ...]
+     * @param array $details (Should include 'attachments' key if needed)
      */
-    public function __construct(array $details, array $attachments = [])
+    public function __construct(array $details)
     {
         $this->details = $details;
-        $this->attachments = $attachments;
     }
 
     /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            from: $this->details['from_email'],
-            subject: $this->details['subject'],
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.contact',
-            with: ['details' => $this->details],
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
+     * Build the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return $this
      */
-    public function attachments(): array
+    public function build()
     {
-        $attachments = [];
+        $email = $this->view('emails.contact')
+            ->with(['details' => $this->details])
+            ->from($this->details['from_email'], $this->details['from_name'] ?? $this->details['from_email'])
+            ->subject($this->details['subject']);
 
-        foreach ($this->attachments as $file) {
-            if (!file_exists($file['path'])) {
-                continue; // Consider logging this
+        // Attach files if provided
+        if (!empty($this->details['attachments'])) {
+            foreach ($this->details['attachments'] as $file) {
+                if (isset($file['file']) && file_exists($file['file'])) {
+                    $email->attach($file['file'], [
+                        'as' => $file['name'] ?? basename($file['file']),
+                        'mime' => $file['mime'] ?? mime_content_type($file['file']),
+                    ]);
+                }
             }
-
-            $attachments[] = Attachment::fromPath($file['path'])
-                ->as($file['name'] ?? basename($file['path']))
-                ->withMime($file['mime'] ?? mime_content_type($file['path']));
         }
 
-        return $attachments;
+        return $email;
     }
 }

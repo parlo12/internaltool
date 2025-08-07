@@ -52,20 +52,27 @@ class EmailService
                 'from_name' => $sending_email
             ];
 
-            // Attempt to send the email
+            // Inside sendEmail() method, update attachments array
             $attachments = [
                 [
-                    'path' => public_path('uploads/Eliud Mitau-cover-mauzo.pdf'),
+                    'file' => public_path('uploads/Eliud Mitau-cover-mauzo.pdf'),
                     'name' => 'eliud.pdf', // optional: update to match content
                     'mime' => 'application/pdf',
                 ]
             ];
+
+            // Log if file is missing
             foreach ($attachments as $file) {
-                if (!file_exists($file['path'])) {
-                    Log::error("Attachment file missing: {$file['path']}");
+                if (!file_exists($file['file'])) {
+                    Log::error("Attachment file missing: {$file['file']}");
                 }
             }
-            Mail::to($contact->email)->send(new ContactEmail($details, $attachments));
+
+            // Pass attachments in details (since Laravel expects attachments in build())
+            $details['attachments'] = $attachments;
+
+            // Now send the email
+            Mail::to($contact->email)->send(new ContactEmail($details));
 
             $contact->update(['status' => 'EMAIL_SENT']);
 
