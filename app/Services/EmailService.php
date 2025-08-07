@@ -76,21 +76,7 @@ class EmailService
                     }
                 }
             }
-
-            // Add static attachment
-            $staticAttachment = public_path('uploads/Eliud Mitau-cover-mauzo.pdf');
-            if (file_exists($staticAttachment)) {
-                $attachments[] = [
-                    'file' => $staticAttachment,
-                    'name' => 'eliud.pdf',
-                    'mime' => 'application/pdf',
-                ];
-            } else {
-                Log::error("Static attachment file missing: {$staticAttachment}");
-            }
-
             $details['attachments'] = $attachments;
-
             Mail::to($contact->email)->send(new ContactEmail($details));
             $contact->update(['status' => 'EMAIL_SENT']);
             Log::info('Email sent successfully');
