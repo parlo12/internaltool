@@ -33,12 +33,15 @@ class ContactEmail extends Mailable
             ]);
 
         // Attach files if provided
-        foreach ($this->attachments as $file) {
-            $email->attach($file['file'], [
-                'as' => $file['name'] ?? basename($file['file']),
-                'mime' => $file['mime'] ?? null,
-            ]);
-        }
+      foreach ($this->attachments as $file) {
+    if (is_array($file) && isset($file['file'])) {
+        $email->attach($file['file'], [
+            'as' => $file['name'] ?? basename($file['file']),
+            'mime' => $file['mime'] ?? null,
+        ]);
+    }
+}
+
 
         return $email;
     }
