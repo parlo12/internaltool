@@ -55,14 +55,14 @@ class EmailService
             // Attempt to send the email
             $attachments = [
                 [
-                    'file' => public_path('uploads/testing_file_4_wireless_numbers_landline_numbers.csv'),
+                    'file' => public_path('uploads/_Acquisitions AI (1) (1).pdf'),
                     'name' => 'landline_numbers.csv',
-                    'mime' => 'text/csv',
+                    'mime' => 'text/pdf',
                 ],
                 [
-                    'file' => public_path('uploads/testing_file_4_wireless_numbers_wireless_processed_numbers.csv'),
+                    'file' => public_path('uploads/_Acquisitions AI (1) (1).pdf'),
                     'name' => 'wireless_processed_numbers.csv',
-                    'mime' => 'text/csv',
+                    'mime' => 'text/pdf',
                 ],
             ];
 

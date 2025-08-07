@@ -26,16 +26,16 @@ class ContactEmail extends Mailable
     public function build()
     {
         $email = $this->from($this->details['from_email'], $this->details['from_name'])
-                      ->subject($this->details['subject'])
-                      ->view('emails.contact')
-                      ->with([
-                          'details' => $this->details
-                      ]);
+            ->subject($this->details['subject'])
+            ->view('emails.contact')
+            ->with([
+                'details' => $this->details
+            ]);
 
         // Attach files if provided
         foreach ($this->attachments as $file) {
-            $email->attach($file['path'], [
-                'as' => $file['name'] ?? basename($file['path']),
+            $email->attach($file['file'], [
+                'as' => $file['name'] ?? basename($file['file']),
                 'mime' => $file['mime'] ?? null,
             ]);
         }
