@@ -378,7 +378,7 @@ class WorkflowController extends Controller
                             'days_of_week' => $step_to_copy->days_of_week,
                             'generated_message' => $step_to_copy->generated_message,
                             'email_subject' => $step_to_copy->email_subject,
-                            'selected_field_ids' => $step_to_copy->selected_file_ids,
+                            'selected_file_ids' => $step_to_copy->selected_file_ids,
 
                         ]);
                         $new_steps_flow = $new_workflow->steps_flow ? explode(',', $new_workflow->steps_flow) : [];
