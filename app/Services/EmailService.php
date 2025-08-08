@@ -60,6 +60,7 @@ class EmailService
                 foreach ($selected_file_ids as $file_id) {
                     // Get the relative storage path (e.g., /storage/uploads/file.docx)
                     $path = TemplateFile::where('id', $file_id)->value('path');
+                    $name = TemplateFile::where('id', $file_id)->value('name');
 
                     if (!$path) {
                         Log::error("Path not found for template file ID: {$file_id}");
@@ -69,7 +70,7 @@ class EmailService
                     // Convert public path to storage path
                     // e.g. /storage/uploads/filename.docx => /app/public/uploads/filename.docx
                     $relativePath = str_replace('/storage', '', $path);
-                    $filePath = storage_path('app/public' . $relativePath);
+                    $filePath = storage_path('app/public/' . $relativePath);
 
                     if (file_exists($filePath)) {
                         try {
@@ -77,7 +78,7 @@ class EmailService
 
                             $attachments[] = [
                                 'file' => $processedPath,
-                                'name' => $contact['contact_name'] . '_' . basename($processedPath),
+                                'name' => $contact['address'] . '_' . $name,
                                 'mime' => mime_content_type($processedPath),
                             ];
                         } catch (\Exception $e) {
