@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Services\RetellService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\TemplateFile;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -46,12 +48,12 @@ class AdminController extends Controller
         $numbers = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
-            $query = NumberPool::where('organisation_id', $organisationId);
-            $sortField = request("sort_field", 'created_at');
-            $sortDirection = request("sort_direction", "desc");
-            $number_pools = $query->orderBy($sortField, $sortDirection)
-                ->paginate(50)
-                ->onEachSide(1);
+        $query = NumberPool::where('organisation_id', $organisationId);
+        $sortField = request("sort_field", 'created_at');
+        $sortDirection = request("sort_direction", "desc");
+        $number_pools = $query->orderBy($sortField, $sortDirection)
+            ->paginate(50)
+            ->onEachSide(1);
         $query = Organisation::query(); // Select all organisations
         $sortField = request()->get("sort_field", 'created_at');
         $sortDirection = request()->get("sort_direction", "desc");
@@ -64,8 +66,12 @@ class AdminController extends Controller
         $sending_servers = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
+        $query = TemplateFile::where('organisation_id', $organisationId); // Select all organisations
+        $files = $query->orderBy($sortField, $sortDirection)
+            ->paginate(50)
+            ->onEachSide(1);
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
-        $retellService = new RetellService('retell','key_c3f2ce333c40b9403843077bfc32');
+        $retellService = new RetellService('retell', 'key_c3f2ce333c40b9403843077bfc32');
         $agents = $retellService->getAllAgents();
         return inertia("Admin/Index", [
             "users" => UserResource::collection($users),
@@ -79,6 +85,7 @@ class AdminController extends Controller
             'sendingServers' => $sending_servers,
             'organisation' => $current_org,
             'agents' => $agents,
+            'files' => $files,
         ]);
     }
 
@@ -135,12 +142,12 @@ class AdminController extends Controller
             'provider' => $validated_data['phone_number_provider'],
             'sending_server_id' => $validated_data['sending_server_id'],
             'organisation_id' => $organisationId,
-            'number_pool_id'=>$validated_data['number_pool_id'],
+            'number_pool_id' => $validated_data['number_pool_id'],
         ]);
         return redirect()->route('admin.index')->with('success', "Number saved successfully");
     }
     public function store_number_pool(Request $request)
-    {        
+    {
         $organisationId = auth()->user()->organisation_id;
         $validated_data = $request->validate([
             'pool_name' => 'required|string|max:255',
@@ -220,7 +227,7 @@ class AdminController extends Controller
             'websockets_device_id' => $request->websockets_device_id,
             'retell_api' => $request->retell_api,
             'retell_agent_id' => $request->retell_agent_id,
-            'organisation_id'=>auth()->user()->organisation_id
+            'organisation_id' => auth()->user()->organisation_id
         ]);
         return redirect()->route('admin.index')->with('success', "Server $sending_server->server_name created successfuly.");
     }
@@ -241,10 +248,10 @@ class AdminController extends Controller
     public function get_number_pool($id)
     {
         $number_pool = NumberPool::find($id);
-        $numbers=Number::where('number_pool_id',$number_pool->id)->get();
+        $numbers = Number::where('number_pool_id', $number_pool->id)->get();
         return response()->json([
             'numberPool' => $number_pool,
-            'numbers'=>$numbers
+            'numbers' => $numbers
         ], 200);
     }
     public function get_number($id)
@@ -288,7 +295,7 @@ class AdminController extends Controller
     }
     public function update_server(Request $request)
     {
-        $server = SendingServer::findOrFail( $request->input('id'));
+        $server = SendingServer::findOrFail($request->input('id'));
         $server->update($request->input());
         return response()->json([
             'message' => "server updated successfully",
@@ -297,13 +304,13 @@ class AdminController extends Controller
     }
     public function update_number_pool(Request $request)
     {
-        
-        $number_pool = NumberPool::findOrFail( $request->input('id'));
+
+        $number_pool = NumberPool::findOrFail($request->input('id'));
         $number_pool->update($request->input());
         return response()->json([
             'message' => "number_pool updated successfully",
             'number_pool' => $number_pool,
-            'request'=>$request->input('id')
+            'request' => $request->input('id')
         ], 200);
     }
     public function update_number(Request $request)
@@ -312,12 +319,12 @@ class AdminController extends Controller
         //     'message' => "number updated successfully",
         //     'number' => $request->all(),
         // ], 200);
-        $number = Number::findOrFail( $request->input('id'));
+        $number = Number::findOrFail($request->input('id'));
         $number->update($request->input());
         return response()->json([
             'message' => "number updated successfully",
             'number' => $number,
-            'request'=>$request->input('id')
+            'request' => $request->input('id')
         ], 200);
     }
     public function update_user_organisation(Request $request)
@@ -368,4 +375,45 @@ class AdminController extends Controller
         $user->delete();
         return redirect()->route('admin.index')->with('success', "User Deleted successfuly");
     }
+
+
+    public function store_files(Request $request)
+    {
+        $uploaded = [];
+
+        foreach ($request->file('files') as $file) {
+            $path = $file->store('uploads', 'public');
+
+            $record = TemplateFile::create([
+                'organisation_id' => auth()->user()->organisation_id,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+            ]);
+
+            $uploaded[] = [
+                'id' => $record->id,
+                'name' => $record->name,
+                'url' => Storage::url($record->path),
+            ];
+        }
+
+        return response()->json(['files' => $uploaded], 200);
+    }
+
+
+public function delete_file($id)
+{
+    $file = TemplateFile::findOrFail($id);
+
+    // Remove from storage
+    if (Storage::disk('public')->exists($file->path)) {
+        Storage::disk('public')->delete($file->path);
+    }
+
+    // Remove from database
+    $file->delete();
+
+    return response()->json(['success' => 'File deleted']);
+}
+
 }

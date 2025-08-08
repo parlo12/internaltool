@@ -12,7 +12,8 @@ const EditStepModal = ({
     updateStep,
     deleteStep,
     placeholders,
-    spintaxes
+    spintaxes,
+    files,
 }) => {
     console.log(stepData)
     const [validationMessage, setValidationMessage] = useState("");
@@ -74,7 +75,8 @@ const EditStepModal = ({
         batchDelayUnit: batchDelayUnit,
         generatedMessage: stepData.generated_message,
         daysOfWeek: daysOfWeek, // Parse JSON string to object
-        make_second_call: stepData.make_second_call === 1 ? true : false // ensure boolean
+        make_second_call: stepData.make_second_call === 1 ? true : false,// ensure boolean
+        selectedFileIds: stepData.selected_file_ids ? JSON.parse(stepData.selected_file_ids) : [] // Parse selected file IDs if available
     });
     // Update state if stepData changes (optional, depending on how you manage updates)
     useEffect(() => {
@@ -96,7 +98,8 @@ const EditStepModal = ({
             batchDelayUnit: batchDelayUnit,
             generatedMessage: stepData.generated_message,
             daysOfWeek: daysOfWeek,
-            make_second_call: stepData.make_second_call == 1 ? true : false // ensure boolean
+            make_second_call: stepData.make_second_call == 1 ? true : false, // ensure boolean
+            selectedFileIds: stepData.selected_file_ids ? JSON.parse(stepData.selected_file_ids) : [] // Parse selected file IDs if available
         });
     }, [stepData]);
     console.log(editedStep)
@@ -333,14 +336,50 @@ const EditStepModal = ({
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
 
+
                     <InputLabel forInput="emailSubject" value="Email Subject (if Email selected)" className="text-lg font-semibold text-gray-700" />
                     <input
-                        type="text"  // Changed from "text" to "date"
+                        type="text"
                         name="emailSubject"
                         value={editedStep.emailSubject}
                         onChange={handleChange}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-center focus:ring-indigo-500 focus:border-indigo-500"
                     />
+                    {/* File selection UI below email subject */}
+                    {files && files.length > 0 && (
+                        <div className="mt-2 text-left">
+                            <InputLabel value="Select Template Files (check to include)" className="text-md font-semibold" />
+                            <div className="grid grid-cols-2 gap-4">
+                                {[0, 1].map(col => (
+                                    <ul key={col} className="space-y-1">
+                                        {files
+                                            .filter((_, idx) => idx % 2 === col)
+                                            .map((file) => (
+                                                <li key={file.id} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={Array.isArray(editedStep.selectedFileIds) && editedStep.selectedFileIds.includes(file.id)}
+                                                        onChange={e => {
+                                                            setEditedStep(prev => {
+                                                                let ids = Array.isArray(prev.selectedFileIds) ? [...prev.selectedFileIds] : [];
+                                                                if (e.target.checked) {
+                                                                    if (!ids.includes(file.id)) ids.push(file.id);
+                                                                } else {
+                                                                    ids = ids.filter(id => id !== file.id);
+                                                                }
+                                                                return { ...prev, selectedFileIds: ids };
+                                                            });
+                                                        }}
+                                                        className="mr-2"
+                                                    />
+                                                    <span>{file.name || file.filename || file.original_name || file.path?.split('/').pop() || 'File'}</span>
+                                                </li>
+                                            ))}
+                                    </ul>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex items-center mt-4">
                         <div className="mr-2 w-2/3">

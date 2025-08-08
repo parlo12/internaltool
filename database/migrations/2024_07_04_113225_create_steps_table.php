@@ -30,8 +30,8 @@ return new class extends Migration
             $table->string('offer_expiry')->nullable();
             $table->string('email_subject')->nullable();
             $table->string('generated_message')->nullable();
-                        $table->string('make_second_call')->nullable();
-
+            $table->string('make_second_call')->nullable();
+            $table->string('selected_file_ids')->nullable();
         });
     }
 

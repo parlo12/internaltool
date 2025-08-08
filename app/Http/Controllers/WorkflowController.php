@@ -12,6 +12,7 @@ use App\Models\NumberPool;
 use App\Models\Organisation;
 use App\Models\Spintax;
 use App\Models\Step;
+use App\Models\TemplateFile;
 use App\Models\Workflow;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -414,6 +415,8 @@ class WorkflowController extends Controller
             ->get();
         $number_pools = NumberPool::where('organisation_id', $organisationId)
             ->get();
+        $files = TemplateFile::where('organisation_id', $organisationId)
+            ->get();
         $steps = array();
         if (!empty($workflow->steps_flow)) {
             $steps_flow_array = explode(',', $workflow->steps_flow);
@@ -433,6 +436,7 @@ class WorkflowController extends Controller
             'texting_numbers' => $texting_numbers,
             'numberPools' => $number_pools,
             'refererr' => $referer,
+            'files' => $files,
         ]);
     }
 

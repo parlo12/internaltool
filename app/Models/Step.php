@@ -26,7 +26,7 @@ class Step extends Model
         'email_subject',
         'generated_message',
         'make_second_call',
-        'template_files',
+        'selected_file_ids',
     ];
 
     protected $casts = [

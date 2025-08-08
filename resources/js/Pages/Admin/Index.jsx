@@ -7,6 +7,8 @@ import InputLabel from "@/Components/InputLabel";
 import React, { useState, useEffect } from "react";
 import TextInput from "@/Components/TextInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from 'axios';
+
 import {
     faExchangeAlt,
     faEye,
@@ -32,7 +34,8 @@ export default function Index({
     sendingServers,
     organisation,
     numberPools,
-    agents
+    agents,
+    files
 }) {
     console.log(users);
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
@@ -97,11 +100,11 @@ export default function Index({
     });
 
     const [numberData, setNumberData] = useState({
-        phone_number : '',
-        purpose : '',
-        provider : '',
-        sending_server_id : '',
-        number_pool_id : '',
+        phone_number: '',
+        purpose: '',
+        provider: '',
+        sending_server_id: '',
+        number_pool_id: '',
     });
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -165,13 +168,55 @@ export default function Index({
         pool_name: "",
         pool_time: "",
         pool_time_units: "",
-        number_pool_id: ""
+        number_pool_id: "",
+        files: null, // For file uploads
     });
     const onSubmit = (e) => {
         e.preventDefault();
         post("/store-spintax");
         reset();
     };
+
+    const storeFiles = async (e) => {
+        e.preventDefault();
+
+        if (!data.files || data.files.length === 0) {
+            alert('Please select at least one file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        for (let i = 0; i < data.files.length; i++) {
+            formData.append('files[]', data.files[i]);
+        }
+
+        try {
+            const response = await axios.post('/store-files', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Assuming response.data.files is an array of uploaded file info
+            //setUploadedFiles((prev) => [...prev, ...response.data.files]);
+            setData({ ...data, files: null }); // reset input
+            location.reload();
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Failed to upload files.');
+        }
+    };
+
+    const deleteFile = async (file_id) => {
+        try {
+            await axios.delete(`/delete-file/${file_id}`);
+            location.reload(); // Reload the page to reflect changes
+            preserveScroll();
+        } catch (error) {
+            console.error('Failed to delete file:', error);
+        }
+    };
+
     const submitOrganisation = (e) => {
         e.preventDefault();
         post("/store-organisation");
@@ -365,8 +410,8 @@ export default function Index({
             .get(`/switch-organisation/${orgId}`)
             .then((response) => {
                 setMessage(`Switch to org ${orgId} was successfull`);
-              
-                
+
+
                 window.location.reload();
             })
             .catch((error) => {
@@ -395,8 +440,8 @@ export default function Index({
                     user_id: userId,
                 })
                 .then((response) => {
-                    
-                    
+
+
 
                     setMessage(`Godspeedoffers api key updated successfully`);
                     setTimeout(() => { window.location.reload() }, 2000);
@@ -668,6 +713,79 @@ export default function Index({
                     </div>
                 </div>
             </div>
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                {/* Upload Form */}
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-10">
+                        <h1 className="text-2xl font-bold mb-4">Upload Template Files for emails</h1>
+                        <form onSubmit={storeFiles} className="space-y-4">
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Select Files
+                                </InputLabel>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept=".doc,.docx"
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            files: e.target.files,
+                                        })
+                                    }
+                                    className="mt-1 block w-full text-sm text-gray-700 file:py-2 file:px-4 file:border file:rounded-md file:border-gray-300 file:bg-white file:text-sm file:font-medium"
+                                />
+
+                            </div>
+
+                            <div>
+                                <PrimaryButton
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Upload
+                                </PrimaryButton>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Uploaded Files Table */}
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="p-6 bg-white border-b border-gray-200 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        File Name
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {files.data.map((file, index) => (
+                                    <tr key={index}>
+                                        <td className="px-6 py-2 text-sm text-gray-700">
+                                            {file.name}
+                                        </td>
+                                        <td className="px-6 py-2 text-sm text-right">
+                                            <button
+                                                onClick={() => deleteFile(file.id)}
+                                                className="inline-flex items-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
                 <div className="bg-white p-4 rounded-lg shadow-md w-full lg:w-1/2">
                     <div className="max-w-md mx-auto mt-10">

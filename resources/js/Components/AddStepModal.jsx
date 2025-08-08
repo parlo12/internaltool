@@ -11,7 +11,8 @@ const AddStepModal = ({
     newStepData,
     setNewStepData,
     placeholders,
-    spintaxes
+    spintaxes,
+    files
 }) => {
     const [validationMessage, setValidationMessage] = useState("");
 
@@ -78,6 +79,7 @@ const AddStepModal = ({
             onClose();
         }
     };
+    console.log(spintaxes)
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-lg w-full h-full overflow-auto">
@@ -271,25 +273,41 @@ const AddStepModal = ({
                         onChange={handleChange}
                         className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
                     />
-                    <div className="mt-2">
-                        <InputLabel forInput="templateFiles" value="Upload Email Attachment Template Files (Word/PDF only, multiple allowed)" className="text-lg font-semibold" />
-                        <input
-                            type="file"
-                            name="templateFiles"
-                            multiple
-                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            onChange={e => setNewStepData(prev => ({ ...prev, templateFiles: e.target.files }))}
-                            className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm text-center p-2"
-                        />
-                        <div className="text-xs text-gray-500 mt-1">Only PDF and Word documents are allowed. These files will be used as templates to generate documents.</div>
-                        {newStepData.templateFiles && newStepData.templateFiles.length > 0 && (
-                            <ul className="mt-1 text-xs text-gray-700 list-disc list-inside">
-                                {Array.from(newStepData.templateFiles).map((file, idx) => (
-                                    <li key={idx}>{file.name}</li>
+                    {/* File selection UI below email subject */}
+                    {files && files.length > 0 && (
+                        <div className="mt-2 text-left">
+                            <InputLabel value="Select Template Files (check to include)" className="text-md font-semibold" />
+                            <div className="grid grid-cols-2 gap-4">
+                                {[0, 1].map(col => (
+                                    <ul key={col} className="space-y-1">
+                                        {files
+                                            .filter((_, idx) => idx % 2 === col)
+                                            .map((file) => (
+                                                <li key={file.id} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={Array.isArray(newStepData.selectedFileIds) && newStepData.selectedFileIds.includes(file.id)}
+                                                        onChange={e => {
+                                                            setNewStepData(prev => {
+                                                                let ids = Array.isArray(prev.selectedFileIds) ? [...prev.selectedFileIds] : [];
+                                                                if (e.target.checked) {
+                                                                    ids.push(file.id);
+                                                                } else {
+                                                                    ids = ids.filter(id => id !== file.id);
+                                                                }
+                                                                return { ...prev, selectedFileIds: ids };
+                                                            });
+                                                        }}
+                                                        className="mr-2"
+                                                    />
+                                                    <span>{file.name || file.filename || file.original_name || file.path?.split('/').pop() || 'File'}</span>
+                                                </li>
+                                            ))}
+                                    </ul>
                                 ))}
-                            </ul>
-                        )}
-                    </div>
+                            </div>
+                        </div>
+                    )}
                 
                     <div className="mt-4">
                         <input

@@ -13,7 +13,6 @@ class StepController extends Controller
 {
     public function store(Request $request)
     {
-
         $messages = [
             'daysOfWeek.*' => 'The :attribute must be a valid day of the week.',
         ];
@@ -35,29 +34,16 @@ class StepController extends Controller
             'isCustomSending' => 'nullable|integer|max:1',
             'make_second_call'=> 'nullable',
         ]);
-          $daysOfWeek = $request->daysOfWeek;
-    if (is_string($daysOfWeek)) {
-        $daysOfWeek = json_decode($daysOfWeek, true);
-    }
-        if (empty($daysOfWeek)) {
+        if (empty($request->daysOfWeek)) {
             $validated_data['daysOfWeek'] = null;
         } else {
 
-            $filteredDaysOfWeek = array_filter($daysOfWeek, function ($selected) {
+            $filteredDaysOfWeek = array_filter($request->daysOfWeek, function ($selected) {
                 return $selected;
             });
             $validated_data['daysOfWeek'] = $filteredDaysOfWeek;
         }
-        // Handle template files upload
-        $templateFilePaths = [];
-        if ($request->hasFile('templateFiles')) {
-            foreach ($request->file('templateFiles') as $file) {
-                $path = $file->store('templates', 'public');
-                $templateFilePaths[] = '/storage/' . $path;
-            }
-        }
-
-        $step = Step::create([
+        $stepData = [
             'workflow_id' => $validated_data['workflow'],
             'type' => $validated_data['type'],
             'content' => $request->input('content'),
@@ -73,8 +59,17 @@ class StepController extends Controller
             'step_quota_balance' => $validated_data['batchSize'],
             'days_of_week' => json_encode($validated_data['daysOfWeek']),
             'make_second_call'=> $validated_data['make_second_call'] ? 1 : 0,
-            'template_files' => !empty($templateFilePaths) ? json_encode($templateFilePaths) : null,
-        ]);
+        ];
+        // Store selectedFileIds as part of the step data if present
+        if ($request->has('selectedFileIds')) {
+            $selectedFileIds = $request->input('selectedFileIds');
+            // If sent as JSON string, decode it
+            if (is_string($selectedFileIds)) {
+                $selectedFileIds = json_decode($selectedFileIds, true);
+            }
+            $stepData['selected_file_ids'] = json_encode($selectedFileIds);
+        }
+        $step = Step::create($stepData);
         $workflow = Workflow::findorfail($request->workflow);
         if (!empty($workflow->steps_flow)) {
             $steps_flow_array = explode(',', $workflow->steps_flow);
@@ -95,9 +90,8 @@ class StepController extends Controller
         return response()->json([
             'success' => session('success'),
             'workflow' => $workflow,
-            'request' => $request->file('templateFiles'),
-            'step' => $step,
-            'steps' => $steps
+            'steps' => $steps,
+            'request' => $request->all(),
         ], 200);
     }
     public function update(Request $request)
@@ -143,7 +137,7 @@ class StepController extends Controller
             }
         }
         $step = Step::findOrFail($request->id);
-        $step->update([
+        $updateData = [
             'workflow_id' => $validated_data['workflow'],
             'type' => $validated_data['type'],
             'content' => $request->input('content'),
@@ -158,8 +152,16 @@ class StepController extends Controller
             'offer_expiry' => $validated_data['offerExpiry'],
             'email_subject' => $validated_data['emailSubject'],
             'make_second_call'=> $validated_data['make_second_call'] ? 1 : 0,
-
-        ]);
+        ];
+        // Allow update of selected_file_ids if present
+        if ($request->has('selectedFileIds')) {
+            $selectedFileIds = $request->input('selectedFileIds');
+            if (is_string($selectedFileIds)) {
+                $selectedFileIds = json_decode($selectedFileIds, true);
+            }
+            $updateData['selected_file_ids'] = json_encode($selectedFileIds);
+        }
+        $step->update($updateData);
 
         $workflow = Workflow::findOrFail($request->workflow);
         $steps = [];

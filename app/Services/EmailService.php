@@ -6,6 +6,7 @@ use App\Mail\ContactEmail;
 use App\Models\Contact;
 use App\Models\Organisation;
 use App\Models\Step;
+use App\Models\TemplateFile;
 use App\Models\Workflow;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
@@ -51,21 +52,32 @@ class EmailService
             $attachments = [];
 
             // Handle template files if they exist
-            if (!empty($step->template_files)) {
-                // Ensure template_files is an array
-                $templateFiles = is_array($step->template_files)
-                    ? $step->template_files
-                    : json_decode($step->template_files, true) ?? [];
+            if (!empty($step->selected_file_ids)) {
+                $selected_file_ids = is_array($step->selected_file_ids)
+                    ? $step->selected_file_ids
+                    : json_decode($step->selected_file_ids, true) ?? [];
 
-                foreach ($templateFiles as $path) {
-                    $filePath = storage_path('app/public' . str_replace('/storage', '', $path));
+                foreach ($selected_file_ids as $file_id) {
+                    // Get the relative storage path (e.g., /storage/uploads/file.docx)
+                    $path = TemplateFile::where('id', $file_id)->value('path');
+
+                    if (!$path) {
+                        Log::error("Path not found for template file ID: {$file_id}");
+                        continue;
+                    }
+
+                    // Convert public path to storage path
+                    // e.g. /storage/uploads/filename.docx => /app/public/uploads/filename.docx
+                    $relativePath = str_replace('/storage', '', $path);
+                    $filePath = storage_path('app/public' . $relativePath);
 
                     if (file_exists($filePath)) {
                         try {
                             $processedPath = $this->generate_attachment($filePath, $contact);
+
                             $attachments[] = [
                                 'file' => $processedPath,
-                                'name' => $contact['contact_name'] . basename($processedPath),
+                                'name' => $contact['contact_name'] . '_' . basename($processedPath),
                                 'mime' => mime_content_type($processedPath),
                             ];
                         } catch (\Exception $e) {
@@ -76,6 +88,7 @@ class EmailService
                     }
                 }
             }
+
             $details['attachments'] = $attachments;
             Mail::to($contact->email)->send(new ContactEmail($details));
             $contact->update(['status' => 'EMAIL_SENT']);

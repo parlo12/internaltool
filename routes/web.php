@@ -97,6 +97,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::post('/update-server', [AdminController::class, 'update_server'])->name('update-server');
     Route::post('/update-number-pool', [AdminController::class, 'update_number_pool'])->name('update-number-pool');
     Route::post('/update-number', [AdminController::class, 'update_number'])->name('update-number');
+    Route::post('/store-files', [AdminController::class, 'store_files'])->name('store-files');
+    Route::delete('/delete-file/{id}', [AdminController::class, 'delete_file'])->name('delete-file');
 
     //WORKFLOW CONTROLLER
     Route::get('/create-workflow', [WorkflowController::class, 'create'])->name('create-workflow');
