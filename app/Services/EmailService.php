@@ -78,7 +78,7 @@ class EmailService
 
                             $attachments[] = [
                                 'file' => $processedPath,
-                                'name' => $contact['address'] . '_' . $name,
+                                'name' => $contact['address'] . '_' . basename($processedPath),
                                 'mime' => mime_content_type($processedPath),
                             ];
                         } catch (\Exception $e) {
