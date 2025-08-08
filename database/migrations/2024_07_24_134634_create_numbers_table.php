@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('sending_server_id')->nullable();
             $table->string('number_pool_id')->nullable();
             $table->string('can_refill_on')->nullable();
+            $table->string('redirect_to')->nullable();
             $table->string('remaining_messages')->nullable();
         });
     }

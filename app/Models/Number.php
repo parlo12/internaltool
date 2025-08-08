@@ -16,7 +16,8 @@ class Number extends Model
         'sending_server_id',
         'number_pool_id',
         'can_refill_on',
-        'remaining_messages'
+        'remaining_messages',
+        'redirect_to',
     ];
     public function numberPool()
     {

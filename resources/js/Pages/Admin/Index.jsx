@@ -105,6 +105,7 @@ export default function Index({
         provider: '',
         sending_server_id: '',
         number_pool_id: '',
+        redirect_to: '',
     });
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -817,6 +818,25 @@ export default function Index({
                             </div>
                             <div>
                                 <InputLabel className="block text-sm font-medium text-gray-700">
+                                    Redirect to this Number
+                                </InputLabel>
+                                <TextInput
+                                    name="redirect_to"
+                                    value={data.redirect_to}
+                                    onChange={(e) =>
+                                        setData({
+                                            ...data,
+                                            redirect_to:
+                                                e.target.value,
+                                        })
+                                    }
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    placeholder="Enter phone number to direct to"
+                                    required
+                                ></TextInput>
+                            </div>
+                            <div>
+                                <InputLabel className="block text-sm font-medium text-gray-700">
                                     Phone Number Provider
                                 </InputLabel>
                                 <select
@@ -936,6 +956,9 @@ export default function Index({
                                         Number
                                     </th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Redirect To
+                                    </th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Purpose
                                     </th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -957,6 +980,9 @@ export default function Index({
                                     <tr key={number.id}>
                                         <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                             {number.phone_number}
+                                        </td>
+                                        <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
+                                            {number.redirect_to}
                                         </td>
                                         <td className="px-6 py-1 whitespace-nowrap text-sm text-gray-500">
                                             {number.purpose}

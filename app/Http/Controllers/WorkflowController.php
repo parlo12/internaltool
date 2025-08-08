@@ -249,12 +249,12 @@ class WorkflowController extends Controller
 
     public function redirect_twilio_Call(Request $request)
     {
-        $workflow = Workflow::where('texting_number', $request->input('To'))->first();
-        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
 
         $contact = Contact::firstWhere('phone', ltrim($calling_number, '+'));
+        $workflow = Workflow::find($contact->workflow_id);
+        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
@@ -264,8 +264,9 @@ class WorkflowController extends Controller
             $contact->response = 'yes';
             $contact->save();
         }
-
-        $numberToDial = $workflow->agent_number;
+        $numberToDial = Number::where('phone_number', $called_number)
+            ->where('organisation_id', $workflow->organisation_id)
+            ->first()->phone_number;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');
@@ -273,11 +274,11 @@ class WorkflowController extends Controller
 
     public function redirect_signalwire_Call(Request $request)
     {
-        $workflow = Workflow::where('texting_number', $request->input('To'))->first();
-        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
         $contact = Contact::firstWhere('phone', $calling_number);
+        $workflow = Workflow::find($contact->workflow_id);
+        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
@@ -290,7 +291,9 @@ class WorkflowController extends Controller
         if (!$workflow) {
             return response('Workflow not found', 404);
         }
-        $numberToDial = $workflow->agent_number;
+        $numberToDial = Number::where('phone_number', $called_number)
+            ->where('organisation_id', $workflow->organisation_id)
+            ->first()->phone_number;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         return response($response)->header('Content-Type', 'text/xml');

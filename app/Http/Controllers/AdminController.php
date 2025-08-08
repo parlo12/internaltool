@@ -135,6 +135,7 @@ class AdminController extends Controller
             'phone_number_provider' => 'required|string|max:255',
             'sending_server_id' => 'required|string|max:255',
             'number_pool_id' => 'nullable|string|max:255',
+            'redirect_to' => 'nullable|string|max:255',
         ]);
         $number = number::create([
             'phone_number' => $validated_data['phone_number'],
@@ -143,6 +144,7 @@ class AdminController extends Controller
             'sending_server_id' => $validated_data['sending_server_id'],
             'organisation_id' => $organisationId,
             'number_pool_id' => $validated_data['number_pool_id'],
+            'redirect_to' => $validated_data['redirect_to'],
         ]);
         return redirect()->route('admin.index')->with('success', "Number saved successfully");
     }
