@@ -300,7 +300,9 @@ const AddStepModal = ({
                                                         }}
                                                         className="mr-2"
                                                     />
-                                                    <span>{file.name || file.filename || file.original_name || file.path?.split('/').pop() || 'File'}</span>
+                                                    <span className="truncate max-w-[140px] block" title={file.name || file.filename || file.original_name || file.path?.split('/').pop() || 'File'}>
+                                                        {file.name || file.filename || file.original_name || file.path?.split('/').pop() || 'File'}
+                                                    </span>
                                                 </li>
                                             ))}
                                     </ul>
