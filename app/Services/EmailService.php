@@ -175,14 +175,11 @@ class EmailService
         $templateProcessor = new TemplateProcessor($tempDocPath);
 
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
-        $templateProcessor->setValue('full_name', $contact['contact_name'] ?? '');
-        $templateProcessor->setValue('company_name', 'Godspeed Offers LLC');
-        $templateProcessor->setValue('email', 'eliud@godspeed.com');
+        $templateProcessor->setValue('lead_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('date', now()->format('F d, Y'));
-        $templateProcessor->setValue('agent_name', 'Jane Doe');
-        $templateProcessor->setValue('offer_price', '$250,000');
-        $templateProcessor->setValue('earnest_money', '$5,000');
-        $templateProcessor->setValue('closing_days', '30');
+        $templateProcessor->setValue('offer_price', $contact['offer']);
+        $templateProcessor->setValue('earnest_money', 'Placeholder for earnest money');
+        $templateProcessor->setValue('closing_days', 'placeholder for closing days');
 
         $templateProcessor->saveAs($tempDocPath);
 
