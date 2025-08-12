@@ -49,9 +49,10 @@ return new class extends Migration
             $table->string('downpayment')->nullable();
             $table->string('generated_message')->nullable();
             $table->string('no_second_call')->nullable();
-
-
-
+            $table->string('earnest_money_deposit')->nullable();
+            $table->string('seller_carry_amount')->nullable();
+            $table->string('upfront_payment_amount')->nullable();
+            $table->string('private_lender_contribution')->nullable();
         });
     }
 

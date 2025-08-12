@@ -46,23 +46,27 @@ class DynamicTagsService
             'creative_price',
             'monthly',
             'downpayment',
-            'offer'
+            'offer',
+            'earnest_money_deposit',
+            'seller_carry_amount',
+            'upfront_payment_amount',
+            'private_lender_contribution',
         ];
-    
+
         $placeholders = [];
-    
+
         // Build placeholder map from standard fields
         foreach ($standardFields as $field) {
             $placeholder = '{{' . $field . '}}';
             $placeholders[$placeholder] = $contact->$field ?? '';
         }
-    
+
         // Use preg_replace for case-insensitive replacement
         foreach ($placeholders as $placeholder => $value) {
             $pattern = '/' . preg_quote($placeholder, '/') . '/i'; // 'i' modifier for case-insensitive
             $template = preg_replace($pattern, $value, $template);
         }
-    
+
         // Remove any remaining placeholders
         return preg_replace('/{{\w+}}/i', '', $template);
     }
@@ -94,6 +98,10 @@ class DynamicTagsService
             'CREATIVEPRICE'  => 'creative_price',
             'MONTHLY'        => 'monthly',
             'DOWNPAYMENT'    => 'downpayment',
+            'EARNEST_MONEY_DEPOSIT' => 'earnest_money_deposit',
+            'SELLER_CARRY_AMOUNT' => 'seller_carry_amount',
+            'UPFRONT_PAYMENT_AMOUNT' => 'upfront_payment_amount',
+            'PRIVATE_LENDER_CONTRIBUTION' => 'private_lender_contribution',
         ];
 
         // Initialize placeholders with direct values from contact
