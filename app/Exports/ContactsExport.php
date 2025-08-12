@@ -11,21 +11,49 @@ class ContactsExport implements FromQuery, WithHeadings
 {
     protected $id;
     protected $last_step;
-    public function __construct($id,$last_step)
+    public function __construct($id, $last_step)
     {
         $this->id = $id;
-        $this->last_step=$last_step;
+        $this->last_step = $last_step;
     }
 
     public function query()
     {
         // return $this->contacts;
         // Start the query with the workflow_id and select only the necessary columns
-       return  Contact::where('workflow_id', $this->id)
+        return  Contact::where('workflow_id', $this->id)
             ->where('response', 'No')
             ->where('current_step', $this->last_step) // Ensure contact is in the last step
-            ->select('id', 'phone','contact_name',  'address','status', 'response', 'zipcode', 'city', 'state','email','age','gender','lead_score', 'offer','agent','novation','creative_price','downpayment','monthly','generated_message','created_at', 'updated_at'); // Specify the columns to include
+            ->select(
+                'id',
+                'phone',
+                'contact_name',
+                'address',
+                'status',
+                'response',
+                'zipcode',
+                'city',
+                'state',
+                'email',
+                'age',
+                'gender',
+                'lead_score',
+                'offer',
+                'agent',
+                'novation',
+                'creative_price',
+                'downpayment',
+                'monthly',
+                'generated_message',
+                'earnest_money_deposit',
+                'seller_carry_amount',
+                'upfront_payment_amount',
+                'private_lender_contribution',
+                'created_at',
+                'updated_at'
+            ); // Specify the columns to include
     }
+
 
     public function headings(): array
     {
@@ -50,6 +78,10 @@ class ContactsExport implements FromQuery, WithHeadings
             'downpayment',
             'monthly',
             'generated_message',
+            'earnest_money_deposit',
+            'seller_carry_amount',
+            'upfront_payment_amount',
+            'private_lender_contribution',
             'Created At',
             'Updated At'
         ];

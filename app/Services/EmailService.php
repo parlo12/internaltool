@@ -175,11 +175,15 @@ class EmailService
         $templateProcessor = new TemplateProcessor($tempDocPath);
 
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
-        $templateProcessor->setValue('lead_name', $contact['contact_name'] ?? '');
+        $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
+        $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
+        $templateProcessor->setValue('downpayment', $contact['downpayment'] ?? '');
+        $templateProcessor->setValue('SCA', $contact['seller_carry_amount'] ?? '');
+        $templateProcessor->setValue('UPA', $contact['upfront_payment_amount'] ?? '');
+        $templateProcessor->setValue('PLC', $contact['private_lender_contribution'] ?? '');
         $templateProcessor->setValue('date', now()->format('F d, Y'));
+        $templateProcessor->setValue('closing_day', now()->addDays(45)->format('F d, Y'));
         $templateProcessor->setValue('offer_price', $contact['offer']);
-        $templateProcessor->setValue('earnest_money', 'Placeholder for earnest money');
-        $templateProcessor->setValue('closing_days', 'placeholder for closing days');
 
         $templateProcessor->saveAs($tempDocPath);
 

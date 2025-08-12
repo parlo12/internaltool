@@ -45,6 +45,10 @@ class Contact extends Model
         'downpayment',
         'generated_message',
         'no_second_call',
+        'earnest_money_deposit',
+        'seller_carry_amount',
+        'upfront_payment_amount',
+        'private_lender_contribution'
     ];
     public function workflow()
     {

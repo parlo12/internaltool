@@ -26,7 +26,7 @@ class FillContactDetails implements ShouldQueue
 
     public function handle()
     {
-        $workflow = Workflow::find($this->contact->workflow_id); 
+        $workflow = Workflow::find($this->contact->workflow_id);
         $CRMAPIRequestsService = new CRMAPIRequestsService($workflow->godspeedoffers_api);
         $contact_info = $CRMAPIRequestsService->get_contact($this->contact->uuid, $workflow->group_id);
         $zipcode = $contact_info['custom_fields']['ZIPCODE'] ?? null;
@@ -44,24 +44,32 @@ class FillContactDetails implements ShouldQueue
         $down_payment = $contact_info['custom_fields']['DOWNPAYMENT'] ?? null;
         $monthly = $contact_info['custom_fields']['MONTHLY'] ?? null;
         $generated_message = $contact_info['custom_fields']['GENERATED_MESSAGE'] ?? null;
+        $emd = $contact_info['custom_fields']['EARNEST_MONEY_DEPOSIT'] ?? null;
+        $sca = $contact_info['custom_fields']['SELLER_CARRY_AMOUNT'] ?? null;
+        $upa = $contact_info['custom_fields']['UPFRONT_PAYMENT_AMOUNT'] ?? null;
+        $plc = $contact_info['custom_fields']['PRIVATE_LENDER_CONTRIBUTION'] ?? null;
+
         // Update the contact record
         $this->contact->update([
             'zipcode' => $zipcode,
             'city' => $city,
             'state' => $state,
-            'offer'=>$offer,
-            'address'=>$address,
-            'agent'=>$sales_person,
-            'email'=>$email,
-            'lead_score'=>$lead_score,
-            'gender'=>$gender,
-            'age'=>$age,
-            'novation'=>$novation,
-            'creative_price'=>$creative_price,
-            'monthly'=>$monthly,
-            'downpayment'=>$down_payment,
-            'generated_message'=>$generated_message
-
+            'offer' => $offer,
+            'address' => $address,
+            'agent' => $sales_person,
+            'email' => $email,
+            'lead_score' => $lead_score,
+            'gender' => $gender,
+            'age' => $age,
+            'novation' => $novation,
+            'creative_price' => $creative_price,
+            'monthly' => $monthly,
+            'downpayment' => $down_payment,
+            'generated_message' => $generated_message,
+            'earnest_money_deposit' => $emd,
+            'seller_carry_amount' => $sca,
+            'upfront_payment_amount' => $upa,
+            'private_lender_contribution' => $plc,
         ]);
     }
 }
