@@ -51,6 +51,7 @@ class DynamicTagsService
             'seller_carry_amount',
             'upfront_payment_amount',
             'private_lender_contribution',
+            'list_price'
         ];
 
         $placeholders = [];
@@ -102,6 +103,7 @@ class DynamicTagsService
             'SELLER_CARRY_AMOUNT' => 'seller_carry_amount',
             'UPFRONT_PAYMENT_AMOUNT' => 'upfront_payment_amount',
             'PRIVATE_LENDER_CONTRIBUTION' => 'private_lender_contribution',
+            'LIST_PRICE'     => 'list_price',
         ];
 
         // Initialize placeholders with direct values from contact
