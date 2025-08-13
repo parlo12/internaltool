@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\ContactEmail;
 use App\Models\Contact;
 use App\Models\Organisation;
+use App\Models\PropertyDetail;
 use App\Models\Step;
 use App\Models\TemplateFile;
 use App\Models\Workflow;
@@ -13,8 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use PhpOffice\PhpWord\TemplateProcessor;
-
-
+use PhpParser\Builder\Property;
 
 class EmailService
 {
@@ -173,17 +173,27 @@ class EmailService
 
         // Load and replace
         $templateProcessor = new TemplateProcessor($tempDocPath);
-
+        $propert_details=PropertyDetail::where('organisation_id', $contact['organisation_id'])
+            ->first();
+        if (!$propert_details) {
+            Log::error("Property details not found for organisation ID: {$contact['organisation_id']}");
+            return $pdfOutputPath; // Return empty PDF if no property details found
+        }
+        $purchasePrice = $contact['list_price'] ?? 0;
+        $UPA=$purchasePrice*($propert_details->upa/100);
+        $PLC=$purchasePrice*($propert_details->plc/100);
+        $downpayment=$purchasePrice*($propert_details->downpayment/100);
+        $SCA=$purchasePrice*($propert_details->sca/100);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
-        $templateProcessor->setValue('downpayment', $contact['downpayment'] ?? '');
-        $templateProcessor->setValue('SCA', $contact['seller_carry_amount'] ?? '');
-        $templateProcessor->setValue('UPA', $contact['upfront_payment_amount'] ?? '');
-        $templateProcessor->setValue('PLC', $contact['private_lender_contribution'] ?? '');
+        $templateProcessor->setValue('downpayment', $downpayment);
+        $templateProcessor->setValue('SCA', $SCA);
+        $templateProcessor->setValue('UPA', $UPA);
+        $templateProcessor->setValue('PLC', $PLC);
         $templateProcessor->setValue('date', now()->format('F d, Y'));
         $templateProcessor->setValue('closing_day', now()->addDays(45)->format('F d, Y'));
-        $templateProcessor->setValue('offer_price', $contact['offer']);
+        $templateProcessor->setValue('offer_price', $purchasePrice);
 
         $templateProcessor->saveAs($tempDocPath);
 

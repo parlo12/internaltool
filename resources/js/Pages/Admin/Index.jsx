@@ -175,7 +175,8 @@ export default function Index({
         upa: "",
         sca: "",
         downpayment: "",
-        purchase_price: ""
+        purchase_price: "",
+        plc: "",
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -846,7 +847,18 @@ export default function Index({
                                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                                 />
                             </div>
-
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">PLC(%)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.plc}
+                                    onChange={(e) => setData({ ...data, plc: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Purchase Price(%)</label>
                                 <input
@@ -881,6 +893,7 @@ export default function Index({
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment(%)</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">PLC(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price(%)</th>
                                 </tr>
                             </thead>
@@ -889,6 +902,7 @@ export default function Index({
                                     <tr key={index}>
                                         <td className="px-6 py-2 text-sm text-gray-700">{item.upa}</td>
                                         <td className="px-6 py-2 text-sm text-gray-700">{item.sca}</td>
+                                        <td className="px-6 py-2 text-sm text-gray-700">{item.plc}</td>
                                         <td className="px-6 py-2 text-sm text-gray-700">{item.downpayment}</td>
                                         <td className="px-6 py-2 text-sm text-gray-700">{item.purchase_price}</td>
                                     </tr>

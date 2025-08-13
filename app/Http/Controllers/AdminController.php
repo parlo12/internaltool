@@ -424,27 +424,27 @@ class AdminController extends Controller
         return response()->json(['success' => 'File deleted']);
     }
 
-  public function store_property_details(Request $request)
-{
-    $validated = $request->validate([
-        'upa' => 'required|string|max:255',
-        'sca' => 'required|string|max:255',
-        'downpayment' => 'required|numeric|min:0',
-        'purchase_price' => 'required|numeric|min:0',
-    ]);
+    public function store_property_details(Request $request)
+    {
+        $validated = $request->validate([
+            'upa' => 'required|string|max:255',
+            'sca' => 'required|string|max:255',
+            'plc' => 'required|string|max:255',
+            'downpayment' => 'required|numeric|min:0',
+            'purchase_price' => 'required|numeric|min:0',
+        ]);
 
-    $organisationId = auth()->user()->organisation_id;
+        $organisationId = auth()->user()->organisation_id;
 
-    // Delete existing record for this organisation
-    PropertyDetail::where('organisation_id', $organisationId)->delete();
+        // Delete existing record for this organisation
+        PropertyDetail::where('organisation_id', $organisationId)->delete();
 
-    // Create new record with organisation_id
-    $property = PropertyDetail::create(array_merge(
-        $validated,
-        ['organisation_id' => $organisationId]
-    ));
+        // Create new record with organisation_id
+        $property = PropertyDetail::create(array_merge(
+            $validated,
+            ['organisation_id' => $organisationId]
+        ));
 
-    return response()->json($property, 201);
-}
-
+        return response()->json($property, 201);
+    }
 }

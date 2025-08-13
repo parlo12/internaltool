@@ -15,6 +15,7 @@ class PropertyDetail extends Model
         'sca',
         'downpayment',
         'purchase_price',
+        'plc',
         'organisation_id',
     ];
 }
