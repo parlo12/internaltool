@@ -48,7 +48,8 @@ class Contact extends Model
         'earnest_money_deposit',
         'seller_carry_amount',
         'upfront_payment_amount',
-        'private_lender_contribution'
+        'private_lender_contribution',
+        'list_price'
     ];
     public function workflow()
     {

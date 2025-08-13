@@ -62,6 +62,7 @@ class ProcessCsvRecord implements ShouldQueue
             'creative_price' => $this->record['Creative price offer'] ?? null,
             'monthly' => $this->record['Monthly payment amount'] ?? null,
             'downpayment' => $this->record['Down payment amount'] ?? null,
+            'list_price' => $this->record['List Price'] ?? null,
             'generated_message' => ""
         ]);
 
@@ -82,6 +83,7 @@ class ProcessCsvRecord implements ShouldQueue
             'MONTHLY' => $this->record['Monthly payment amount'] ?? null,
             'DOWNPAYMENT' => $this->record['Down payment amount'] ?? null,
             'EMAIL' => $this->record['email'] ?? null,
+            'LIST_PRICE' => $this->record['List Price'] ?? null,
         ]);
 
         $workflow_progress = WorkflowProgress::find($this->workflow_progress->id);

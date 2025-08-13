@@ -99,6 +99,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::post('/update-number', [AdminController::class, 'update_number'])->name('update-number');
     Route::post('/store-files', [AdminController::class, 'store_files'])->name('store-files');
     Route::delete('/delete-file/{id}', [AdminController::class, 'delete_file'])->name('delete-file');
+    Route::post('/property-details', [AdminController::class, 'store_property_details'])->name('store-property-details');
 
     //WORKFLOW CONTROLLER
     Route::get('/create-workflow', [WorkflowController::class, 'create'])->name('create-workflow');

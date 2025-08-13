@@ -35,7 +35,8 @@ export default function Index({
     organisation,
     numberPools,
     agents,
-    files
+    files,
+    propertyDetails
 }) {
     console.log(users);
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
@@ -170,7 +171,11 @@ export default function Index({
         pool_time: "",
         pool_time_units: "",
         number_pool_id: "",
-        files: null, // For file uploads
+        files: null,
+        upa: "",
+        sca: "",
+        downpayment: "",
+        purchase_price: ""
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -453,6 +458,17 @@ export default function Index({
                     setTimeout(() => { window.location.reload() }, 2000);
                 });
         }
+    };
+    const storePropertyDetails = (e) => {
+        e.preventDefault();
+        axios.post("/property-details", data)
+            .then((response) => {
+                console.log("Property details stored successfully:", response.data);
+                setData({ upa: "", sca: "", downpayment: "", purchase_price: "" });
+                location.reload(); // Reload the page to reflect changes
+                preserveScroll();
+            })
+            .catch(err => console.error(err));
     };
 
     // const submitApiKey = () => {
@@ -779,6 +795,102 @@ export default function Index({
                                                 Delete
                                             </button>
                                         </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">
+                {/* Form */}
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="max-w-md mx-auto mt-5">
+                        <h1 className="text-2xl font-bold mb-4">Add Property Details</h1>
+                        <form onSubmit={storePropertyDetails} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">UPA</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    value={data.upa}
+                                    onChange={(e) => setData({ ...data, upa: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">SCA</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    value={data.sca}
+                                    onChange={(e) => setData({ ...data, sca: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Downpayment</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.downpayment}
+                                    onChange={(e) => setData({ ...data, downpayment: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Purchase Price</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.purchase_price}
+                                    onChange={(e) => setData({ ...data, purchase_price: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    className="w-36 text-center bg-indigo-600 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700"
+                                >
+                                    Save Property Details
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {propertyDetails.data.map((item, index) => (
+                                    <tr key={index}>
+                                        <td className="px-6 py-2 text-sm text-gray-700">{item.upa}</td>
+                                        <td className="px-6 py-2 text-sm text-gray-700">{item.sca}</td>
+                                        <td className="px-6 py-2 text-sm text-gray-700">{item.downpayment}</td>
+                                        <td className="px-6 py-2 text-sm text-gray-700">{item.purchase_price}</td>
                                     </tr>
                                 ))}
                             </tbody>

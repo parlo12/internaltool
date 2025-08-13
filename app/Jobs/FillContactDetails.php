@@ -48,7 +48,7 @@ class FillContactDetails implements ShouldQueue
         $sca = $contact_info['custom_fields']['SELLER_CARRY_AMOUNT'] ?? null;
         $upa = $contact_info['custom_fields']['UPFRONT_PAYMENT_AMOUNT'] ?? null;
         $plc = $contact_info['custom_fields']['PRIVATE_LENDER_CONTRIBUTION'] ?? null;
-
+        $list_price = $contact_info['custom_fields']['LIST_PRICE'] ?? null;
         // Update the contact record
         $this->contact->update([
             'zipcode' => $zipcode,
@@ -70,6 +70,7 @@ class FillContactDetails implements ShouldQueue
             'seller_carry_amount' => $sca,
             'upfront_payment_amount' => $upa,
             'private_lender_contribution' => $plc,
+            'list_price' => $list_price,
         ]);
     }
 }

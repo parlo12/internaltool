@@ -49,6 +49,7 @@ class ContactsExport implements FromQuery, WithHeadings
                 'seller_carry_amount',
                 'upfront_payment_amount',
                 'private_lender_contribution',
+                'list_price',
                 'created_at',
                 'updated_at'
             ); // Specify the columns to include
@@ -82,6 +83,7 @@ class ContactsExport implements FromQuery, WithHeadings
             'seller_carry_amount',
             'upfront_payment_amount',
             'private_lender_contribution',
+            'list_price',
             'Created At',
             'Updated At'
         ];

@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Number;
 use App\Models\NumberPool;
 use App\Models\Organisation;
+use App\Models\PropertyDetail;
 use App\Models\SendingServer;
 use App\Models\Spintax;
 use App\Models\User;
@@ -70,6 +71,10 @@ class AdminController extends Controller
         $files = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
+        $query = PropertyDetail::where('organisation_id', $organisationId); // Select all organisations
+        $property_details = $query->orderBy($sortField, $sortDirection)
+            ->paginate(50)
+            ->onEachSide(1);
         $current_org = Organisation::where('id', auth()->user()->organisation_id)->first();
         $retellService = new RetellService('retell', 'key_c3f2ce333c40b9403843077bfc32');
         $agents = $retellService->getAllAgents();
@@ -86,6 +91,7 @@ class AdminController extends Controller
             'organisation' => $current_org,
             'agents' => $agents,
             'files' => $files,
+            'propertyDetails' => $property_details
         ]);
     }
 
@@ -403,19 +409,42 @@ class AdminController extends Controller
     }
 
 
-public function delete_file($id)
-{
-    $file = TemplateFile::findOrFail($id);
+    public function delete_file($id)
+    {
+        $file = TemplateFile::findOrFail($id);
 
-    // Remove from storage
-    if (Storage::disk('public')->exists($file->path)) {
-        Storage::disk('public')->delete($file->path);
+        // Remove from storage
+        if (Storage::disk('public')->exists($file->path)) {
+            Storage::disk('public')->delete($file->path);
+        }
+
+        // Remove from database
+        $file->delete();
+
+        return response()->json(['success' => 'File deleted']);
     }
 
-    // Remove from database
-    $file->delete();
+  public function store_property_details(Request $request)
+{
+    $validated = $request->validate([
+        'upa' => 'required|string|max:255',
+        'sca' => 'required|string|max:255',
+        'downpayment' => 'required|numeric|min:0',
+        'purchase_price' => 'required|numeric|min:0',
+    ]);
 
-    return response()->json(['success' => 'File deleted']);
+    $organisationId = auth()->user()->organisation_id;
+
+    // Delete existing record for this organisation
+    PropertyDetail::where('organisation_id', $organisationId)->delete();
+
+    // Create new record with organisation_id
+    $property = PropertyDetail::create(array_merge(
+        $validated,
+        ['organisation_id' => $organisationId]
+    ));
+
+    return response()->json($property, 201);
 }
 
 }
