@@ -11,19 +11,13 @@
             font-size: 16px;
             color: #333333;
             line-height: 1.6;
-            margin: 0;
-            padding: 20px;
             background-color: #ffffff;
         }
 
-        p {
-            margin: 0 0 16px 0;
-        }
+
 
         .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: left;
+
             /* ensures left alignment */
         }
 
