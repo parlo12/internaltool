@@ -892,8 +892,8 @@ export default function Index({
                                 <tr>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA(%)</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">PLC(%)</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment(%)</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price(%)</th>
                                 </tr>
                             </thead>
