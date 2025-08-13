@@ -809,7 +809,7 @@ export default function Index({
                         <h1 className="text-2xl font-bold mb-4">Add Property Details</h1>
                         <form onSubmit={storePropertyDetails} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">UPA</label>
+                                <label className="block text-sm font-medium text-gray-700">UPA(%)</label>
                                 <input
                                     type="number"
                                     min="0"
@@ -822,7 +822,7 @@ export default function Index({
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">SCA</label>
+                                <label className="block text-sm font-medium text-gray-700">SCA(%)</label>
                                 <input
                                     type="number"
                                     min="0"
@@ -835,7 +835,7 @@ export default function Index({
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Downpayment</label>
+                                <label className="block text-sm font-medium text-gray-700">Downpayment(%)</label>
                                 <input
                                     type="number"
                                     step="1"
@@ -848,7 +848,7 @@ export default function Index({
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Purchase Price</label>
+                                <label className="block text-sm font-medium text-gray-700">Purchase Price(%)</label>
                                 <input
                                     type="number"
                                     step="1"
@@ -878,10 +878,10 @@ export default function Index({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA(%)</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA(%)</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment(%)</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price(%)</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
