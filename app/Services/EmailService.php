@@ -173,17 +173,17 @@ class EmailService
 
         // Load and replace
         $templateProcessor = new TemplateProcessor($tempDocPath);
-        $propert_details=PropertyDetail::where('organisation_id', $contact['organisation_id'])
+        $propert_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])
             ->first();
         if (!$propert_details) {
             Log::error("Property details not found for organisation ID: {$contact['organisation_id']}");
             return $pdfOutputPath; // Return empty PDF if no property details found
         }
         $purchasePrice = $contact['list_price'] ?? 0;
-        $UPA=(float)$purchasePrice*($propert_details->upa/100);
-        $PLC=(float)$purchasePrice*($propert_details->plc/100);
-        $downpayment=(float)$purchasePrice*($propert_details->downpayment/100);
-        $SCA=(float)$purchasePrice*($propert_details->sca/100);
+        $UPA = (float)$purchasePrice * ($propert_details->upa / 100);
+        $PLC = (float)$purchasePrice * ($propert_details->plc / 100);
+        $downpayment = (float)$purchasePrice * ($propert_details->downpayment / 100);
+        $SCA = (float)$purchasePrice * ($propert_details->sca / 100);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
@@ -205,11 +205,16 @@ class EmailService
         $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
         $objWriter->save($htmlPath);
 
-        // Convert HTML to PDF
         $htmlContent = file_get_contents($htmlPath);
+
+        // Remove empty paragraphs and excessive line breaks
+        $htmlContent = preg_replace('/<p>(\s|&nbsp;)*<\/p>/i', '', $htmlContent);
+        $htmlContent = preg_replace('/(<br\s*\/?>\s*){2,}/i', '<br>', $htmlContent);
+
+        // Remove forced page breaks from Word
+        $htmlContent = preg_replace('/page-break-before:\s*always;?/i', '', $htmlContent);
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
         $pdf->save($pdfOutputPath);
-
-        return $pdfOutputPath;
     }
 }
