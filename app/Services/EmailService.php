@@ -168,22 +168,24 @@ class EmailService
         $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
         $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
 
-        // Copy template to a temp location
+        // Copy template to temp
         copy($templatePath, $tempDocPath);
 
-        // Load and replace
+        // Load and replace placeholders
         $templateProcessor = new TemplateProcessor($tempDocPath);
-        $propert_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])
-            ->first();
-        if (!$propert_details) {
+
+        $property_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])->first();
+        if (!$property_details) {
             Log::error("Property details not found for organisation ID: {$contact['organisation_id']}");
-            return $pdfOutputPath; // Return empty PDF if no property details found
+            return $pdfOutputPath;
         }
+
         $purchasePrice = $contact['list_price'] ?? 0;
-        $UPA = (float)$purchasePrice * ($propert_details->upa / 100);
-        $PLC = (float)$purchasePrice * ($propert_details->plc / 100);
-        $downpayment = (float)$purchasePrice * ($propert_details->downpayment / 100);
-        $SCA = (float)$purchasePrice * ($propert_details->sca / 100);
+        $UPA  = (float)$purchasePrice * ($property_details->upa / 100);
+        $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
+        $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
+        $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
+
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
@@ -197,23 +199,29 @@ class EmailService
 
         $templateProcessor->saveAs($tempDocPath);
 
-        // Now load it as HTML and convert to PDF
+        // Load DOCX into PhpWord
         $phpWord = \PhpOffice\PhpWord\IOFactory::load($tempDocPath);
         $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
 
-        // Save as HTML
+        // Save HTML file
         $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
         $objWriter->save($htmlPath);
 
+        // Read HTML content
         $htmlContent = file_get_contents($htmlPath);
 
-        // Remove empty paragraphs and excessive line breaks
+        // --- HTML CLEANUP ---
+        // Remove empty paragraphs
         $htmlContent = preg_replace('/<p>(\s|&nbsp;)*<\/p>/i', '', $htmlContent);
+        // Replace multiple <br> with single
         $htmlContent = preg_replace('/(<br\s*\/?>\s*){2,}/i', '<br>', $htmlContent);
-
-        // Remove forced page breaks from Word
+        // Remove Word page-break styles
         $htmlContent = preg_replace('/page-break-before:\s*always;?/i', '', $htmlContent);
+        $htmlContent = preg_replace('/page-break-after:\s*always;?/i', '', $htmlContent);
+        // Optional: trim whitespace
+        $htmlContent = trim($htmlContent);
 
+        // Convert cleaned HTML to PDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
         $pdf->save($pdfOutputPath);
 
