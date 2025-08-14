@@ -216,5 +216,7 @@ class EmailService
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
         $pdf->save($pdfOutputPath);
+
+        return $pdfOutputPath;
     }
 }
