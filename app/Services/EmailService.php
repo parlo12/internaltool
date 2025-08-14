@@ -180,10 +180,10 @@ class EmailService
             return $pdfOutputPath; // Return empty PDF if no property details found
         }
         $purchasePrice = $contact['list_price'] ?? 0;
-        $UPA=$purchasePrice*($propert_details->upa/100);
-        $PLC=$purchasePrice*($propert_details->plc/100);
-        $downpayment=$purchasePrice*($propert_details->downpayment/100);
-        $SCA=$purchasePrice*($propert_details->sca/100);
+        $UPA=$purchasePrice*((int)$propert_details->upa/100);
+        $PLC=$purchasePrice*((int)$propert_details->plc/100);
+        $downpayment=$purchasePrice*((int)$propert_details->downpayment/100);
+        $SCA=$purchasePrice*((int)$propert_details->sca/100);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
