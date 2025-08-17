@@ -184,10 +184,10 @@ Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-        Log::info('Starting contacts queue worker 1.');
+        //Log::info('Starting contacts queue worker 1.');
     })
     ->after(function () {
-        Log::info('contacts queue worker 1 finished.');
+       // Log::info('contacts queue worker 1 finished.');
     })
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
@@ -196,10 +196,10 @@ Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-        Log::info('Starting contacts queue worker 2.');
+        //Log::info('Starting contacts queue worker 2.');
     })
     ->after(function () {
-        Log::info('contacts queue worker 2 finished.');
+        //Log::info('contacts queue worker 2 finished.');
     })
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
@@ -208,10 +208,10 @@ Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-        Log::info('Starting contacts queue worker 3.');
+       // Log::info('Starting contacts queue worker 3.');
     })
     ->after(function () {
-        Log::info('contacts queue worker 3 finished.');
+        //Log::info('contacts queue worker 3 finished.');
     })
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
