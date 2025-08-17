@@ -535,17 +535,11 @@ class ApiController extends Controller
     }
     public function get_message(string $phone, Request $request)
     {
-        Log::info("I am in the get message function");
-        Log::info('request data', [
-            'phone' => $phone,
-            'request' => $request->all()
-        ]);
+       
     
         // 🔐 Authenticate by workflow_apikey
         $apiKey = $request->query('workflow_apikey');
-        Log::info("The api key is $apiKey");
         $user = User::where('api_key', $apiKey)->first();
-        Log::info("The user is $user");
     
         if (!$user) {
             return response()->json(['error' => 'Invalid API key'], 401);
