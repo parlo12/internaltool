@@ -185,7 +185,7 @@ class ProcessCsvFile implements ShouldQueue
 
             // Dispatch each record processing as a job
             ProcessCsvRecord::dispatch($record, $new_workflow, $this->user, $crm_api, $group_id, $workflow_progress, $current, $batchSize)
-                ->delay(now()->addSeconds(1)); // Delay to avoid overwhelming the queue
+                ->onQueue('processCSV')->delay(now()->addSeconds(1)); // Delay to avoid overwhelming the queue
 
 
         }
