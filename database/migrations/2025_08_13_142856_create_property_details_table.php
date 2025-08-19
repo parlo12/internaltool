@@ -16,7 +16,9 @@ return new class extends Migration {
             $table->decimal('purchase_price', 15, 2);
             $table->string('plc');
             $table->timestamps();
-            $table->string('organisation_id')->nullable();
+            $table->foreignId('organisation_id');
+            $table->string('agreed_net_proceeds')->nullable();
+            $table->decimal('remaining_amount_after_ANP', 15, 2)->nullable();
         });
     }
 

@@ -172,11 +172,13 @@ export default function Index({
         pool_time_units: "",
         number_pool_id: "",
         files: null,
-        upa: "",
-        sca: "",
-        downpayment: "",
-        purchase_price: "",
-        plc: "",
+        upa: propertyDetails.data[0].upa ?? "",
+        sca: propertyDetails.data[0].sca ?? "",
+        downpayment: propertyDetails.data[0].downpayment ?? "",
+        purchase_price: propertyDetails.data[0].purchase_price ?? "",
+        plc: propertyDetails.data[0].plc ?? "",
+        agreed_net_proceeds: propertyDetails.data[0].agreed_net_proceeds ?? "",
+        remaining_amount_after_ANP: propertyDetails.data[0].remaining_amount_after_ANP ?? "",
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -465,7 +467,7 @@ export default function Index({
         axios.post("/property-details", data)
             .then((response) => {
                 console.log("Property details stored successfully:", response.data);
-                setData({ upa: "", sca: "", downpayment: "", purchase_price: "" });
+                setData({ upa: "", sca: "", downpayment: "", purchase_price: "", agreed_net_proceeds: '', remaining_amount_after_ANP: "" });
                 location.reload(); // Reload the page to reflect changes
                 preserveScroll();
             })
@@ -871,6 +873,30 @@ export default function Index({
                                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Agreed Net Proceeds(%)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.agreed_net_proceeds}
+                                    onChange={(e) => setData({ ...data, agreed_net_proceeds: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Remaining Amount after ANP(%)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.remaining_amount_after_ANP}
+                                    onChange={(e) => setData({ ...data, remaining_amount_after_ANP: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
 
                             <div>
                                 <button
@@ -886,31 +912,71 @@ export default function Index({
 
                 {/* Table */}
                 <div className="bg-white p-6 rounded-lg shadow-md w-full lg:w-1/2">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">UPA(%)</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">SCA(%)</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">PLC(%)</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Downpayment(%)</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Purchase Price(%)</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {propertyDetails.data.map((item, index) => (
-                                    <tr key={index}>
-                                        <td className="px-6 py-2 text-sm text-gray-700">{item.upa}</td>
-                                        <td className="px-6 py-2 text-sm text-gray-700">{item.sca}</td>
-                                        <td className="px-6 py-2 text-sm text-gray-700">{item.plc}</td>
-                                        <td className="px-6 py-2 text-sm text-gray-700">{item.downpayment}</td>
-                                        <td className="px-6 py-2 text-sm text-gray-700">{item.purchase_price}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    {propertyDetails?.data?.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Card Header */}
+                            <h2 className="col-span-2 text-lg font-semibold text-gray-800 border-b pb-2 mb-2">
+                                Property Details
+                            </h2>
+
+                            {/* Field Item */}
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">UPA (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].upa}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">SCA (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].sca}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">PLC (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].plc}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">Downpayment (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].downpayment}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">Purchase Price (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].purchase_price}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">Agreed Net Proceeds (%)</span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].agreed_net_proceeds}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">
+                                    Remaining Amount After ANP (%)
+                                </span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].remaining_amount_after_ANP}
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-gray-500 text-sm">No property details available.</p>
+                    )}
                 </div>
+
+
             </div>
 
             <div className="flex flex-col lg:flex-row space-y-4 mt-5 lg:space-y-0 lg:space-x-4">

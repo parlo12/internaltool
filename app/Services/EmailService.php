@@ -9,6 +9,7 @@ use App\Models\PropertyDetail;
 use App\Models\Step;
 use App\Models\TemplateFile;
 use App\Models\Workflow;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
@@ -180,12 +181,17 @@ class EmailService
             return $pdfOutputPath;
         }
 
-        $purchasePrice = $contact['list_price'] ?? 0;
+        $purchasePrice = $contact['list_price'] ? (float)$contact['list_price'] * ($property_details->purchase_price / 100) : 0;
         $UPA  = (float)$purchasePrice * ($property_details->upa / 100);
         $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
         $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
-
+        $AGP=(float)$purchasePrice* ($property_details->agreed_net_proceeds / 100);
+        $RMA = (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100);
+        $today = Carbon::now()->format('jS \\d\\a\\y \\o\\f F, Y');
+        $templateProcessor->setValue('agreement_date', $today);
+        $templateProcessor->setValue('AGP', $AGP);
+        $templateProcessor->setValue('RMA', $RMA);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');

@@ -430,6 +430,8 @@ class AdminController extends Controller
             'upa' => 'required|string|max:255',
             'sca' => 'required|string|max:255',
             'plc' => 'required|string|max:255',
+            'agreed_net_proceeds' => 'nullable|string|max:255',
+            'remaining_amount_after_ANP' => 'nullable|numeric|min:0',
             'downpayment' => 'required|numeric|min:0',
             'purchase_price' => 'required|numeric|min:0',
         ]);
