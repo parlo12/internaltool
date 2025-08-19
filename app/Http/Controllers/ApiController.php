@@ -456,13 +456,11 @@ class ApiController extends Controller
     public function save_response($phone)
     {
         // Update the Contact model
-        Log::info("I am in the save response function");
         $contacts = Contact::where('phone', $phone)->get(); // Get all contacts with the same phone number
         if ($contacts->isNotEmpty()) {
             foreach ($contacts as $contact) {
                 $contact->response = 'Yes';
                 $contact->save();
-                Log::info("Contact response updated for phone: $phone");
                 // Update the CallsSents model
                 $callsSents = CallsSent::where('contact_id', $contact->id)->get(); // Get all call sent records with the same phone number
                 if ($callsSents->isNotEmpty()) {

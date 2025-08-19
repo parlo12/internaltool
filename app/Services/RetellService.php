@@ -466,11 +466,7 @@ class RetellService
 
             curl_close($curl);
 
-            log::debug("API response received", [
-                'status_code' => $httpCode,
-                'duration_ms' => $duration,
-                'response_size' => strlen($response)
-            ]);
+           
 
             if ($err) {
                 log::error("cURL Error while getting agents", ['error' => $err]);
@@ -500,19 +496,6 @@ class RetellService
                     'error' => $errorMsg
                 ]);
                 throw new \RuntimeException("API Error ($httpCode): $errorMsg");
-            }
-
-            $agentCount = count($data);
-            log::info("Agents retrieved successfully", [
-                'count' => $agentCount,
-                'duration_ms' => $duration
-            ]);
-
-            if ($agentCount > 0) {
-                log::debug("Sample agent data", [
-                    'first_agent' => $data[0]['agent_id'] ?? null,
-                    'last_agent' => $data[$agentCount - 1]['agent_id'] ?? null
-                ]);
             }
 
             return $data;

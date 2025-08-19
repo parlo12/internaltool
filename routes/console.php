@@ -187,12 +187,12 @@ Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
         //Log::info('Starting contacts queue worker 1.');
     })
     ->after(function () {
-       // Log::info('contacts queue worker 1 finished.');
+        // Log::info('contacts queue worker 1 finished.');
     })
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
     });
-    Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
+Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
@@ -204,11 +204,11 @@ Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->onFailure(function () {
         //  Log::error('InternalTools queue worker 10 failed.');
     });
-    Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
+Schedule::command('queue:work --queue=Contacts --max-time=60 --stop-when-empty')
     ->everyMinute()
     ->withoutOverlapping(2)
     ->before(function () {
-       // Log::info('Starting contacts queue worker 3.');
+        // Log::info('Starting contacts queue worker 3.');
     })
     ->after(function () {
         //Log::info('contacts queue worker 3 finished.');
@@ -242,9 +242,9 @@ Schedule::call(function () {
         }
     }
 })->name('process')
-        //->everyMinute()->withoutOverlapping(1)
+    //->everyMinute()->withoutOverlapping(1)
 
- ->everyThreeMinutes()->withoutOverlapping(3)
+    ->everyThreeMinutes()->withoutOverlapping(3)
     ->onFailure(function () {
         Log::error('process-console failed.');
     })
@@ -393,7 +393,7 @@ Schedule::call(function () {
         }
     }
 })->name('prepare-messages')
-       // ->everyMinute()->withoutOverlapping(1)
+    // ->everyMinute()->withoutOverlapping(1)
 
     ->everyThreeMinutes()->withoutOverlapping(3)
     ->onFailure(function () {
@@ -435,7 +435,7 @@ Schedule::call(function () {
     }
 })->name('send_ready_messages')
     ->everyThreeMinutes()->withoutOverlapping(3)
-       // ->everyMinute()->withoutOverlapping(1)
+    // ->everyMinute()->withoutOverlapping(1)
 
     ->onFailure(function () {
         Log::error('send_ready_messages-console failed.');
