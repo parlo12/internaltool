@@ -38,7 +38,7 @@ export default function Index({
     files,
     propertyDetails
 }) {
-    console.log(users);
+    console.log(propertyDetails);
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
