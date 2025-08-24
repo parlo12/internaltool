@@ -75,7 +75,7 @@ class EmailService
 
                     if (file_exists($filePath)) {
                         try {
-                            $processedPath = $this->generate_attachment($filePath, $contact);
+                            $processedPath = $this->generate_attachment($filePath, $contact,$name);
 
                             $attachments[] = [
                                 'file' => $processedPath,
@@ -164,12 +164,12 @@ class EmailService
             $text
         );
     }
-    public function generate_attachment($templatePath, $contact): string
+    public function generate_attachment($templatePath, $contact,$name): string
     {
         // $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
         // $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
         // Use extracted filename in your paths
-        $filename = pathinfo($templatePath, PATHINFO_FILENAME);
+        $filename = pathinfo($name, PATHINFO_FILENAME);
         $tempDocPath = storage_path('app/temp_' . $filename . '_' . uniqid() . '.docx');
         $pdfOutputPath = storage_path('app/' . $filename . '_' . uniqid() . '.pdf');
         // Copy template to temp
