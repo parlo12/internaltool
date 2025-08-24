@@ -172,7 +172,7 @@ export default function Index({
         pool_time_units: "",
         number_pool_id: "",
         files: null,
-        upa: propertyDetails.data[0].upa ?? "",
+        upa: propertyDetails?.data?.[0]?.upa ?? "",
         sca: propertyDetails.data[0].sca ?? "",
         downpayment: propertyDetails.data[0].downpayment ?? "",
         purchase_price: propertyDetails.data[0].purchase_price ?? "",
