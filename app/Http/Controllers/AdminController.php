@@ -71,7 +71,7 @@ class AdminController extends Controller
         $files = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
-        $query = PropertyDetail::where('organisation_id','!==',null); // Select all organisations
+        $query = PropertyDetail::where('organisation_id', $organisationId); // Select all organisations
         $property_details = $query->orderBy($sortField, $sortDirection)
             ->paginate(50)
             ->onEachSide(1);
