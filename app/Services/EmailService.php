@@ -166,15 +166,16 @@ class EmailService
     }
     public function generate_attachment($templatePath, $contact): string
     {
-        $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
-        $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
-
+        // $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
+        // $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
+        // Use extracted filename in your paths
+        $filename = pathinfo($templatePath, PATHINFO_FILENAME);
+        $tempDocPath = storage_path('app/temp_' . $filename . '_' . uniqid() . '.docx');
+        $pdfOutputPath = storage_path('app/' . $filename . '_' . uniqid() . '.pdf');
         // Copy template to temp
         copy($templatePath, $tempDocPath);
-
         // Load and replace placeholders
         $templateProcessor = new TemplateProcessor($tempDocPath);
-
         $property_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])->first();
         if (!$property_details) {
             Log::error("Property details not found for organisation ID: {$contact['organisation_id']}");
@@ -186,7 +187,7 @@ class EmailService
         $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
         $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
-        $AGP=(float)$purchasePrice* ($property_details->agreed_net_proceeds / 100);
+        $AGP = (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100);
         $RMA = (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100);
         $today = Carbon::now()->format('jS \\d\\a\\y \\o\\f F, Y');
         $templateProcessor->setValue('agreement_date', $today);
