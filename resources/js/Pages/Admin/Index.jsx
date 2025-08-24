@@ -173,12 +173,12 @@ export default function Index({
         number_pool_id: "",
         files: null,
         upa: propertyDetails?.data?.[0]?.upa ?? "",
-        sca: propertyDetails.data[0].sca ?? "",
-        downpayment: propertyDetails.data[0].downpayment ?? "",
-        purchase_price: propertyDetails.data[0].purchase_price ?? "",
-        plc: propertyDetails.data[0].plc ?? "",
-        agreed_net_proceeds: propertyDetails.data[0].agreed_net_proceeds ?? "",
-        remaining_amount_after_ANP: propertyDetails.data[0].remaining_amount_after_ANP ?? "",
+        sca: propertyDetails?.data?.[0]?.sca ?? "",
+        downpayment: propertyDetails?.data?.[0]?.downpayment ?? "",
+        purchase_price: propertyDetails?.data?.[0]?.purchase_price ?? "",
+        plc: propertyDetails?.data?.[0]?.plc ?? "",
+        agreed_net_proceeds: propertyDetails?.data?.[0]?.agreed_net_proceeds ?? "",
+        remaining_amount_after_ANP: propertyDetails?.data?.[0]?.remaining_amount_after_ANP ?? "",
     });
     const onSubmit = (e) => {
         e.preventDefault();
