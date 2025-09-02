@@ -65,15 +65,14 @@ class DynamicTagsService
                 'private_lender_contribution' => (float)$purchasePrice * ($property_details->plc / 100),
                 'derived_downpayment' => (float)$purchasePrice * ($property_details->downpayment / 100),
                 'seller_carry_amount' => (float)$purchasePrice * ($property_details->sca / 100),
-                'AGP' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
-                'RMA' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
+                'agp' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
+                'rma' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
             ];
             foreach ($computed as $key => $value) {
                 $placeholder = '{{' . $key . '}}';
                 $placeholders[$placeholder] = $value;
             }
         }
-
         foreach ($standardFields as $field) {
             $placeholder = '{{' . $field . '}}';
             $placeholders[$placeholder] = $contact->$field ?? '';
