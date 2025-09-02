@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Contact;
+use App\Models\PropertyDetail;
+use Illuminate\Support\Facades\Log;
+
 class DynamicTagsService
 {
     protected $api_key;
@@ -48,18 +52,31 @@ class DynamicTagsService
             'downpayment',
             'offer',
             'earnest_money_deposit',
-            'seller_carry_amount',
-            'upfront_payment_amount',
-            'private_lender_contribution',
-            'list_price'
+            'list_price',
         ];
-
         $placeholders = [];
-
         // Build placeholder map from standard fields
+        $property_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])->first();
+        if ($property_details) {
+            $purchasePrice = $contact['list_price'] ? (float)$contact['list_price'] * ($property_details->purchase_price / 100) : 0;
+            $computed = [
+                'purchase_price' => (float)$purchasePrice,
+                'upfront_payment_amount' => (float)$purchasePrice * ($property_details->upa / 100),
+                'private_lender_contribution' => (float)$purchasePrice * ($property_details->plc / 100),
+                'derived_downpayment' => (float)$purchasePrice * ($property_details->downpayment / 100),
+                'seller_carry_amount' => (float)$purchasePrice * ($property_details->sca / 100),
+                'AGP' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
+                'RMA' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
+            ];
+        }
+
         foreach ($standardFields as $field) {
             $placeholder = '{{' . $field . '}}';
             $placeholders[$placeholder] = $contact->$field ?? '';
+        }
+        foreach ($computed as $key => $value) {
+            $placeholder = '{{' . $key . '}}';
+            $placeholders[$placeholder] = $value;
         }
 
         // Use preg_replace for case-insensitive replacement
@@ -100,17 +117,18 @@ class DynamicTagsService
             'MONTHLY'        => 'monthly',
             'DOWNPAYMENT'    => 'downpayment',
             'EARNEST_MONEY_DEPOSIT' => 'earnest_money_deposit',
-            'SELLER_CARRY_AMOUNT' => 'seller_carry_amount',
-            'UPFRONT_PAYMENT_AMOUNT' => 'upfront_payment_amount',
-            'PRIVATE_LENDER_CONTRIBUTION' => 'private_lender_contribution',
             'LIST_PRICE'     => 'list_price',
         ];
-
-        // Initialize placeholders with direct values from contact
         $placeholders = [
             '{{phone}}' => $contact['phone'] ?? '',
+            '{{seller_carry_amount}}' => '',
+            '{{upfront_payment_amount}}' => '',
+            '{{private_lender_contribution}}' => '',
+            '{{AGP}}' => '',
+            '{{RMA}}' => '',
+            '{{purchase_price}}' => '',
+            '{{derived_downpayment}}' => '',
         ];
-
         // Handle first/last name combination
         $firstName = $contact['custom_fields']['FIRST_NAME'] ?? '';
         $lastName = $contact['custom_fields']['LAST_NAME'] ?? '';
@@ -132,7 +150,6 @@ class DynamicTagsService
                 if ($mappedKey === 'contact_name' && isset($placeholders[$placeholder])) {
                     continue;
                 }
-
                 $placeholders[$placeholder] = $value;
             } else {
             }
