@@ -68,16 +68,17 @@ class DynamicTagsService
                 'AGP' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
                 'RMA' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
             ];
+            foreach ($computed as $key => $value) {
+                $placeholder = '{{' . $key . '}}';
+                $placeholders[$placeholder] = $value;
+            }
         }
 
         foreach ($standardFields as $field) {
             $placeholder = '{{' . $field . '}}';
             $placeholders[$placeholder] = $contact->$field ?? '';
         }
-        foreach ($computed as $key => $value) {
-            $placeholder = '{{' . $key . '}}';
-            $placeholders[$placeholder] = $value;
-        }
+
 
         // Use preg_replace for case-insensitive replacement
         foreach ($placeholders as $placeholder => $value) {
