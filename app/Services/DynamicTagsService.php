@@ -68,6 +68,7 @@ class DynamicTagsService
                 'agp' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
                 'rma' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
             ];
+            Log::info('Computed property details for placeholders', ['computed' => $computed]);
             foreach ($computed as $key => $value) {
                 $placeholder = '{{' . $key . '}}';
                 $placeholders[$placeholder] = $value;
