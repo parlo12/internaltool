@@ -124,8 +124,8 @@ class DynamicTagsService
             '{{seller_carry_amount}}' => '',
             '{{upfront_payment_amount}}' => '',
             '{{private_lender_contribution}}' => '',
-            '{{AGP}}' => '',
-            '{{RMA}}' => '',
+            '{{agp}}' => '',
+            '{{rma}}' => '',
             '{{purchase_price}}' => '',
             '{{derived_downpayment}}' => '',
         ];
