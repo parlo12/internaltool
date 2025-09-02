@@ -56,7 +56,7 @@ class DynamicTagsService
         ];
         $placeholders = [];
         // Build placeholder map from standard fields
-        $property_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])->first();
+        $property_details = PropertyDetail::where('organisation_id', $contact->organisation_id)->first();
         if ($property_details) {
             $purchasePrice = $contact['list_price'] ? (float)$contact['list_price'] * ($property_details->purchase_price / 100) : 0;
             $computed = [
