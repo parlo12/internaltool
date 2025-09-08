@@ -57,13 +57,26 @@ class AICallController extends Controller
                     'registered_call_timeout',
                     'agent_hangup',
                     'voicemail_reached',
-                    'inactivity	'
+                    'inactivity',
+                    'user_hangup',
+                    'user_declined',
+                    'invalid_destination',
+                    'marked_as_spam',
+                    'telephony_provider_permission_denied',
+                    'rate_limited',
+                    'api_error_504',
+                    'max_duration_reached',
+                    'connection_error',
+                    'server_error',
+                    'telephony_provider_unavailable',
+                    'api_error_502',
+                    'bad_request',
+                    'sip_routing_error',
                 ];
-
                 if (in_array($callData['disconnection_reason'], $abnormalReasons)) {
                     $contact = Contact::where('phone', $phone)->latest()->first();
-                    if ($contact && $contact->no_second_call != 'Yes'&& Step::find($contact->current_step)->make_second_call=='1') {
-                        Log::info("make second call::".Step::find($contact->current_step)->make_second_call);
+                    if ($contact && $contact->no_second_call != 'Yes' && Step::find($contact->current_step)->make_second_call == '1') {
+                        Log::info("make second call::" . Step::find($contact->current_step)->make_second_call);
                         Contact::where('phone', $phone)->update([
                             'no_second_call' => 'Yes',
                         ]);
