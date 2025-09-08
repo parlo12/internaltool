@@ -1097,43 +1097,13 @@ class ContactController extends Controller
         }
     }
 
-    public function test(): string
+    public function test()
     {
-        $templatePath = base_path('uploads/LOI_Standard_Sale.docx');
-        $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
-        $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
+        // Using distinct + pluck
+        $statuses = Contact::query()
+            ->distinct()
+            ->pluck('status');
 
-        // Copy template to a temp location
-        copy($templatePath, $tempDocPath);
-
-        // Load and replace
-        $templateProcessor = new TemplateProcessor($tempDocPath);
-
-        $templateProcessor->setValue('property_address', '123 Main St');
-        $templateProcessor->setValue('full_name', 'Eliud Mitau');
-        $templateProcessor->setValue('company_name', 'Godspeed Offers LLC');
-        $templateProcessor->setValue('email', 'eliud@godspeed.com');
-        $templateProcessor->setValue('date', now()->format('F d, Y'));
-        $templateProcessor->setValue('agent_name', 'Jane Doe');
-        $templateProcessor->setValue('offer_price', '$250,000');
-        $templateProcessor->setValue('earnest_money', '$5,000');
-        $templateProcessor->setValue('closing_days', '30');
-
-        $templateProcessor->saveAs($tempDocPath);
-
-        // Now load it as HTML and convert to PDF
-        $phpWord = \PhpOffice\PhpWord\IOFactory::load($tempDocPath);
-        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
-
-        // Save as HTML
-        $htmlPath = storage_path('app/LOI_' . uniqid() . '.html');
-        $objWriter->save($htmlPath);
-
-        // Convert HTML to PDF
-        $htmlContent = file_get_contents($htmlPath);
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($htmlContent);
-        $pdf->save($pdfOutputPath);
-
-        return $pdfOutputPath;
+        return $statuses;
     }
 }
