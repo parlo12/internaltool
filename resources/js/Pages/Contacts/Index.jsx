@@ -25,8 +25,8 @@ export default function Index({ auth, success, contacts, workflow, queryParams, 
                         >
                             Edit Workflow
                         </Link>
-                        <div className="text-left sm:text-right max-w-1/2 w-full" style={{maxWidth: '50%'}}>
-                            Workflow Name-{workflow.name}
+                        <div className=" text-center sm:text-right">
+                            Workflow Name: {workflow.name}
                         </div>
                         <div
                             className={` ${
