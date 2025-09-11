@@ -60,6 +60,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/csv/upload', [CSVProcessorController::class, 'showForm'])->name('upload.csv');
     Route::post('/csv/process', [CSVProcessorController::class, 'processCSV'])->name('process.csv');
     Route::get('/workflow/progress', [CSVProcessorController::class, 'getWorkflowProgress'])->name('workflow.progress');
+    Route::get('/csv/index', [CSVProcessorController::class, 'index'])->name('upload.index');
+    Route::post('/csv/import', [CSVProcessorController::class, 'import'])->name('upload.import');
 
     //PROFILE CONTROLLER
     Route::get('/create', [CallController::class, 'create'])->name('create');

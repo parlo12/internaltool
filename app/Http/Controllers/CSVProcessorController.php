@@ -12,6 +12,8 @@ use League\Csv\Reader;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
+use function Laravel\Prompts\error;
+
 class CSVProcessorController extends Controller
 {
     public function showForm()
@@ -22,29 +24,28 @@ class CSVProcessorController extends Controller
             'workflows' => $workflows,
             'success' => session('success'),
             'zipfile' => session('zipfile'),
+            'error' => session('error')
         ]);
     }
 
-    public function test()
+    public function index()
     {
-
-        broadcast(new CsvProcessingProgress(
-            jobId: 999,
-            userId: 4,
-            workflowId: 1,
-            fileName: 'test_file.csv',
-            current: 5,
-            total: 10,
-            status: 'processing',
-            message: 'Test event dispatch'
-        ));
-
-        return 'CsvProcessingProgress event dispatched!';
+        return inertia("CSV/ContactImport", []);
     }
-
-
-
-
+    public function import(Request $request)
+    {
+        $validated = $request->validate([
+            'mappings' => 'required|array',
+            'data' => 'required|array'
+        ]);
+        Log::info('Importing contacts', [
+            'mappings' => $validated['mappings'],
+            'data' => $validated['data']
+        ]);
+        Log::info('counting data', [
+            'count' => count($validated['data'])
+        ]);
+    }
     public function processCSV(Request $request)
     {
         $request->validate([
@@ -72,12 +73,10 @@ class CSVProcessorController extends Controller
         foreach ($files as $file) {
             try {
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-
                 // Sanitize the filename
                 $file_name = preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName);
                 $file_name = strtolower(trim($file_name, '_'));
                 Log::info("Processing file: $file_name");
-
                 $folder = Folder::create([
                     'name' => $file_name,
                     'organisation_id' => auth()->user()->organisation_id,
@@ -120,7 +119,7 @@ class CSVProcessorController extends Controller
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $wirelessFilePath;
                 Log::info("No of filtered wireless rows: " . count($filteredRows));
-                if (!empty($filteredRows)&& $request->sms_workflow_id) {
+                if (!empty($filteredRows) && $request->sms_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($wirelessFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Wireless CSV saved: $wirelessFilePath");
@@ -151,7 +150,7 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($filteredRows);
                 $csvFilePaths[] = $landlineFilePath;
-                if (!empty($filteredRows) &&$request->calls_workflow_id) {
+                if (!empty($filteredRows) && $request->calls_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($landlineFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
 
@@ -217,7 +216,7 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $wirelessProcessedFilePath;
-                if (!empty($filteredRows) &&$request->sms_workflow_id) {
+                if (!empty($filteredRows) && $request->sms_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($wirelessProcessedFilePath, $request->sms_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $wirelessProcessedFilePath");
@@ -250,12 +249,15 @@ class CSVProcessorController extends Controller
                 $writer->insertOne($header);
                 $writer->insertAll($updatedRows);
                 $csvFilePaths[] =  $landlineProcessedFilePath;
-                if (!empty($filteredRows) &&$request->calls_workflow_id) {
+                if (!empty($filteredRows) && $request->calls_workflow_id) {
                     dispatch(new \App\Jobs\ProcessCsvFile($landlineProcessedFilePath, $request->calls_workflow_id, $folder_id, auth()->user()));
                 }
                 Log::info("Processed CSV saved:  $landlineProcessedFilePath");
             } catch (\Exception $e) {
                 Log::error("Error processing file {$file->getClientOriginalName()}: " . $e->getMessage());
+                return redirect()->back()->with([
+                    'error' => "Error processing file {$file->getClientOriginalName()}: " . $e->getMessage(),
+                ]);
             }
         }
 

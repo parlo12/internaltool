@@ -5,7 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
-export default function Upload({ auth, success, zipfile, workflows }) {
+export default function Upload({ auth, success, error,zipfile, workflows }) {
     const { data, setData, post, errors, processing, reset } = useForm({
         csv_files: [],
         sms_workflow_id: "",
@@ -121,6 +121,11 @@ export default function Upload({ auth, success, zipfile, workflows }) {
                     {success && (
                         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
                             {success}
+                        </div>
+                    )}
+                    {error&&(
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            {error}
                         </div>
                     )}
 
