@@ -22,7 +22,7 @@ class ImportContactsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public int $importId, public int $workflow_id, public String $filename) {}
+    public function __construct(public int $importId) {}
 
     public function handle()
     {
@@ -31,10 +31,10 @@ class ImportContactsJob implements ShouldQueue
         $user = User::find($import->user_id);
         $mappings = json_decode($import->mappings, true);
         $progress = ContactImportProgress::find($import->progress_id);
-        $old_workflow = Workflow::find($this->workflow_id);
+        $old_workflow = Workflow::find($import->workflow_id);
         $new_workflow = Workflow::create([
-            'name' => $this->filename,
-            'contact_group' => $this->filename,
+            'name' => $import->filename,
+            'contact_group' => $import->filename,
             'active' => 0,
             'group_id' => 1,
             'voice' => $old_workflow->voice,
