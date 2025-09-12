@@ -83,8 +83,8 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
     const handleFileUpload = useCallback((e) => {
         const file = e.target.files[0];
         if (!file) return;
-        
-    setSelectedFilename(file.name);
+
+        setSelectedFilename(file.name);
 
         let tempData = [];
         let headersSet = false;
@@ -222,9 +222,15 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
                                                 {allFields.map((field) => (
                                                     <div key={field.name} className="mb-4 flex items-center gap-4">
                                                         <div className="w-1/3">
-                                                            <span className="font-medium text-black">
-                                                                {field.name}{field.required && '*'}
-                                                            </span>
+                                                                <span className="font-medium text-black whitespace-normal break-words">
+                                                                    {field.name.split('_').map((part, idx, arr) => (
+                                                                        <React.Fragment key={idx}>
+                                                                            {part}
+                                                                            {idx < arr.length - 1 ? <wbr /> : null}
+                                                                        </React.Fragment>
+                                                                    ))}
+                                                                    {field.required && '*'}
+                                                                </span>
                                                         </div>
                                                         <select
                                                             className="flex-1 bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
