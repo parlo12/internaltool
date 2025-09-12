@@ -226,7 +226,7 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
                                                                 <span className="font-medium text-black whitespace-normal break-words">
                                                                     {field.name.split('_').map((part, idx, arr) => (
                                                                         <React.Fragment key={idx}>
-                                                                            {part}
+                                                                            {part.charAt(0).toUpperCase() + part.slice(1)}
                                                                             {idx < arr.length - 1 ? <wbr /> : null}
                                                                         </React.Fragment>
                                                                     ))}
