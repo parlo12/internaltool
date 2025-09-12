@@ -8,6 +8,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "capcom6/android-sms-gateway": "^2.0",
         "elephantio/elephant.io": "4.12",
+        "giggsey/libphonenumber-for-php": "^8.13",
         "guzzlehttp/promises": "^2.0",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/breeze": "^2.0",

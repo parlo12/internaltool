@@ -3,33 +3,35 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useState, useCallback, useEffect } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import Papa from 'papaparse';
+import ProgressBar from '@/Components/ProgressBar';
 
-export default function ContactImport({ auth, fields, success, error }) {
+export default function ContactImport({ auth, fields,currentImportProgress, success, error }) {
+    console.log('auth:', auth);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [csvHeaders, setCsvHeaders] = useState([]);
     const [csvData, setCsvData] = useState([]);
     const [mappings, setMappings] = useState({});
     const { post, processing } = useForm();
     const systemFields = [
-        {name:'Phone', required: true},
-        {name:'Contact Name', required:true},
-        {name:'address', required: false},
-        {name:'Zipcode', required: false},
-        {name:'City', required: false},
-        {name:'State', required: false},
-        {name:'email', required: false},
-        {name:'age', required: false},
-        {name:'gender', required: false},
-        {name:'lead_score', required:false},
-        {name:'offer', required:false},
-        {name:'agent', required:false},
-        {name:'novation', required:false},
-        {name:'creative_price', required:false},
-        {name:'downpayment', required:false},
-        {name:'monthly', required:false},
-        {name:'generated_message', required:false},
-        {name:'earnest_money_deposit', required:false},
-        {name:'list_price',required:false},
+        { name: 'phone', required: true },
+        { name: 'contact_name', required: true },
+        { name: 'address', required: false },
+        { name: 'zipcode', required: false },
+        { name: 'city', required: false },
+        { name: 'state', required: false },
+        { name: 'email', required: false },
+        { name: 'age', required: false },
+        { name: 'gender', required: false },
+        { name: 'lead_score', required: false },
+        { name: 'offer', required: false },
+        { name: 'agent', required: false },
+        { name: 'novation', required: false },
+        { name: 'creative_price', required: false },
+        { name: 'downpayment', required: false },
+        { name: 'monthly', required: false },
+        { name: 'generated_message', required: false },
+        { name: 'earnest_money_deposit', required: false },
+        { name: 'list_price', required: false },
     ];
 
     const allFields = [
@@ -39,6 +41,38 @@ export default function ContactImport({ auth, fields, success, error }) {
         //     required: f.is_required
         // }))
     ];
+    const groupProgressKey = `contactImportProgress.${auth?.user?.id}`;
+    const [progress, setProgressState] = useState(() => {
+        if (!auth?.user?.id) return null;
+        const savedProgress = currentImportProgress;
+        return savedProgress !== null ? JSON.parse(savedProgress) : null;
+    });
+    const setProgress = (value) => {
+        setProgressState(value);
+        if (value >= 100) {
+            localStorage.removeItem(groupProgressKey);
+        } else {
+            localStorage.setItem(groupProgressKey, JSON.stringify(value));
+        }
+    };
+
+    useEffect(() => {
+        if (!auth?.user?.id) return;
+
+        console.log(`Listening to import.progress.${auth?.user?.id}`);
+
+        const channel = Echo.channel(`import.progress.${auth?.user?.id}`);
+
+        channel.listen('.ContactImportProgress', (data) => {
+            console.log('Received ContactImportProgress event:data', data);
+            setProgress(data.progress);
+        });
+
+        return () => {
+            Echo.leave(`import.progress.${auth?.user?.id}`);
+            console.log(`Left channel import.progress.${auth?.user?.id}`);
+        };
+    }, [auth?.user?.id]);
 
 
 
@@ -193,15 +227,26 @@ export default function ContactImport({ auth, fields, success, error }) {
                                         </div>
                                     )}
                                 </div>
+                                {(progress !== null && progress < 100) && (
+                                    <div className="mt-4 p-4 bg-onyx rounded-lg">
+                                        <div className="mb-2 text-sm font-medium">
+                                            Import Progress: {progress}%
+                                        </div>
+                                        <ProgressBar progress={progress} />
+                                        <div className="mt-2 text-sm text-gray-400">
+                                            Processed: {progress}% of contacts
+                                        </div>
+                                    </div>
+                                )}
                                 {/* Action Buttons */}
                                 {csvHeaders.length > 0 && (
                                     <div className="mt-6 flex justify-end gap-4">
                                         <PrimaryButton
                                             onClick={handleSubmit}
-                                            disabled={processing}
+                                            disabled={processing || (progress !== null && progress < 100)}
                                             className="bg-outer-space hover:bg-dim-gray"
                                         >
-                                            Import Contacts
+                                            {(progress !== null && progress < 100) ? 'Importing Please wait...' : 'Start Import'}
                                         </PrimaryButton>
                                     </div>
                                 )}

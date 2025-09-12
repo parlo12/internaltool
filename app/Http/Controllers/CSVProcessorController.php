@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Events\CsvProcessingProgress;
+use App\Jobs\ImportContactsJob;
+use App\Models\ContactImport;
+use App\Models\ContactImportProgress;
 use App\Models\CsvFile;
 use App\Models\Folder;
 use App\Models\Workflow;
+use GrahamCampbell\ResultType\Success;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Http\Request;
 use League\Csv\Writer;
 use League\Csv\Reader;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 use function Laravel\Prompts\error;
@@ -30,7 +36,16 @@ class CSVProcessorController extends Controller
 
     public function index()
     {
-        return inertia("CSV/ContactImport", []);
+        $latestProgress = ContactImportProgress::where('user_id', auth()->user()->id)
+            ->latest()
+            ->first();
+        $currentImportProgress = $latestProgress ? min(round(($latestProgress->processed_contacts / $latestProgress->total_contacts) * 100), 100) : null;
+
+        return inertia("CSV/ContactImport", [
+            'currentImportProgress' => $currentImportProgress,
+            'Success' => session('success'),
+            'error' => session('error')
+        ]);
     }
     public function import(Request $request)
     {
@@ -45,6 +60,28 @@ class CSVProcessorController extends Controller
         Log::info('counting data', [
             'count' => count($validated['data'])
         ]);
+        try {
+            $contact_import_progress = ContactImportProgress::create([
+                'user_id' => auth()->user()->id,
+                'processed_contacts' => 0,
+                'imported_contacts' => 0,
+                'failed_contacts' => 0,
+                'total_contacts' => (int) count($validated['data']),
+            ]);
+            $filePath = 'imports/import_' . uniqid() . '.json';
+            Storage::put($filePath, json_encode($validated['data']));
+            $import = ContactImport::create([
+                'user_id' => auth()->user()->id,
+                'mappings' => json_encode($validated['mappings']),
+                'data_file' => $filePath, // reference only
+                'progress_id' => $contact_import_progress->id,
+            ]);
+            ImportContactsJob::dispatch($import->id);
+            return redirect()->back()->with('success', 'Contacts import started successfully');
+        } catch (\Exception $e) {
+            Log::error('Import failed', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
     }
     public function processCSV(Request $request)
     {
@@ -65,6 +102,9 @@ class CSVProcessorController extends Controller
                 Log::info("Upload directory created: $uploadDirectory");
             } else {
                 Log::error("Failed to create upload directory: $uploadDirectory");
+                return redirect()->back()->with([
+                    'error' => "Failed to create upload directory.",
+                ]);
             }
         }
 
