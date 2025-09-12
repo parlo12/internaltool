@@ -161,7 +161,9 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
 
         axios.post('/csv/import', {
             mappings: Object.entries(mappings).map(([field, column]) => ({ field, column })),
-            data: transformData()
+            data: transformData(),
+            selected_workflow_id: selectedWorkflowId,
+            filename: selectedFilename
         })
             .then(res => {
                 setProgress(1);
@@ -222,15 +224,15 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
                                                 {allFields.map((field) => (
                                                     <div key={field.name} className="mb-4 flex items-center gap-4">
                                                         <div className="w-1/3">
-                                                                <span className="font-medium text-black whitespace-normal break-words">
-                                                                    {field.name.split('_').map((part, idx, arr) => (
-                                                                        <React.Fragment key={idx}>
-                                                                            {part.charAt(0).toUpperCase() + part.slice(1)}
-                                                                            {idx < arr.length - 1 ? <wbr /> : null}
-                                                                        </React.Fragment>
-                                                                    ))}
-                                                                    {field.required && '*'}
-                                                                </span>
+                                                            <span className="font-medium text-black whitespace-normal break-words">
+                                                                {field.name.split('_').map((part, idx, arr) => (
+                                                                    <React.Fragment key={idx}>
+                                                                        {part.charAt(0).toUpperCase() + part.slice(1)}
+                                                                        {idx < arr.length - 1 ? <wbr /> : null}
+                                                                    </React.Fragment>
+                                                                ))}
+                                                                {field.required && '*'}
+                                                            </span>
                                                         </div>
                                                         <select
                                                             className="flex-1 bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
