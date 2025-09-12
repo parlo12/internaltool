@@ -47,7 +47,7 @@ class ImportContactsJob implements ShouldQueue
             'godspeedoffers_api' => $old_workflow->godspeedoffers_api,
             'generated_message' => $old_workflow->generated_message,
             'user_id' => $user->id,
-            'folder_id' => '',
+            'folder_id' => null,
         ]);
         foreach ($data as $contactData) {
             CreateContactJob::dispatch($import->user_id, $contactData, $new_workflow->id);
