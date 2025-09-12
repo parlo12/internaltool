@@ -51,21 +51,11 @@ class CSVProcessorController extends Controller
     }
     public function import(Request $request)
     {
-        Log::info('Received import request', ['request' => $request->input('selected_workflow_id')]);
         $validated = $request->validate([
             'mappings' => 'required|array',
             'data' => 'required|array',
             'selected_workflow_id' => 'required|exists:workflows,id',
             'filename' => 'required|string',
-        ]);
-        Log::info('Importing contacts', [
-            'mappings' => $validated['mappings'],
-            'data' => $validated['data'],
-            'selected_workflow_id' => $validated['selected_workflow_id'],
-            'filename' => $validated['filename'],
-        ]);
-        Log::info('counting data', [
-            'count' => count($validated['data'])
         ]);
         try {
             $contact_import_progress = ContactImportProgress::create([
