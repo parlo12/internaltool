@@ -8,7 +8,6 @@ import ProgressBar from '@/Components/ProgressBar';
 
 export default function ContactImport({ auth, workflows, fields, currentImportProgress, success, error }) {
     const [selectedFilename, setSelectedFilename] = useState("");
-    console.log('auth:', auth);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [csvHeaders, setCsvHeaders] = useState([]);
     const [csvData, setCsvData] = useState([]);
@@ -63,12 +62,11 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
     useEffect(() => {
         if (!auth?.user?.id) return;
 
-        console.log(`Listening to import.progress.${auth?.user?.id}`);
 
         const channel = Echo.channel(`import.progress.${auth?.user?.id}`);
 
         channel.listen('.ContactImportProgress', (data) => {
-            console.log('Received ContactImportProgress event:data', data);
+
             setProgress(data.progress);
         });
 
@@ -171,7 +169,6 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
                 setCsvData([]);
                 setMappings({});
                 // Optionally reset file input if needed
-                console.log('Success:', res.data);
             })
             .catch(err => {
                 console.error('Error:', err.response?.data);

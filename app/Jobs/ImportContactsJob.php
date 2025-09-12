@@ -50,7 +50,7 @@ class ImportContactsJob implements ShouldQueue
             'folder_id' => '',
         ]);
         foreach ($data as $contactData) {
-            CreateContactJob::dispatch($import->user_id, $contactData,$new_workflow->id);
+            CreateContactJob::dispatch($import->user_id, $contactData, $new_workflow->id);
             //  $progress->increment('processed_contacts');
         }
     }
