@@ -153,7 +153,11 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
             field,
             column
         }));
-
+        console.log('selectedWorkflowId:', selectedWorkflowId);
+        console.log('mappedData:', mappedData);
+        console.log('mappingsArray:', mappingsArray);
+        console.log('selectedFilename:', selectedFilename);
+        //
         const formData = new FormData();
         formData.append('selected_workflow_id', selectedWorkflowId);
         formData.append('data', JSON.stringify(mappedData));
