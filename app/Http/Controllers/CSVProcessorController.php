@@ -40,22 +40,28 @@ class CSVProcessorController extends Controller
             ->latest()
             ->first();
         $currentImportProgress = $latestProgress ? min(round(($latestProgress->processed_contacts / $latestProgress->total_contacts) * 100), 100) : null;
-
+        $workflows = Workflow::where('organisation_id', auth()->user()->organisation_id)
+            ->get();
         return inertia("CSV/ContactImport", [
             'currentImportProgress' => $currentImportProgress,
             'Success' => session('success'),
-            'error' => session('error')
+            'error' => session('error'),
+            'workflows' => $workflows,
         ]);
     }
     public function import(Request $request)
     {
         $validated = $request->validate([
             'mappings' => 'required|array',
-            'data' => 'required|array'
+            'data' => 'required|array',
+            'selected_workflow_id' => 'required|exists:workflows,id',
+            'filename' => 'required|string',
         ]);
         Log::info('Importing contacts', [
             'mappings' => $validated['mappings'],
-            'data' => $validated['data']
+            'data' => $validated['data'],
+            'selected_workflow_id' => $validated['selected_workflow_id'],
+            'filename' => $validated['filename'],
         ]);
         Log::info('counting data', [
             'count' => count($validated['data'])
@@ -75,6 +81,8 @@ class CSVProcessorController extends Controller
                 'mappings' => json_encode($validated['mappings']),
                 'data_file' => $filePath, // reference only
                 'progress_id' => $contact_import_progress->id,
+                'workflow_id' => $validated['selected_workflow_id'],
+                'filename' => $validated['filename'],
             ]);
             ImportContactsJob::dispatch($import->id);
             return redirect()->back()->with('success', 'Contacts import started successfully');

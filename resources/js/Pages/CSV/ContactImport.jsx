@@ -5,12 +5,15 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import Papa from 'papaparse';
 import ProgressBar from '@/Components/ProgressBar';
 
-export default function ContactImport({ auth, fields,currentImportProgress, success, error }) {
+export default function ContactImport({ auth, workflows, fields, currentImportProgress, success, error }) {
+    const [selectedFilename, setSelectedFilename] = useState("");
     console.log('auth:', auth);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [csvHeaders, setCsvHeaders] = useState([]);
     const [csvData, setCsvData] = useState([]);
     const [mappings, setMappings] = useState({});
+    const [selectedWorkflowId, setSelectedWorkflowId] = useState("");
+
     const { post, processing } = useForm();
     const systemFields = [
         { name: 'phone', required: true },
@@ -80,6 +83,8 @@ export default function ContactImport({ auth, fields,currentImportProgress, succ
     const handleFileUpload = useCallback((e) => {
         const file = e.target.files[0];
         if (!file) return;
+        
+    setSelectedFilename(file.name);
 
         let tempData = [];
         let headersSet = false;
@@ -149,8 +154,10 @@ export default function ContactImport({ auth, fields,currentImportProgress, succ
         }));
 
         const formData = new FormData();
+        formData.append('selected_workflow_id', selectedWorkflowId);
         formData.append('data', JSON.stringify(mappedData));
         formData.append('mappings', JSON.stringify(mappingsArray));
+        formData.append('filename', selectedFilename);
 
         axios.post('/csv/import', {
             mappings: Object.entries(mappings).map(([field, column]) => ({ field, column })),
@@ -172,14 +179,21 @@ export default function ContactImport({ auth, fields,currentImportProgress, succ
 
     return (
         <AuthenticatedLayout user={auth.user}>
-            <Head title="Import Contacts" />
-            <div className="flex flex-col md:flex-row">
-                <div className="w-full md:w-3/4 py-12">
-                    <div className="mx-auto max-w-7xl sm:px-2 lg:px-4">
-                        <div className="overflow-hidden bg-jet shadow-sm sm:rounded-lg border border-dark-gray">
-                            <div className="text-white p-6">
+            <Head title="Import Contacts & Workflows" />
+            <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
+                <div className="w-full  py-16">
+                    <div className="mx-auto px-8">
+                        <div className="overflow-hidden bg-white shadow-2xl rounded-2xl border border-gray-300">
+                            <div className="p-8 text-black">
+                                <h1 className="text-3xl font-extrabold mb-2 text-center text-gray-900 tracking-tight">Import Contacts & Create Workflows</h1>
+                                <p className="text-md text-gray-700 mb-6 text-center">You can import contacts and create workflows at the same time from here.</p>
+                                <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+                                    <span className="font-semibold text-blue-700">Info:</span> As long as you use a valid US phone number, it will be automatically converted to the <span className="font-bold">E.164</span> format: <span className="font-mono">+123xxxxxxxxxx</span>.
+                                </div>
                                 {/* File Upload Section */}
                                 <div className="mb-8 p-4 bg-onyx rounded-lg">
+                                    {/* Select Workflow to Copy From */}
+
                                     <label className="block mb-4">
                                         <span className="text-sm font-medium mb-2 block">
                                             Upload CSV File
@@ -196,6 +210,7 @@ export default function ContactImport({ auth, fields,currentImportProgress, succ
                                                 hover:file:bg-dim-gray"
                                         />
                                     </label>
+                                    <input type="hidden" name="filename" value={selectedFilename} />
 
                                     {/* Mapping Interface */}
                                     {csvHeaders.length > 0 && (
@@ -203,29 +218,45 @@ export default function ContactImport({ auth, fields,currentImportProgress, succ
                                             <h3 className="text-md text-black font-semibold mb-4">
                                                 Map CSV Columns to Fields
                                             </h3>
-                                            {allFields.map((field) => (
-                                                <div key={field.name} className="mb-4 flex items-center gap-4">
-                                                    <div className="w-1/3">
-                                                        <span className="font-medium text-black">
-                                                            {field.name}{field.required && '*'}
-                                                        </span>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                {allFields.map((field) => (
+                                                    <div key={field.name} className="mb-4 flex items-center gap-4">
+                                                        <div className="w-1/3">
+                                                            <span className="font-medium text-black">
+                                                                {field.name}{field.required && '*'}
+                                                            </span>
+                                                        </div>
+                                                        <select
+                                                            className="flex-1 bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
+                                                            value={mappings[field.name] || ''}
+                                                            onChange={(e) => handleMappingChange(field.name, e.target.value)}
+                                                        >
+                                                            <option value="">Select CSV Column</option>
+                                                            {csvHeaders.map((header) => (
+                                                                <option key={header} value={header}>
+                                                                    {header}
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </div>
-                                                    <select
-                                                        className="flex-1 bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
-                                                        value={mappings[field.name] || ''}
-                                                        onChange={(e) => handleMappingChange(field.name, e.target.value)}
-                                                    >
-                                                        <option value="">Select CSV Column</option>
-                                                        {csvHeaders.map((header) => (
-                                                            <option key={header} value={header}>
-                                                                {header}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
+                                </div>
+                                <div className="mb-6">
+                                    <label className="block mb-2 text-sm font-medium text-white">Select Workflow to Copy From</label>
+                                    <select
+                                        className="block w-full bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
+                                        value={selectedWorkflowId || ''}
+                                        required
+                                        onChange={e => setSelectedWorkflowId(e.target.value)}
+                                    >
+                                        <option value="">-- Select Workflow --</option>
+                                        {workflows && workflows.length > 0 && workflows.map(wf => (
+                                            <option key={wf.id} value={wf.id}>{wf.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 {(progress !== null && progress < 100) && (
                                     <div className="mt-4 p-4 bg-onyx rounded-lg">

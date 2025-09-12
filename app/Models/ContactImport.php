@@ -15,5 +15,7 @@ class ContactImport extends Model
         'mappings',
         'data_file',
         'progress_id',
+        'workflow_id',
+        'filename',
     ];
 }

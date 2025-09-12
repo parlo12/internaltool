@@ -22,11 +22,14 @@ class CreateContactJob implements ShouldQueue
 
     protected $user_id;
     protected $contactData;
+    protected $workflow_id;
 
-    public function __construct($user_id, array $contactData)
+
+    public function __construct($user_id, array $contactData,$workflow_id)
     {
         $this->user_id = $user_id;
         $this->contactData = $contactData;
+        $this->workflow_id = $workflow_id;
     }
 
     public function handle()
@@ -65,7 +68,7 @@ class CreateContactJob implements ShouldQueue
                 'phone' => $phoneResult,
                 'contact_name' => $this->contactData['contact_name'] ?? null,
                 'uuid' => Str::uuid(),
-                'workflow_id' => '3',
+                'workflow_id' => $this->workflow_id,
                 'can_send' => 1,
                 'response' => 'No',
                 'status' => 'WAITING_FOR_QUEAUE',

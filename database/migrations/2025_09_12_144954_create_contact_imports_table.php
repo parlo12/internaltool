@@ -17,6 +17,8 @@ return new class extends Migration
             $table->json('mappings');
             $table->string('data_file');
             $table->integer('progress_id');
+            $table->integer('workflow_id');
+            $table->string('filename');
             $table->timestamps();
         });
     }
