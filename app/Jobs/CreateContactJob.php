@@ -71,7 +71,7 @@ class CreateContactJob implements ShouldQueue
                 'status' => 'WAITING_FOR_QUEAUE',
                 'cost' => 0,
                 'subscribed' => 1,
-                'organisation_id' => $user,
+                'organisation_id' => $user->organisation_id,
                 'user_id' => $this->user_id,
                 'zipcode' => $this->contactData['zipcode'] ?? null,
                 'city' => $this->contactData['city'] ?? null,
