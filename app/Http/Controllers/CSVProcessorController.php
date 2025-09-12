@@ -51,6 +51,7 @@ class CSVProcessorController extends Controller
     }
     public function import(Request $request)
     {
+        Log::info('Received import request', ['request' => $request->all()]);
         $validated = $request->validate([
             'mappings' => 'required|array',
             'data' => 'required|array',
