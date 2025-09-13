@@ -139,6 +139,10 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
     };
 
     const handleSubmit = () => {
+        if (!selectedWorkflowId) {
+            alert('Please select a workflow to copy from before importing.');
+            return;
+        }
         const missingRequired = validateMappings();
         if (missingRequired.length > 0) {
             alert(`Missing required mappings: ${missingRequired.map(f => f.name).join(', ')}`);
