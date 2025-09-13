@@ -51,13 +51,14 @@ class CSVProcessorController extends Controller
     }
     public function import(Request $request)
     {
-        $validated = $request->validate([
+        
+        try {
+            $validated = $request->validate([
             'mappings' => 'required|array',
             'data' => 'required|array',
             'selected_workflow_id' => 'required|exists:workflows,id',
             'filename' => 'required|string',
         ]);
-        try {
             $contact_import_progress = ContactImportProgress::create([
                 'user_id' => auth()->user()->id,
                 'processed_contacts' => 0,
