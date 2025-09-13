@@ -23,18 +23,21 @@ class CreateContactJob implements ShouldQueue
     protected $user_id;
     protected $contactData;
     protected $workflow_id;
+    protected $group_id;
 
 
-    public function __construct($user_id, array $contactData,$workflow_id)
+    public function __construct($user_id, array $contactData,$workflow_id,$group_id)
     {
         $this->user_id = $user_id;
         $this->contactData = $contactData;
         $this->workflow_id = $workflow_id;
+        $this->group_id = $group_id;
     }
 
     public function handle()
     {
         try {
+
             // Validate and format phone number
             [$isValid, $phoneResult] = PhoneHelper::validateAndFormat($this->contactData['phone']);
             if (!$isValid) {
@@ -94,6 +97,30 @@ class CreateContactJob implements ShouldQueue
                 'earnest_money_deposit' => $this->contactData['earnest_money_deposit'] ?? null,
                 'generated_message' => ""
             ]);
+
+            $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
+
+              $crm_api->createContact($this->group_id, [
+            'PHONE' => $phoneResult,
+            'FIRST_NAME' => $this->contactData['contact_name'] ?? null,
+            'ADDRESS' => $this->contactData['address'] ?? null,
+            'CITY' =>$this->contactData['city'] ?? null,
+            'STATE' =>$this->contactData['state'] ?? null,
+            'ZIPCODE' =>$this->contactData['zipcode'] ?? null,
+            'OFFER_AMOUNT' => $this->contactData['offer'] ?? null,
+            'SALES_PERSON' => $this->contactData['agent'] ?? null,
+            'AGE' => $this->contactData['age'] ?? null,
+            'Gender' => $this->contactData['gender'] ?? null,
+            'LEAD_SCORE' =>$this->contactData['lead_score'] ?? null,
+            'NOVATION' =>$this->contactData['novation'] ?? null,
+            'CREATIVEPRICE' => $this->contactData['creative_price'] ?? null,
+            'MONTHLY' => $this->contactData['monthly'] ?? null,
+            'DOWNPAYMENT' => $this->contactData['downpayment'] ?? null,
+            'EMAIL' => $this->contactData['email'] ?? null,
+            'LIST_PRICE' => $this->contactData['list_price'] ?? null,
+            'EARNEST_MONEY_DEPOSIT' => $this->contactData['earnest_money_deposit'] ?? null,
+        ]);
+
             $this->updateProgress(true);
         } catch (\Throwable $e) {
             $this->updateProgress(false, true);
