@@ -15,7 +15,6 @@ export default function ContactsImportFailuresTable({
     error,
 }) {
     queryParams = queryParams || {};
-    console.log(failures);
 
     const searchFieldChanged = (name, value) => {
         const updatedParams = { ...queryParams };

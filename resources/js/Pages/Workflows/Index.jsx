@@ -10,7 +10,6 @@ import AssignFolderPopup from "@/Components/AssignFolderPopup";
 export default function Index({ auth, contactGroups, workflows, folders, success, error, filters = {} }) {
     const [showFolderPopup, setShowFolderPopup] = useState(false);
     const [formData, setFormData] = useState({ folder_id: "", workflow_id: null });
-    console.log("success", success);
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };

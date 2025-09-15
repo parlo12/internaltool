@@ -15,10 +15,8 @@ const EditStepModal = ({
     spintaxes,
     files,
 }) => {
-    console.log(stepData)
     const [validationMessage, setValidationMessage] = useState("");
     const inputJson = JSON.parse(stepData.days_of_week);
-    // console.log(inputson);
     // const inputJson = JSON.parse(inputson)
     const daysOfWeek = {};
     for (const day in inputJson) {
@@ -102,7 +100,6 @@ const EditStepModal = ({
             selectedFileIds: stepData.selected_file_ids ? JSON.parse(stepData.selected_file_ids) : [] // Parse selected file IDs if available
         });
     }, [stepData]);
-    console.log(editedStep)
     const validateTimes = () => {
         const { startTime, endTime, custom_sending } = editedStep;
         if (custom_sending === 1) {

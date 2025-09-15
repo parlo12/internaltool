@@ -23,10 +23,8 @@ const ViewSendingServerPopup = ({ showSendingServerPopup, setShowSendingServerPo
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data);
                 // Update the state with the response data
                 setSendingServerData(response.data.sendingServer);
-                console.log(sendingServerData);
             })
             .catch((error) => {
                 // Update the state with the error

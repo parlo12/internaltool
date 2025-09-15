@@ -33,10 +33,8 @@ const CopyWorkflowPopup = ({
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data);
                 // Update the state with the response data
                 setWorkflowData(response.data.workflows);
-                console.log(workflowData);
             })
             .catch((error) => {
                 // Update the state with the error

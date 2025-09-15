@@ -22,7 +22,6 @@ const UpdateNumberPoolPopup = ({
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data.numberPool);
                 // Update the state with the response data
                 setData(response.data.numberPool);
             })
@@ -32,7 +31,6 @@ const UpdateNumberPoolPopup = ({
                 console.error(error);
             });
     }, [showUpdateNumberPoolPopup]);
-    console.log(data);
 
     if (!showUpdateNumberPoolPopup) return null;
     return (

@@ -38,7 +38,6 @@ export default function Index({
     files,
     propertyDetails
 }) {
-    console.log(propertyDetails);
     const serverLookup = Object.fromEntries(sendingServers.data.map(server => [server.id, server.server_name]));
     const NumberPoolLookup = Object.fromEntries(numberPools.data.map(numberPool => [numberPool.id, numberPool.pool_name]));
     const [message, setMessage] = useState(null);
@@ -466,28 +465,12 @@ export default function Index({
         e.preventDefault();
         axios.post("/property-details", data)
             .then((response) => {
-                console.log("Property details stored successfully:", response.data);
                 setData({ upa: "", sca: "", downpayment: "", purchase_price: "", agreed_net_proceeds: '', remaining_amount_after_ANP: "" });
                 location.reload(); // Reload the page to reflect changes
                 preserveScroll();
             })
             .catch(err => console.error(err));
     };
-
-    // const submitApiKey = () => {
-    //     console.log(data);
-    //     axios
-    //         .post("/submit-api-key", {
-    //             api_key: data.api_key,
-    //             user_id: data.user_id,
-    //         })
-    //         .then((response) => {
-    //             console.log("API Key submitted successfully:", response.data);
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error submitting API Key:", error);
-    //         });
-    // };
     const handleUpdateOrganisation = async (userId, organisationId) => {
         if (!organisationId) return;
 

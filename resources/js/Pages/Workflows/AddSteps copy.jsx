@@ -81,7 +81,7 @@ export default function Create({
                 window.location.reload();
             })
             .catch((error) => {
-                console.log(error.response.data.errors);
+                console.error(error.response.data.errors);
                 setError("Error Editing Workflow:");
 
             });

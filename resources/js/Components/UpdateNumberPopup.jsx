@@ -24,7 +24,6 @@ const UpdateNumberPopup = ({
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data.number);
                 // Update the state with the response data
                 setData(response.data.number);
             })

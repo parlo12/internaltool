@@ -3,7 +3,6 @@ import React from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ success, error, wrongNumbers, auth }) {
-    console.log(wrongNumbers)
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Wrong Numbers" />

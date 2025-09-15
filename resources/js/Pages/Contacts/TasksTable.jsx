@@ -13,9 +13,7 @@ export default function TasksTable({
     hideProjectColumn = false,
     statuses
 }) {
-    console.log(statuses);
     queryParams = queryParams || {};
-    console.log(queryParams);
     const location = useLocation(); // Get the current location
     const currentParams = new URLSearchParams(location.search); // Parse current query parameters
 

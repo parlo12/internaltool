@@ -7,7 +7,6 @@ export default function ContactImportFailures({ auth, failures, group_id, groupN
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [activeView, setActiveView] = useState('dashboard');
     const [selectedGroup, setSelectedGroup] = useState(null);
-    console.log(failures)
     // When component loads, try to load activeView from localStorage
     useEffect(() => {
         const savedView = localStorage.getItem('activeView');
@@ -31,7 +30,6 @@ export default function ContactImportFailures({ auth, failures, group_id, groupN
     };
 
     const handleSelectGroup = (group) => {
-        console.log(group)
         setSelectedGroup(group);
         setActiveView('contacts');
         localStorage.setItem('activeView', 'contacts'); // save to localStorage

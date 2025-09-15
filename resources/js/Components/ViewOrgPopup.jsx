@@ -15,7 +15,6 @@ import {
 import { Link } from "@inertiajs/react";
 const ViewOrgPopup = ({ showOrgPopup, setShowOrgPopup, data }) => {
     const [orgData, setOrgData] = useState(null);
-    console.log(orgData);
     useEffect(() => {
         // Define the URL of the route
         const url = `/get_org/${data.org_id}`;
@@ -24,10 +23,8 @@ const ViewOrgPopup = ({ showOrgPopup, setShowOrgPopup, data }) => {
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data);
                 // Update the state with the response data
                 setOrgData(response.data.organisation);
-                console.log(orgData);
             })
             .catch((error) => {
                 // Update the state with the error

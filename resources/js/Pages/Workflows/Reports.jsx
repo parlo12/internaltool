@@ -28,7 +28,6 @@ export default function Create({
     AICalls
 }) {
 
-    console.log(agents);
 
     const { data, setData, get, errors, processing } = useForm({
         filter: "",

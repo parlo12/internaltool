@@ -19,12 +19,10 @@ const ViewNumberPoolPopup = ({ showNumberPoolPopup, setShowNumberPoolPopup, data
 
     useEffect(() => {
         if (!showNumberPoolPopup || !data.number_pool_id) return;
-        console.log(data.number_pool_id)
         const url = `/get_number_pool/${data.number_pool_id}`;
 
         axios.get(url)
             .then((response) => {
-                console.log(response.data); // Debugging log
                 setNumberPoolData(response.data);
             })
             .catch((error) => {

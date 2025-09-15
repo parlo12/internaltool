@@ -22,7 +22,6 @@ export default function Create({
     refererr,
     files
 }) {
-    console.log(refererr);
     const { back } = usePage().props;
     const [stepsState, setStepsState] = useState(steps);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,13 +81,12 @@ export default function Create({
         axios
             .put(`/workflows/${workflow.id}`, workflowData)
             .then((response) => {
-                console.log(response);
                 setEditWorkflowModalOpen(false);
                 setSuccess("Workflow Edited successfully!");
                 window.location.reload();
             })
             .catch((error) => {
-                console.log(error.response.data.errors);
+                console.error(error.response.data.errors);
                 setError("Error Editing Workflow:");
 
             });
@@ -141,7 +139,6 @@ export default function Create({
             axios
                 .post("/store-step", newStep)
                 .then((response) => {
-                    console.log(response);
                     setStepsState(response.data.steps);
                     setIsModalOpen(false);
                     setSuccess("Step added successfully!");

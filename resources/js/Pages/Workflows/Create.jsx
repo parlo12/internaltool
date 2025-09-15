@@ -58,7 +58,6 @@ export default function Create({
     }, [searchFolderName]);
 
     const handleSearch = () => {
-        console.log("Searching for:", searchName);
         router.get(
             route("create-workflow"),
             { search_name: searchName },
@@ -163,7 +162,6 @@ export default function Create({
         setShowViewFolderPopup(true);
     };
     const handleAssignFolder = (workflow) => {
-        console.log("Working with".workflow);
         setData({
             id: workflow.id,
         });
@@ -197,7 +195,6 @@ export default function Create({
         axios
             .delete(`/delete-folder/${deletedFolderId}`, {})
             .then((response) => {
-                console.log(`Folder deleted successfully`);
                 setMessage(`Folder deleted successfully`);
                 location.reload();
             })

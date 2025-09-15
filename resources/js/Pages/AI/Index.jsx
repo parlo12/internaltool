@@ -3,9 +3,7 @@ import React from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ success, error, assistants,auth }) {
-    console.log(assistants);
     const baseURL = import.meta.env.VITE_APP_URL;
-    console.log(baseURL)
     return ( // Add the return keyword
         <AuthenticatedLayout user={auth.user}>
         <Head title="Assistants" />

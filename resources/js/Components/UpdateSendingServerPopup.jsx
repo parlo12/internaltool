@@ -23,7 +23,6 @@ const UpdateSendingServerPopup = ({
         axios
             .get(url)
             .then((response) => {
-                console.log(response.data.sendingServer);
                 // Update the state with the response data
                 setData(response.data.sendingServer);
             })
@@ -33,7 +32,6 @@ const UpdateSendingServerPopup = ({
                 console.error(error);
             });
     }, [showUpdateSendingServerPopup]);
-    console.log(data);
 
     if (!showUpdateSendingServerPopup) return null;
     return (

@@ -149,8 +149,6 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
             return;
         }
         const mappedData = transformData();
-        console.log('Mapped Data:', mappedData);
-        console.log('Mappings:', mappings);
         const mappingsArray = Object.entries(mappings).map(([field, column]) => ({
             field,
             column

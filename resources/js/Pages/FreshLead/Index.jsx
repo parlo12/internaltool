@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ success, error, freshLeads, auth }) {
-    console.log(freshLeads)
     const [selectedMessages, setSelectedMessages] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 

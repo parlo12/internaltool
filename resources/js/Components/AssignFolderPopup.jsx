@@ -14,7 +14,6 @@ const AsignFolderPopup = ({
     handleAssignFolderSubmit,
     folders,
 }) => {
-    console.log(data)
     if (!showFolderPopup) return null;
 
     return (

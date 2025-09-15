@@ -8,7 +8,6 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Sidebar from "@/Components/Sidebar";
 
 export default function Create({ auth, error }) {
-    console.log("Create Folder Page Loaded");
     const { data, setData, post, errors, processing } = useForm({
         folder_name: "",
     });

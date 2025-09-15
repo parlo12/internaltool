@@ -5,7 +5,6 @@ import { Head, Link } from "@inertiajs/react";
 import TasksTable from "./TasksTable";
 
 export default function Index({ auth, success, contacts, workflow, queryParams, statuses, error }) {
-    console.log(error);
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Reports" />
