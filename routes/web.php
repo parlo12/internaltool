@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\callController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactImportFailureController;
 use App\Http\Controllers\CSVProcessorController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FollowUpController;
@@ -160,8 +161,8 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/fresh-lead', [FreshleadController::class, 'index'])->name('fresh-leads.index');
 
     // CONTACT IMPORT FAILURE CONTROLLER
-    Route::get('/contact-import-failures', [\App\Http\Controllers\ContactImportFailureController::class, 'index'])->name('contact-import-failures.index');
-    Route::delete('/contact-import-failures/clear', [\App\Http\Controllers\ContactImportFailureController::class, 'clear'])->name('contacts.importFailures.clear');
+    Route::get('/contact-import-failures', [ContactImportFailureController::class, 'index'])->name('contact-import-failures.index');
+    Route::delete('/contact-import-failures/clear', [ContactImportFailureController::class, 'clear'])->name('contacts.importFailures.clear');
 });
 
 require __DIR__ . '/auth.php';

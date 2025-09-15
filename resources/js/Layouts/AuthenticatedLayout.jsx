@@ -58,7 +58,7 @@ export default function Authenticated({ user, header, children }) {
                                         <Dropdown.Link href={route('upload.csv')} active={route().current('upload.csv')}>
                                             With Processing
                                         </Dropdown.Link>
-                                        <Dropdown.Link href={route('contact-import-failures.index')} active={route().current('contact-import-failures.index')}>
+                                        <Dropdown.Link href={route('upload.index')} active={route().current('upload.index')}>
                                             Without Processing
                                         </Dropdown.Link>
                                     </Dropdown.Content>
