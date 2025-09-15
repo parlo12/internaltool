@@ -183,10 +183,19 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Import Contacts & Workflows" />
+
             <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
                 <div className="w-full  py-16">
                     <div className="mx-auto px-8">
                         <div className="overflow-hidden bg-white shadow-2xl rounded-2xl border border-gray-300">
+                            <div className="flex justify-end w-full max-w-7xl mx-auto mt-6">
+                                <Link
+                                    href={route('contact-import-failures.index')}
+                                    className="inline-block px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded shadow transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                >
+                                    View Import Failures
+                                </Link>
+                            </div>
                             <div className="p-8 text-black">
                                 <h1 className="text-3xl font-extrabold mb-2 text-center text-gray-900 tracking-tight">Import Contacts & Create Workflows</h1>
                                 <p className="text-md text-gray-700 mb-6 text-center">You can import contacts and create workflows at the same time from here.</p>
