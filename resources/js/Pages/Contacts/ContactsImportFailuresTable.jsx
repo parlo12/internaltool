@@ -1,8 +1,12 @@
+
 import Pagination from "@/Components/Pagination";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
 import TableHeading from "@/Components/TableHeading";
 import { Link, router } from "@inertiajs/react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export default function ContactsImportFailuresTable({
     failures,
@@ -83,7 +87,7 @@ export default function ContactsImportFailuresTable({
                                 <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.phone}</td>
                                 <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.contact_name}</td>
                                 <td className="px-6 py-3 border-b border-gray-200 align-middle"><span className="inline-block bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">{failure.error}</span></td>
-                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.created_at}</td>
+                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{dayjs(failure.created_at).fromNow()}</td>
                             </tr>
                         ))}
                     </tbody>
