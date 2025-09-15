@@ -158,6 +158,9 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     Route::get('/under-contract', [UnderContractController::class, 'index'])->name('under-contracts.index');
     //UNDERCONTRACTCONTROLLER
     Route::get('/fresh-lead', [FreshleadController::class, 'index'])->name('fresh-leads.index');
+
+    // CONTACT IMPORT FAILURE CONTROLLER
+    Route::get('/contact-import-failures', [\App\Http\Controllers\ContactImportFailureController::class, 'index'])->name('contact-import-failures.index');
 });
 
 require __DIR__ . '/auth.php';
