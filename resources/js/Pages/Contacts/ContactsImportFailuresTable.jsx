@@ -128,7 +128,7 @@ export default function ContactsImportFailuresTable({
                 </table>
             </div>
             <Pagination
-                links={failures.meta.links}
+                links={failures.links}
                 queryParams={queryParams}
                 className="mt-4"
             />
