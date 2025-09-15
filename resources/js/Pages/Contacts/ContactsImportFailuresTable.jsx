@@ -2,7 +2,6 @@
 import Pagination from "@/Components/Pagination";
 import SelectInput from "@/Components/SelectInput";
 import TextInput from "@/Components/TextInput";
-import TableHeading from "@/Components/TableHeading";
 import { Link, router } from "@inertiajs/react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
