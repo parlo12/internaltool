@@ -13,7 +13,6 @@ export default function ContactsImportFailuresTable({
     queryParams = {},
     success,
     error,
-    hideProjectColumn = false,
 }) {
     queryParams = queryParams || {};
     console.log(failures);
