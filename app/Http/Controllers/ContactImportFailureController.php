@@ -16,7 +16,7 @@ class ContactImportFailureController extends Controller
             ->paginate(20);
 
         // If using Inertia or API, return accordingly. Here, return JSON for simplicity.
-        return inertia('ContactImportFailures', [
+        return inertia('Contacts/ContactImportFailures', [
             'failures' => $failures,
             'success' => session('success'),
             'error' => session('error')
