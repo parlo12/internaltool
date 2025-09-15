@@ -13,8 +13,7 @@ class ContactImportFailure extends Model
 'user_id',
         'error',
         'phone',
-        'first_name',
-        'last_name',
+        'contact_name',
     ];
 
     /**
