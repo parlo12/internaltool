@@ -58,68 +58,32 @@ export default function ContactsImportFailuresTable({
                     {error}
                 </div>
             )}
-            <div className="overflow-x-auto shadow-md rounded-lg bg-onyx">
-                <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto shadow-lg rounded-xl bg-white">
+                <table className="w-full text-left border-collapse bg-white">
                     <thead>
-                        <tr className="bg-[#1A1A1A]">
-                            <th className="px-4 py-2 text-[#FAFAFA]">ID</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">Phone</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">Contact Name</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">Failure Reason</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">Create Date</th>
+                        <tr className="bg-gray-100 border-b border-gray-200">
+                            <th className="px-6 py-3 text-black font-semibold text-sm tracking-wider">ID</th>
+                            <th className="px-6 py-3 text-black font-semibold text-sm tracking-wider">Phone</th>
+                            <th className="px-6 py-3 text-black font-semibold text-sm tracking-wider">Contact Name</th>
+                            <th className="px-6 py-3 text-black font-semibold text-sm tracking-wider">Failure Reason</th>
+                            <th className="px-6 py-3 text-black font-semibold text-sm tracking-wider">Create Date</th>
                         </tr>
                     </thead>
-                    {/* <thead className="text-xs text-dark-gray uppercase bg-charcoal">
-                        <tr className="text-nowrap">
-                            <th className="px-3 py-3"></th>
-                            <th className="px-3 py-3">
-                                <TextInput
-                                    className="w-full bg-dark-gray text-black placeholder-gray-400 border border-dim-gray rounded"
-                                    defaultValue={
-                                        queryParams.contact_name || ""
-                                    }
-                                    placeholder="Contact Name"
-                                    onBlur={(e) =>
-                                        searchFieldChanged(
-                                            "name",
-                                            e.target.value
-                                        )
-                                    }
-                                    onKeyPress={(e) =>
-                                        onKeyPress("name", e)
-                                    }
-                                />
-                            </th>
-                            <th className="px-3 py-3">
-                                <TextInput
-                                    className="w-full bg-dark-gray text-black placeholder-gray-400 border border-dim-gray rounded"
-                                    defaultValue={queryParams.phone || ""}
-                                    placeholder="Phone"
-                                    onBlur={(e) =>
-                                        searchFieldChanged(
-                                            "phone",
-                                            e.target.value
-                                        )
-                                    }
-                                    onKeyPress={(e) => onKeyPress("phone", e)}
-                                />
-                            </th>
-                            {!hideProjectColumn && (
-                                <th className="px-3 py-3"></th>
-                            )}
-                        </tr>
-                    </thead> */}
                     <tbody>
                         {failures.data.map((failure, index) => (
                             <tr
                                 key={failure.id}
-                                className={`${index % 2 === 0 ? 'bg-[#262626]' : 'bg-[#2E2E2E]'
-                                    } hover:bg-[#1B1B1B] transition duration-200 ease-in-out`}
+                                className={
+                                    index % 2 === 0
+                                        ? 'bg-white hover:bg-gray-50 transition duration-200 ease-in-out'
+                                        : 'bg-gray-50 hover:bg-gray-100 transition duration-200 ease-in-out'
+                                }
                             >
-                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.id}</td>
-                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.phone}</td>
-                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.contact_name}</td>
-                                <td className=" border-b px-4 py-2 bg-red-600 text-[#FAFAFA]">{failure.error}</td>                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.created_at}</td>
+                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.id}</td>
+                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.phone}</td>
+                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.contact_name}</td>
+                                <td className="px-6 py-3 border-b border-gray-200 align-middle"><span className="inline-block bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">{failure.error}</span></td>
+                                <td className="px-6 py-3 text-black border-b border-gray-200 align-middle">{failure.created_at}</td>
                             </tr>
                         ))}
                     </tbody>
