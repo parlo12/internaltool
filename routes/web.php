@@ -161,6 +161,7 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 
     // CONTACT IMPORT FAILURE CONTROLLER
     Route::get('/contact-import-failures', [\App\Http\Controllers\ContactImportFailureController::class, 'index'])->name('contact-import-failures.index');
+    Route::delete('/contact-import-failures/clear', [\App\Http\Controllers\ContactImportFailureController::class, 'clear'])->name('contacts.importFailures.clear');
 });
 
 require __DIR__ . '/auth.php';

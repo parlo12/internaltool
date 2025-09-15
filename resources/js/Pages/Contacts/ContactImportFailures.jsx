@@ -46,12 +46,11 @@ export default function ContactImportFailures({ auth, failures, group_id, groupN
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
-            <div className="flex flex-col md:flex-row">
-                {/* Main Content */}
-                <div className="w-full md:w-3/4 py-12">
-                    <div className="mx-auto max-w-7xl sm:px-2 lg:px-4">
-                        <div className="overflow-hidden bg-dark-gray shadow-sm sm:rounded-lg border border-onyx">
-                            <div className="flex items-center justify-between text-[#FAFAFA] py-4">
+            <div className="w-full min-h-screen bg-white">
+                <div className="w-full py-12 px-0">
+                    <div className="w-full px-4">
+                        <div className="overflow-hidden bg-white shadow-sm rounded-lg border border-gray-200">
+                            <div className="flex items-center justify-between text-black py-4 px-4">
                                 <span>Contact Import Failures</span>
                                 <button
                                     onClick={handleClearFailures}

@@ -21,4 +21,11 @@ class ContactImportFailureController extends Controller
             'error' => session('error')
         ]);
     }
+
+    public function clear(Request $request)
+    {
+        $user = $request->user();
+        ContactImportFailure::where('user_id', $user->id)->delete();
+        return redirect()->route('contact-import-failures.index')->with('success', 'All import failures cleared.');
+    }
 }
