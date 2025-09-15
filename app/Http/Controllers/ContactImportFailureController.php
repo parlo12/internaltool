@@ -15,7 +15,6 @@ class ContactImportFailureController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        // If using Inertia or API, return accordingly. Here, return JSON for simplicity.
         return inertia('Contacts/ContactImportFailures', [
             'failures' => $failures,
             'success' => session('success'),
