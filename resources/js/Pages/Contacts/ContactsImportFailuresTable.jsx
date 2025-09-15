@@ -64,8 +64,7 @@ export default function ContactsImportFailuresTable({
                         <tr className="bg-[#1A1A1A]">
                             <th className="px-4 py-2 text-[#FAFAFA]">ID</th>
                             <th className="px-4 py-2 text-[#FAFAFA]">Phone</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">First Name</th>
-                            <th className="px-4 py-2 text-[#FAFAFA]">Last Name</th>
+                            <th className="px-4 py-2 text-[#FAFAFA]">Contact Name</th>
                             <th className="px-4 py-2 text-[#FAFAFA]">Failure Reason</th>
                             <th className="px-4 py-2 text-[#FAFAFA]">Create Date</th>
                         </tr>
@@ -119,8 +118,7 @@ export default function ContactsImportFailuresTable({
                             >
                                 <td className="px-4 py-2 text-[#FAFAFA]">{failure.id}</td>
                                 <td className="px-4 py-2 text-[#FAFAFA]">{failure.phone}</td>
-                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.first_name}</td>
-                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.last_name}</td>
+                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.contact_name}</td>
                                 <td className=" border-b px-4 py-2 bg-red-600 text-[#FAFAFA]">{failure.error}</td>                                <td className="px-4 py-2 text-[#FAFAFA]">{failure.created_at}</td>
                             </tr>
                         ))}
