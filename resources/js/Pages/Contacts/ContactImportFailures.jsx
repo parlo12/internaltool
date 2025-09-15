@@ -1,8 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import Sidebar from '@/Components/Sidebar';
 import { useState, useEffect } from 'react'; // add useEffect
-import ContactsTable from './ContactsTable';
 import ContactsImportFailuresTable from './ContactsImportFailuresTable';
 
 export default function ContactImportFailures({ auth, failures, group_id, groupName, success, error, queryParams = {} }) {
