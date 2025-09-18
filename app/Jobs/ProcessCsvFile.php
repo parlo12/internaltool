@@ -148,6 +148,7 @@ class ProcessCsvFile implements ShouldQueue
                         'batch_delay' => $step_to_copy->batch_delay,
                         'step_quota_balance' => $step_to_copy->step_quota_balance,
                         'days_of_week' => $step_to_copy->days_of_week,
+                        'email_subject' => $step_to_copy->email_subject,
                         'generated_message' => $step_to_copy->generated_message,
                     ]);
                     $new_steps_flow = $new_workflow->steps_flow ? explode(',', $new_workflow->steps_flow) : [];
