@@ -75,7 +75,7 @@ class EmailService
 
                     if (file_exists($filePath)) {
                         try {
-                            $processedPath = $this->generate_attachment($filePath, $contact,$name);
+                            $processedPath = $this->generate_attachment($filePath, $contact, $name);
 
                             $attachments[] = [
                                 'file' => $processedPath,
@@ -164,7 +164,7 @@ class EmailService
             $text
         );
     }
-    public function generate_attachment($templatePath, $contact,$name): string
+    public function generate_attachment($templatePath, $contact, $name): string
     {
         // $tempDocPath = storage_path('app/temp_LOI_' . uniqid() . '.docx');
         // $pdfOutputPath = storage_path('app/LOI_' . uniqid() . '.pdf');
@@ -182,7 +182,11 @@ class EmailService
             return $pdfOutputPath;
         }
 
-        $purchasePrice = $contact['list_price'] ? (float)$contact['list_price'] * ($property_details->purchase_price / 100) : 0;
+        $listPrice = $contact['list_price']
+            ? (float)str_replace(['$', ','], '', $contact['list_price'])
+            : 0;
+
+        $purchasePrice = $listPrice * ($property_details->purchase_price / 100);
         $UPA  = (float)$purchasePrice * ($property_details->upa / 100);
         $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
