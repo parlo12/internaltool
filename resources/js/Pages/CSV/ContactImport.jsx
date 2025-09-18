@@ -228,22 +228,20 @@ export default function ContactImport({ auth, workflows, fields, currentImportPr
                                             <h3 className="text-md text-black font-semibold mb-4">
                                                 Map CSV Columns to Fields
                                             </h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                                {allFields.map((field) => (
-                                                    <div key={field.name} className="mb-4 flex items-center gap-4">
-                                                        <div className="w-1/3">
-                                                            <span className="font-medium text-black whitespace-normal break-words">
-                                                                {field.name.split('_').map((part, idx, arr) => (
-                                                                    <React.Fragment key={idx}>
-                                                                        {part.charAt(0).toUpperCase() + part.slice(1)}
-                                                                        {idx < arr.length - 1 ? <wbr /> : null}
-                                                                    </React.Fragment>
-                                                                ))}
-                                                                {field.required && '*'}
-                                                            </span>
-                                                        </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                                {allFields.map((field, idx) => (
+                                                    <div key={field.name} className="flex flex-col md:flex-row items-center mb-2 gap-2 md:gap-4">
+                                                        <label className="w-full md:w-1/3 font-medium text-black whitespace-normal break-words text-right md:text-left pr-2">
+                                                            {field.name.split('_').map((part, i, arr) => (
+                                                                <React.Fragment key={i}>
+                                                                    {part.charAt(0).toUpperCase() + part.slice(1)}
+                                                                    {i < arr.length - 1 ? <wbr /> : null}
+                                                                </React.Fragment>
+                                                            ))}
+                                                            {field.required && <span className="text-pink-600">*</span>}
+                                                        </label>
                                                         <select
-                                                            className="flex-1 bg-charcoal border border-dim-gray rounded px-3 py-2 text-black"
+                                                            className="w-full md:w-2/3 bg-white border border-gray-300 rounded px-3 py-2 text-black focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
                                                             value={mappings[field.name] || ''}
                                                             onChange={(e) => handleMappingChange(field.name, e.target.value)}
                                                         >
