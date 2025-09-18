@@ -59,9 +59,8 @@ class DynamicTagsService
         $property_details = PropertyDetail::where('organisation_id', $contact->organisation_id)->first();
         if ($property_details) {
             $listPrice = $contact->list_price
-                ? (float)str_replace(['$', ','], '', $contact['list_price'])
+                ? (float)str_replace(['$', ','], '', $contact->list_price)
                 : 0;
-
             $purchasePrice = $listPrice * ($property_details->purchase_price / 100);
             $computed = [
                 'purchase_price' => (float)$purchasePrice,
