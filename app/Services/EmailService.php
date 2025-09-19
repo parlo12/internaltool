@@ -192,7 +192,7 @@ class EmailService
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
         $SFA= (float)$purchasePrice-$downpayment;
         $monthly_amount = $property_details->monthly_amount ?? 0;
-        $baloon_payment = $SFA - ($monthly_amount * 12 * 5);
+        $baloon_payment = $SFA - ($monthly_amount * 12 * 10);
         $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
         $AGP = (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100);
         $RMA = (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100);

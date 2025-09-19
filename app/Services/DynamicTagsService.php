@@ -71,7 +71,7 @@ class DynamicTagsService
                 'derived_downpayment' => (float)$purchasePrice * ($property_details->downpayment / 100),
                 'SFA' => $SFA,
                 'monthly_amount_from_admin' => $monthly_amount,
-                'baloon_payment' => $SFA - ($monthly_amount * 12 * 5),
+                'baloon_payment' => $SFA - ($monthly_amount * 12 * 10),
                 'seller_carry_amount' => (float)$purchasePrice * ($property_details->sca / 100),
                 'agp' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
                 'rma' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
