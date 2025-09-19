@@ -62,11 +62,16 @@ class DynamicTagsService
                 ? (float)str_replace(['$', ','], '', $contact->list_price)
                 : 0;
             $purchasePrice = $listPrice * ($property_details->purchase_price / 100);
+            $monthly_amount = $property_details->monthly_amount ?? 0;
+            $SFA = (float)$purchasePrice - ((float)$purchasePrice * ($property_details->downpayment / 100));
             $computed = [
                 'purchase_price' => (float)$purchasePrice,
                 'upfront_payment_amount' => (float)$purchasePrice * ($property_details->upa / 100),
                 'private_lender_contribution' => (float)$purchasePrice * ($property_details->plc / 100),
                 'derived_downpayment' => (float)$purchasePrice * ($property_details->downpayment / 100),
+                'SFA' => $SFA,
+                'monthly_amount_from_admin' => $monthly_amount,
+                'baloon_payment' => $SFA - ($monthly_amount * 12 * 5),
                 'seller_carry_amount' => (float)$purchasePrice * ($property_details->sca / 100),
                 'agp' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
                 'rma' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
@@ -132,6 +137,9 @@ class DynamicTagsService
             '{{rma}}' => '',
             '{{purchase_price}}' => '',
             '{{derived_downpayment}}' => '',
+            '{{SFA}}' => '',
+            '{{monthly_amount_from_admin}}' => '',
+            '{{baloon_payment}}' => '',
         ];
         // Handle first/last name combination
         $firstName = $contact['custom_fields']['FIRST_NAME'] ?? '';

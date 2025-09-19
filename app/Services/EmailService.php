@@ -190,6 +190,9 @@ class EmailService
         $UPA  = (float)$purchasePrice * ($property_details->upa / 100);
         $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
+        $SFA= (float)$purchasePrice-$downpayment;
+        $monthly_amount = $property_details->monthly_amount ?? 0;
+        $baloon_payment = $SFA - ($monthly_amount * 12 * 5);
         $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
         $AGP = (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100);
         $RMA = (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100);
@@ -204,6 +207,10 @@ class EmailService
         $templateProcessor->setValue('SCA', $SCA);
         $templateProcessor->setValue('UPA', $UPA);
         $templateProcessor->setValue('PLC', $PLC);
+        $templateProcessor->setValue('purchase_price', $purchasePrice);
+        $templateProcessor->setValue('monthly_amount', $monthly_amount);
+        $templateProcessor->setValue('baloon_payment', $baloon_payment);
+        $templateProcessor->setValue('SFA', $SFA);
         $templateProcessor->setValue('date', now()->format('F d, Y'));
         $templateProcessor->setValue('closing_day', now()->addDays(45)->format('F d, Y'));
         $templateProcessor->setValue('offer_price', $purchasePrice);
