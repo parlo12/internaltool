@@ -887,7 +887,6 @@ export default function Index({
                                     type="number"
                                     step="1"
                                     min="0"
-                                    max="100"
                                     value={data.monthly_amount}
                                     onChange={(e) => setData({ ...data, monthly_amount: e.target.value })}
                                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
@@ -967,7 +966,7 @@ export default function Index({
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-xs text-gray-500 uppercase">
-                                     Monthly Amount ($)
+                                    Monthly Amount ($)
                                 </span>
                                 <span className="text-base font-medium text-gray-800">
                                     {propertyDetails.data[0].monthly_amount}
