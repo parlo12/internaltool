@@ -178,6 +178,7 @@ export default function Index({
         plc: propertyDetails?.data?.[0]?.plc ?? "",
         agreed_net_proceeds: propertyDetails?.data?.[0]?.agreed_net_proceeds ?? "",
         remaining_amount_after_ANP: propertyDetails?.data?.[0]?.remaining_amount_after_ANP ?? "",
+        monthly_amount: propertyDetails?.data?.[0]?.monthly_amount ?? "",
     });
     const onSubmit = (e) => {
         e.preventDefault();
@@ -880,7 +881,18 @@ export default function Index({
                                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                                 />
                             </div>
-
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Monthly Amount($)</label>
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={data.monthly_amount}
+                                    onChange={(e) => setData({ ...data, monthly_amount: e.target.value })}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                                />
+                            </div>
                             <div>
                                 <button
                                     type="submit"
@@ -951,6 +963,14 @@ export default function Index({
                                 </span>
                                 <span className="text-base font-medium text-gray-800">
                                     {propertyDetails.data[0].remaining_amount_after_ANP}
+                                </span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 uppercase">
+                                     Monthly Amount ($)
+                                </span>
+                                <span className="text-base font-medium text-gray-800">
+                                    {propertyDetails.data[0].monthly_amount}
                                 </span>
                             </div>
                         </div>

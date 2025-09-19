@@ -18,6 +18,7 @@ class PropertyDetail extends Model
         'plc',
         'organisation_id',
         'agreed_net_proceeds',
-        'remaining_amount_after_ANP'
+        'remaining_amount_after_ANP',
+        'monthly_amount',
     ];
 }

@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->foreignId('organisation_id');
             $table->string('agreed_net_proceeds')->nullable();
             $table->decimal('remaining_amount_after_ANP', 15, 2)->nullable();
+            $table->decimal('monthly_amount', 15, 2)->nullable();
         });
     }
 

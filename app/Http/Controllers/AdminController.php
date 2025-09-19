@@ -434,6 +434,7 @@ class AdminController extends Controller
             'remaining_amount_after_ANP' => 'nullable|numeric|min:0',
             'downpayment' => 'required|numeric|min:0',
             'purchase_price' => 'required|numeric|min:0',
+            'monthly_amount' => 'nullable|numeric|min:0',
         ]);
 
         $organisationId = auth()->user()->organisation_id;
