@@ -977,7 +977,9 @@ export default function Index({
                         <p className="text-gray-500 text-sm">No property details available.</p>
                     )}
                     {/* Display the tags here */}
-                    <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="mt-8">
+                        <h3 className="text-lg font-bold text-gray-800 mb-2 tracking-wide border-b border-gray-300 pb-1">Available Template Tags</h3>
+                        <div className="flex flex-wrap gap-2 mt-2">
                         {[
                             'agreement_date',
                             'AGP',
@@ -995,12 +997,12 @@ export default function Index({
                             'SFA',
                             'date',
                             'closing_day',
-                            'offer_price',
                         ].map(tag => (
                             <span key={tag} className="inline-block bg-gray-100 border border-gray-300 text-gray-800 text-xs font-mono px-2 py-1 rounded">
                                 $&#123;{tag}&#125;
                             </span>
                         ))}
+                        </div>
                     </div>
                 </div>
 
