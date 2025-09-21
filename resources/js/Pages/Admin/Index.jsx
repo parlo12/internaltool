@@ -976,6 +976,32 @@ export default function Index({
                     ) : (
                         <p className="text-gray-500 text-sm">No property details available.</p>
                     )}
+                    {/* Display the tags here */}
+                    <div className="flex flex-wrap gap-2 mt-4">
+                        {[
+                            'agreement_date',
+                            'AGP',
+                            'RMA',
+                            'property_address',
+                            'contact_name',
+                            'EMD',
+                            'downpayment',
+                            'SCA',
+                            'UPA',
+                            'PLC',
+                            'purchase_price',
+                            'monthly_amount',
+                            'baloon_payment',
+                            'SFA',
+                            'date',
+                            'closing_day',
+                            'offer_price',
+                        ].map(tag => (
+                            <span key={tag} className="inline-block bg-gray-100 border border-gray-300 text-gray-800 text-xs font-mono px-2 py-1 rounded">
+                                $&#123;{tag}&#125;
+                            </span>
+                        ))}
+                    </div>
                 </div>
 
 
