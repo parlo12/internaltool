@@ -202,11 +202,11 @@ class EmailService
         $templateProcessor->setValue('RMA', $RMA);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
-        $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
-        foreach ($contact as $key => $value) {
-            $templateProcessor->setValue($key, $value ?? '');
-            log::info("Set placeholder {$key} to " . ($value ?? ''));
-        }
+        foreach ($contact->getAttributes() as $key => $value) {
+    $templateProcessor->setValue($key, $value ?? '');
+    Log::info("Set placeholder {$key} to " . ($value ?? ''));
+}
+
         $templateProcessor->setValue('downpayment', $downpayment);
         $templateProcessor->setValue('SCA', $SCA);
         $templateProcessor->setValue('UPA', $UPA);
