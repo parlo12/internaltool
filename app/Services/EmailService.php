@@ -190,7 +190,7 @@ class EmailService
         $UPA  = (float)$purchasePrice * ($property_details->upa / 100);
         $PLC  = (float)$purchasePrice * ($property_details->plc / 100);
         $downpayment = (float)$purchasePrice * ($property_details->downpayment / 100);
-        $SFA= (float)$purchasePrice-$downpayment;
+        $SFA = (float)$purchasePrice - $downpayment;
         $monthly_amount = $property_details->monthly_amount ?? 0;
         $baloon_payment = $SFA - ($monthly_amount * 12 * 10);
         $SCA  = (float)$purchasePrice * ($property_details->sca / 100);
@@ -203,6 +203,10 @@ class EmailService
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
+        foreach ($contact as $key => $value) {
+            $templateProcessor->setValue($key, $value ?? '');
+            log::info("Set placeholder {$key} to " . ($value ?? ''));
+        }
         $templateProcessor->setValue('downpayment', $downpayment);
         $templateProcessor->setValue('SCA', $SCA);
         $templateProcessor->setValue('UPA', $UPA);
