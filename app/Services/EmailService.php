@@ -204,6 +204,10 @@ class EmailService
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');
         foreach ($contact->getAttributes() as $key => $value) {
+            if ($key === 'downpayment') {
+                continue; // skip this column
+            }
+
             $templateProcessor->setValue($key, $value ?? '');
             Log::info("Set placeholder {$key} to " . ($value ?? ''));
         }
