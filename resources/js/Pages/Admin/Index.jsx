@@ -241,8 +241,7 @@ export default function Index({
         const confirmDelete = window.confirm(`Are you sure you want to delete this user: ${user.name}? This cannot be undone`);
 
         if (confirmDelete) {
-            // Proceed with the deletion
-            window.location.href = route('delete-user', user.id);
+\            window.location.href = route('delete-user', user.id);
         }
     };
     const submitNumber = (e) => {
