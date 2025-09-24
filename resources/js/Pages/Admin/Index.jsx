@@ -858,7 +858,7 @@ export default function Index({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Agreed Net Proceeds(%)</label>
+                                <label className="block text-sm font-medium text-gray-700">Cash Price(%)</label>
                                 <input
                                     type="number"
                                     step="1"
@@ -870,7 +870,7 @@ export default function Index({
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Remaining Amount after ANP(%)</label>
+                                <label className="block text-sm font-medium text-gray-700">Forgiven Amount(%)</label>
                                 <input
                                     type="number"
                                     step="1"
@@ -950,7 +950,7 @@ export default function Index({
                             </div>
 
                             <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 uppercase">Agreed Net Proceeds (%)</span>
+                                <span className="text-xs text-gray-500 uppercase">Cash Price (%)</span>
                                 <span className="text-base font-medium text-gray-800">
                                     {propertyDetails.data[0].agreed_net_proceeds}
                                 </span>
@@ -958,7 +958,7 @@ export default function Index({
 
                             <div className="flex flex-col">
                                 <span className="text-xs text-gray-500 uppercase">
-                                    Remaining Amount After ANP (%)
+                                    Forgiven Amount (%)
                                 </span>
                                 <span className="text-base font-medium text-gray-800">
                                     {propertyDetails.data[0].remaining_amount_after_ANP}
@@ -984,6 +984,8 @@ export default function Index({
                                 'agreement_date',
                                 'AGP',
                                 'RMA',
+                                'cash_price',
+                                'forgiven_amount',
                                 'property_address',
                                 'contact_name',
                                 'EMD',

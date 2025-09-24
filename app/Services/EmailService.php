@@ -200,6 +200,8 @@ class EmailService
         $templateProcessor->setValue('agreement_date', $today);
         $templateProcessor->setValue('AGP', $AGP);
         $templateProcessor->setValue('RMA', $RMA);
+        $templateProcessor->setValue('cash_price', $AGP);
+        $templateProcessor->setValue('forgiven_amount', $RMA);
         $templateProcessor->setValue('property_address', $contact['address'] ?? '');
         $templateProcessor->setValue('contact_name', $contact['contact_name'] ?? '');
         $templateProcessor->setValue('EMD', $contact['earnest_money_deposit'] ?? '');

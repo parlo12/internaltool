@@ -73,8 +73,8 @@ class DynamicTagsService
                 'monthly_amount_from_admin' => $monthly_amount,
                 'baloon_payment' => $SFA - ($monthly_amount * 12 * 10),
                 'seller_carry_amount' => (float)$purchasePrice * ($property_details->sca / 100),
-                'agp' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
-                'rma' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
+                'cash_price' => (float)$purchasePrice * ($property_details->agreed_net_proceeds / 100),
+                'forgiven_amount' => (float)$purchasePrice * ($property_details->remaining_amount_after_ANP / 100),
             ];
             Log::info('Computed property details for placeholders', ['computed' => $computed]);
             foreach ($computed as $key => $value) {
@@ -133,8 +133,8 @@ class DynamicTagsService
             '{{seller_carry_amount}}' => '',
             '{{upfront_payment_amount}}' => '',
             '{{private_lender_contribution}}' => '',
-            '{{agp}}' => '',
-            '{{rma}}' => '',
+            '{{cash_price}}' => '',
+            '{{forgiven_amount}}' => '',
             '{{purchase_price}}' => '',
             '{{derived_downpayment}}' => '',
             '{{SFA}}' => '',
