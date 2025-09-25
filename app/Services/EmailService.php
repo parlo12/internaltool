@@ -76,7 +76,10 @@ class EmailService
                     if (file_exists($filePath)) {
                         try {
                             $processedPath = $this->generate_attachment($filePath, $contact, $name);
-
+                            if (!$processedPath) {
+                                Log::error("Failed to generate attachment for file ID: {$file_id}");
+                                continue;
+                            }
                             $attachments[] = [
                                 'file' => $processedPath,
                                 'name' => $contact['address'] . '_' . basename($processedPath),
@@ -179,7 +182,12 @@ class EmailService
         $property_details = PropertyDetail::where('organisation_id', $contact['organisation_id'])->first();
         if (!$property_details) {
             Log::error("Property details not found for organisation ID: {$contact['organisation_id']}");
-            return $pdfOutputPath;
+            return false;
+        }
+
+        if($contact['list_price'] === null) {
+            Log::error("List price is null for contact ID: {$contact['id']}");
+            return false;
         }
 
         $listPrice = $contact['list_price']
