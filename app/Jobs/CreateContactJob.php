@@ -55,7 +55,9 @@ class CreateContactJob implements ShouldQueue
                 }
                 $phoneResult = $formattedPhone;
             } else {
-                $phoneResult = '+2xxxxxxxxxxxxx';
+                // Generate a random fake phone number that cannot be valid
+                $random = '+9FAKE' . strtoupper(Str::random(10));
+                $phoneResult = $random;
             }
             // Save the contact regardless of phone presence
             $contact = Contact::create([
@@ -89,29 +91,28 @@ class CreateContactJob implements ShouldQueue
                 'generated_message' => ""
             ]);
 
-            if ($hasPhone) {
-                $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
-                $crm_api->createContact($this->group_id, [
-                    'PHONE' => $phoneResult,
-                    'FIRST_NAME' => $this->contactData['contact_name'] ?? null,
-                    'ADDRESS' => $this->contactData['address'] ?? null,
-                    'CITY' => $this->contactData['city'] ?? null,
-                    'STATE' => $this->contactData['state'] ?? null,
-                    'ZIPCODE' => $this->contactData['zipcode'] ?? null,
-                    'OFFER_AMOUNT' => $this->contactData['offer'] ?? null,
-                    'SALES_PERSON' => $this->contactData['agent'] ?? null,
-                    'AGE' => $this->contactData['age'] ?? null,
-                    'Gender' => $this->contactData['gender'] ?? null,
-                    'LEAD_SCORE' => $this->contactData['lead_score'] ?? null,
-                    'NOVATION' => $this->contactData['novation'] ?? null,
-                    'CREATIVEPRICE' => $this->contactData['creative_price'] ?? null,
-                    'MONTHLY' => $this->contactData['monthly'] ?? null,
-                    'DOWNPAYMENT' => $this->contactData['downpayment'] ?? null,
-                    'EMAIL' => $this->contactData['email'] ?? null,
-                    'LIST_PRICE' => $this->contactData['list_price'] ?? null,
-                    'EARNEST_MONEY_DEPOSIT' => $this->contactData['earnest_money_deposit'] ?? null,
-                ]);
-            }
+            // Always sync to CRM, even with fake phone
+            $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
+            $crm_api->createContact($this->group_id, [
+                'PHONE' => $phoneResult,
+                'FIRST_NAME' => $this->contactData['contact_name'] ?? null,
+                'ADDRESS' => $this->contactData['address'] ?? null,
+                'CITY' => $this->contactData['city'] ?? null,
+                'STATE' => $this->contactData['state'] ?? null,
+                'ZIPCODE' => $this->contactData['zipcode'] ?? null,
+                'OFFER_AMOUNT' => $this->contactData['offer'] ?? null,
+                'SALES_PERSON' => $this->contactData['agent'] ?? null,
+                'AGE' => $this->contactData['age'] ?? null,
+                'Gender' => $this->contactData['gender'] ?? null,
+                'LEAD_SCORE' => $this->contactData['lead_score'] ?? null,
+                'NOVATION' => $this->contactData['novation'] ?? null,
+                'CREATIVEPRICE' => $this->contactData['creative_price'] ?? null,
+                'MONTHLY' => $this->contactData['monthly'] ?? null,
+                'DOWNPAYMENT' => $this->contactData['downpayment'] ?? null,
+                'EMAIL' => $this->contactData['email'] ?? null,
+                'LIST_PRICE' => $this->contactData['list_price'] ?? null,
+                'EARNEST_MONEY_DEPOSIT' => $this->contactData['earnest_money_deposit'] ?? null,
+            ]);
             $this->updateProgress(true);
         } catch (\Throwable $e) {
             $this->updateProgress(false, true);
