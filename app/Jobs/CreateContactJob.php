@@ -37,36 +37,28 @@ class CreateContactJob implements ShouldQueue
     public function handle()
     {
         try {
-
-            // Validate and format phone number
-            [$isValid, $phoneResult] = PhoneHelper::validateAndFormat($this->contactData['phone']);
-            if (!$isValid) {
-                ContactImportFailure::create([
-                    'user_id' => $this->user_id,
-                    'error' => $phoneResult ?: 'Invalid phone number',
-                    'phone' => $this->contactData['phone'],
-                    'contact_name' => $this->contactData['contact_name'] ?? null,
-                ]);
-                $this->updateProgress(false);
-                return;
-            }
-            // // Skip if phone already exists in this contact group
-            // $existingContact = Contact::where('contact_group_id', $this->user_id)
-            //     ->where('phone', $phoneResult)
-            //     ->first();
-
-            // if ($existingContact) {
-            //     ContactImportFailure::create([
-            //         'user_id' => $this->user_id,
-            //         'error' => 'Duplicate contact',
-            //         'phone' => $phoneResult,
-            //         'contact_name' => $this->contactData['contact_name'] ?? null,
-            //     ]);
-            //     $this->updateProgress(false);
-            //     return;
-            // }
             $user = User::find($this->user_id);
-            Contact::create([
+            $hasPhone = !empty($this->contactData['phone']);
+            $phoneResult = $this->contactData['phone'] ?? null;
+            if ($hasPhone) {
+                // Validate and format phone number
+                [$isValid, $formattedPhone] = PhoneHelper::validateAndFormat($this->contactData['phone']);
+                if (!$isValid) {
+                    ContactImportFailure::create([
+                        'user_id' => $this->user_id,
+                        'error' => $formattedPhone ?: 'Invalid phone number',
+                        'phone' => $this->contactData['phone'],
+                        'contact_name' => $this->contactData['contact_name'] ?? null,
+                    ]);
+                    $this->updateProgress(false);
+                    return;
+                }
+                $phoneResult = $formattedPhone;
+            } else {
+                $phoneResult = '+2xxxxxxxxxxxxx';
+            }
+            // Save the contact regardless of phone presence
+            $contact = Contact::create([
                 'user_id' => $this->user_id,
                 'phone' => $phoneResult,
                 'contact_name' => $this->contactData['contact_name'] ?? null,
@@ -78,7 +70,6 @@ class CreateContactJob implements ShouldQueue
                 'cost' => 0,
                 'subscribed' => 1,
                 'organisation_id' => $user->organisation_id,
-                'user_id' => $this->user_id,
                 'zipcode' => $this->contactData['zipcode'] ?? null,
                 'city' => $this->contactData['city'] ?? null,
                 'state' => $this->contactData['state'] ?? null,
@@ -98,29 +89,30 @@ class CreateContactJob implements ShouldQueue
                 'generated_message' => ""
             ]);
 
-            $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
-
-            $crm_api->createContact($this->group_id, [
-                'PHONE' => $phoneResult,
-                'FIRST_NAME' => $this->contactData['contact_name'] ?? null,
-                'ADDRESS' => $this->contactData['address'] ?? null,
-                'CITY' => $this->contactData['city'] ?? null,
-                'STATE' => $this->contactData['state'] ?? null,
-                'ZIPCODE' => $this->contactData['zipcode'] ?? null,
-                'OFFER_AMOUNT' => $this->contactData['offer'] ?? null,
-                'SALES_PERSON' => $this->contactData['agent'] ?? null,
-                'AGE' => $this->contactData['age'] ?? null,
-                'Gender' => $this->contactData['gender'] ?? null,
-                'LEAD_SCORE' => $this->contactData['lead_score'] ?? null,
-                'NOVATION' => $this->contactData['novation'] ?? null,
-                'CREATIVEPRICE' => $this->contactData['creative_price'] ?? null,
-                'MONTHLY' => $this->contactData['monthly'] ?? null,
-                'DOWNPAYMENT' => $this->contactData['downpayment'] ?? null,
-                'EMAIL' => $this->contactData['email'] ?? null,
-                'LIST_PRICE' => $this->contactData['list_price'] ?? null,
-                'EARNEST_MONEY_DEPOSIT' => $this->contactData['earnest_money_deposit'] ?? null,
-            ]);
-
+            // Only sync to CRM if phone is present
+            if ($hasPhone) {
+                $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
+                $crm_api->createContact($this->group_id, [
+                    'PHONE' => $phoneResult,
+                    'FIRST_NAME' => $this->contactData['contact_name'] ?? null,
+                    'ADDRESS' => $this->contactData['address'] ?? null,
+                    'CITY' => $this->contactData['city'] ?? null,
+                    'STATE' => $this->contactData['state'] ?? null,
+                    'ZIPCODE' => $this->contactData['zipcode'] ?? null,
+                    'OFFER_AMOUNT' => $this->contactData['offer'] ?? null,
+                    'SALES_PERSON' => $this->contactData['agent'] ?? null,
+                    'AGE' => $this->contactData['age'] ?? null,
+                    'Gender' => $this->contactData['gender'] ?? null,
+                    'LEAD_SCORE' => $this->contactData['lead_score'] ?? null,
+                    'NOVATION' => $this->contactData['novation'] ?? null,
+                    'CREATIVEPRICE' => $this->contactData['creative_price'] ?? null,
+                    'MONTHLY' => $this->contactData['monthly'] ?? null,
+                    'DOWNPAYMENT' => $this->contactData['downpayment'] ?? null,
+                    'EMAIL' => $this->contactData['email'] ?? null,
+                    'LIST_PRICE' => $this->contactData['list_price'] ?? null,
+                    'EARNEST_MONEY_DEPOSIT' => $this->contactData['earnest_money_deposit'] ?? null,
+                ]);
+            }
             $this->updateProgress(true);
         } catch (\Throwable $e) {
             $this->updateProgress(false, true);
