@@ -89,7 +89,6 @@ class CreateContactJob implements ShouldQueue
                 'generated_message' => ""
             ]);
 
-            // Only sync to CRM if phone is present
             if ($hasPhone) {
                 $crm_api = new \App\Services\CRMAPIRequestsService($user->godspeedoffers_api);
                 $crm_api->createContact($this->group_id, [
