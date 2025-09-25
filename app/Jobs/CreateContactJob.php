@@ -56,7 +56,7 @@ class CreateContactJob implements ShouldQueue
                 $phoneResult = $formattedPhone;
             } else {
                 // Generate a random fake phone number that cannot be valid
-                $phoneResult = '+1844906290X';
+                $phoneResult = '(844)9062900';
             }
             // Save the contact regardless of phone presence
             $contact = Contact::create([
