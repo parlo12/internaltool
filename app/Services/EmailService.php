@@ -85,7 +85,12 @@ class EmailService
                                 'name' => $contact['address'] . '_' . basename($processedPath),
                                 'mime' => mime_content_type($processedPath),
                             ];
+                            $details['attachments'] = $attachments;
+                            Mail::to($contact->email)->send(new ContactEmail($details));
+                            $contact->update(['status' => 'EMAIL_SENT']);
+                            Log::info('Email sent successfully');
                         } catch (\Exception $e) {
+                            $contact->update(['status' => 'EMAIL_FAILED']);
                             Log::error("Failed to process template {$path}: " . $e->getMessage());
                         }
                     } else {
@@ -94,10 +99,7 @@ class EmailService
                 }
             }
 
-            $details['attachments'] = $attachments;
-            Mail::to($contact->email)->send(new ContactEmail($details));
-            $contact->update(['status' => 'EMAIL_SENT']);
-            Log::info('Email sent successfully');
+
             // After email is sent
             // foreach ($attachments as $attachment) {
             //     if (str_contains($attachment['file'], 'temp_') || str_contains($attachment['file'], 'LOI_')) {
@@ -185,7 +187,7 @@ class EmailService
             return false;
         }
 
-        if($contact['list_price'] === null) {
+        if ($contact['list_price'] === null) {
             Log::error("List price is null for contact ID: {$contact['id']}");
             return false;
         }
