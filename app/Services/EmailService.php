@@ -33,6 +33,10 @@ class EmailService
             Config::set('mail.mailers.smtp.password', $password);
 
             $contact = Contact::find($contact_id);
+            if (!$contact->list_price) {
+                $contact->update(['status' => 'EMAIL_FAILED_NO_LIST_PRICE']);
+                return response()->json(['error' => 'Failed to send email: List price is missing'], 500);
+            }
             $step = Step::find($contact->current_step);
             $subject = $step->email_subject ?? 'New Email';
             $workflow = Workflow::find($contact->workflow_id);
@@ -85,12 +89,7 @@ class EmailService
                                 'name' => $contact['address'] . '_' . basename($processedPath),
                                 'mime' => mime_content_type($processedPath),
                             ];
-                            $details['attachments'] = $attachments;
-                            Mail::to($contact->email)->send(new ContactEmail($details));
-                            $contact->update(['status' => 'EMAIL_SENT']);
-                            Log::info('Email sent successfully');
                         } catch (\Exception $e) {
-                            $contact->update(['status' => 'EMAIL_FAILED']);
                             Log::error("Failed to process template {$path}: " . $e->getMessage());
                         }
                     } else {
@@ -99,7 +98,10 @@ class EmailService
                 }
             }
 
-
+            $details['attachments'] = $attachments;
+            Mail::to($contact->email)->send(new ContactEmail($details));
+            $contact->update(['status' => 'EMAIL_SENT']);
+            Log::info('Email sent successfully');
             // After email is sent
             // foreach ($attachments as $attachment) {
             //     if (str_contains($attachment['file'], 'temp_') || str_contains($attachment['file'], 'LOI_')) {
