@@ -35,7 +35,7 @@ class EmailService
             $contact = Contact::find($contact_id);
             if (!$contact->list_price) {
                 $contact->update(['status' => 'EMAIL_FAILED_NO_LIST_PRICE']);
-                return response()->json(['error' => 'Failed to send email: List price is missing'], 500);
+                throw new \Exception('List price is missing for the contact.');
             }
             $step = Step::find($contact->current_step);
             $subject = $step->email_subject ?? 'New Email';
