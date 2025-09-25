@@ -112,7 +112,7 @@ class EmailService
         } catch (\Exception $e) {
             Log::error("Failed to send email: {$e->getMessage()}");
             if ($contact ?? false) {
-                $contact->update(['status' => 'EMAIL_FAILED']);
+                $contact->update(['status' => substr($e->getMessage(), 0, 255)]);
             }
             return response()->json(['error' => 'Failed to send email', 'details' => $e->getMessage()], 500);
         }
