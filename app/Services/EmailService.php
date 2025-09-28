@@ -33,10 +33,14 @@ class EmailService
             Config::set('mail.mailers.smtp.password', $password);
 
             $contact = Contact::find($contact_id);
-            if (!$contact->list_price) {
+            if (
+                !isset($contact->list_price) ||
+                !is_numeric($contact->list_price)
+            ) {
                 $contact->update(['status' => 'EMAIL_FAILED_NO_LIST_PRICE']);
-                throw new \Exception('List price is missing for the contact.');
+                throw new \Exception('List price is missing or invalid for the contact.');
             }
+
             $step = Step::find($contact->current_step);
             $subject = $step->email_subject ?? 'New Email';
             $workflow = Workflow::find($contact->workflow_id);
