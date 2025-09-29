@@ -502,7 +502,7 @@ class ApiController extends Controller
                 'phone'    => $validatedData['phone'],
                 'email' => $validatedData['email']
             ]);
-            $contact = Contact::where('phone', $validatedData['phone'])->first();
+            $contact = Contact::where('phone', $validatedData['phone'])->latest();
             if (!$contact) {
                 Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
             } else {
