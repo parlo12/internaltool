@@ -13,6 +13,7 @@ use App\Models\CallsSent;
 use App\Models\FollowUp;
 use App\Models\Freshlead;
 use App\Models\offers;
+use App\Models\RecoveredEmail;
 use App\Models\Step;
 use App\Models\Thread;
 use App\Models\UnderContract;
@@ -480,11 +481,71 @@ class ApiController extends Controller
                         $text->save();
                     }
                 } else {
-                   // Log::info("No text sent records found with the phone number: $phone");
+                    // Log::info("No text sent records found with the phone number: $phone");
                 }
             }
         } else {
             Log::info("No contacts found with the phone number: $phone");
+        }
+    }
+
+
+    public function save_recovered_email(Request $request)
+    {
+        try {
+            // Validate incoming request data
+            $validatedData = $request->validate([
+                'phone'      => 'required|string|max:20',
+                'email'   => 'required|email',
+            ]);
+
+            // Log the incoming request data
+            Log::info('Processing saving email', [
+                'phone'    => $validatedData['phone'],
+                'email' => $validatedData['email']
+            ]);
+
+            // Retrieve contact information
+            $contact = Contact::where('phone', $validatedData['phone'])->first();
+
+            if (!$contact) {
+                Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
+            } else {
+                $contact->update(['email' => $validatedData['email']]);
+                $recovered_email = RecoveredEmail::create([
+                    'phone'            => $contact->phone,
+                    'contact_name'     => $contact->contact_name,
+                    'workflow_id'      => $contact->workflow_id,
+                    'organisation_id'  => $contact->organisation_id,
+                    'user_id'          => $contact->user_id,
+                    'zipcode'          => $contact->zipcode,
+                    'state'            => $contact->state,
+                    'city'             => $contact->city,
+                    'address'          => $contact->address,
+                    'offer'            => $contact->offer,
+                    'age'              => $contact->age,
+                    'gender'           => $contact->gender,
+                    'lead_score'       => $contact->lead_score,
+                    'agent'            => $contact->agent,
+                    'novation'         => $contact->novation,
+                    'creative_price'   => $contact->creative_price,
+                    'monthly'          => $contact->monthly,
+                    'downpayment'      => $contact->downpayment,
+                    'generated_message' => $contact->generated_message,
+                    'list_price'       => $contact->list_price,
+                    'no_second_call' => $contact->no_second_call,
+                    'earnest_money_deposit' => $contact->earnest_money_deposit,
+                    'email' => $validatedData['email'],
+                ]);
+            }
+            Log::info('recovered email record created successfully', ['id' => $recovered_email->id]);
+            return response()->json([
+                'message' => 'Recovered email record created successfully',
+                'data'    => $recovered_email
+            ], 201);
+        } catch (Exception $e) {
+            Log::error('Error processing recovered_email request', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred while processing the request'], 500);
         }
     }
 
@@ -533,41 +594,41 @@ class ApiController extends Controller
     }
     public function get_message(string $phone, Request $request)
     {
-       
-    
+
+
         // 🔐 Authenticate by workflow_apikey
         $apiKey = $request->query('workflow_apikey');
         $user = User::where('api_key', $apiKey)->first();
-    
+
         if (!$user) {
             return response()->json(['error' => 'Invalid API key'], 401);
         }
-    
+
         // 🔍 Retrieve the contact (optionally filter by user/organisation if needed)
         $contact = DB::table('contacts')->where('phone', $phone)
-        ->where('organisation_id',$user->organisation_id)->first();
-    
+            ->where('organisation_id', $user->organisation_id)->first();
+
         if (!$contact) {
             Log::info("Contact not found for phone: $phone in organisation: $user->organisation_id");
             return response()->json(['error' => 'Contact not found'], 404);
         }
-       
+
         $current_step = $contact->current_step;
         $step = Step::find($current_step);
-    
+
         if (!$step) {
             return response()->json(['error' => 'Step not found'], 404);
         }
-    
+
         $content = $step->content;
         $workflow = Workflow::find($step->workflow_id);
         $DynamicTagsService = new DynamicTagsService($workflow->godspeedoffers_api);
         $message = $DynamicTagsService->composeMessage($contact, $content);
         $content = $DynamicTagsService->spintax($message);
-    
+
         return response()->json(['message' => $content]);
     }
-    
+
     public function get_AI_reply(Request $request)
     {
         // Validate incoming request
