@@ -1098,7 +1098,7 @@ class ContactController extends Controller
     }
 
     public function test(){
-        $text="here is my email; eliudmitau @ gmail.com";
+        $text="here is my email; eliudmityau @ gmail.com";
     // Regex: allow optional spaces around @ and .
     $pattern = '/[A-Za-z0-9._%+\-]+ *@ *[A-Za-z0-9.\-]+ *\. *[A-Za-z]{2,}/';
     
