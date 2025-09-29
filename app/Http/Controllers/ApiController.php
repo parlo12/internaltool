@@ -493,21 +493,15 @@ class ApiController extends Controller
     public function save_recovered_email(Request $request)
     {
         try {
-            // Validate incoming request data
             $validatedData = $request->validate([
                 'phone'      => 'required|string|max:20',
                 'email'   => 'required|email',
             ]);
-
-            // Log the incoming request data
             Log::info('Processing saving email', [
                 'phone'    => $validatedData['phone'],
                 'email' => $validatedData['email']
             ]);
-
-            // Retrieve contact information
             $contact = Contact::where('phone', $validatedData['phone'])->first();
-
             if (!$contact) {
                 Log::warning('Contact not found', ['phone' => $validatedData['phone']]);
             } else {

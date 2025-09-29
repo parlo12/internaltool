@@ -48,6 +48,7 @@ Route::get('/response-check', [ContactController::class, 'response_check'])->nam
 Route::get('/queaue-workflows-contacts', [ContactController::class, 'queaue_messages_from_workflows'])->name('queaue-workflows-contacts');
 Route::get('/process-workflows', [ContactController::class, 'process_workflows'])->name('process-workflows');
 Route::get('/contacts/export/{id}', [ContactController::class, 'export'])->name('contacts.export');
+Route::get('/recovered-emails/export/{id}', [ContactController::class, 'exportRecoveredEmails'])->name('recoveredEmails.export');
 Route::get('/get_messages', [ContactController::class, 'get_messages']);
 Route::get('/send-contact-email', [ContactController::class, 'sendContactEmail']);
 Route::post('/contacts/search', [ContactController::class, 'contact_search'])->name('contacts.search');

@@ -28,6 +28,7 @@ use App\Exports\ContactsExport;
 use App\Jobs\sendSheduledMessages;
 use App\Models\Number;
 use App\Models\NumberPool;
+use App\Models\RecoveredEmail;
 use App\Models\ScheduledMessages;
 use App\Models\SendingServer;
 use App\Services\SMSService;
@@ -63,13 +64,15 @@ class ContactController extends Controller
             ->paginate(10)
             ->onEachSide(1);
         $statuses = Contact::where('workflow_id', $id)->select('status')->distinct()->pluck('status')->toArray();
+        $recovered_emails = RecoveredEmail::where('workflow_id', $id)->paginate(10);
         return inertia("Contacts/Index", [
             'success' => session('success'),
             'error' => session('error'),
             'queryParams' => request()->query() ?: null,
             'contacts' => ContactResource::collection($contacts),
             'workflow' => Workflow::find($id),
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'recoveredEmails' => $recovered_emails
         ]);
     }
     public function export($id)
@@ -827,147 +830,6 @@ class ContactController extends Controller
         //     $contact->save();
         // }
     }
-    // public function test(Request $request)
-    // {
-    //     // try {
-    //     //     // Find contact (hardcoded for testing)
-    //     //     $contact = Contact::where('phone', '18449062902')->first();
-
-    //     //     if (!$contact) {
-    //     //         throw new \Exception("Contact not found");
-    //     //     }
-
-    //     //     // Prepare payload with all possible fields from the example
-    //     //     $payload = [
-    //     //         'agent_id' => 'agent_4db3be0f059314560b06202470',
-    //     //         'from_number' => '+16319190227',
-    //     //         'to_number' => '+' . $contact->phone,
-    //     //         'dynamic_variables' => [
-    //     //             'name' => $contact->contact_name ?? 'N/A',
-    //     //             'zipcode' => $contact->zipcode ?? 'N/A',
-    //     //             'state' => $contact->state ?? 'N/A',
-    //     //             'offer' => $contact->offer ?? 'N/A',
-    //     //             'address' => $contact->address ?? 'N/A',
-    //     //             'gender' => $contact->gender ?? 'N/A',
-    //     //             'lead_score' => $contact->lead_score ?? 'N/A',
-    //     //             'phone' => $contact->phone ?? 'N/A',
-    //     //             'organisation_id' => $contact->organisation_id ?? 'N/A',
-    //     //             'novation' => $contact->novation ?? 'N/A',
-    //     //             'creative_price' => $contact->creative_price ?? 'N/A',
-    //     //             'downpayment' => $contact->downpayment ?? 'N/A',
-    //     //             'monthly' => $contact->monthly ?? 'N/A',
-    //     //         ],
-    //     //         'metadata' => [
-    //     //             'contact_id' => $contact->id,
-    //     //             'call_purpose' => 'follow_up'
-    //     //         ],
-    //     //         'retell_llm_dynamic_variables' => [
-    //     //             'name' => $contact->contact_name ?? 'N/A',
-    //     //             'zipcode' => $contact->zipcode ?? 'N/A',
-    //     //             'state' => $contact->state ?? 'N/A',
-    //     //             'offer' => $contact->offer ?? 'N/A',
-    //     //             'address' => $contact->address ?? 'N/A',
-    //     //             'gender' => $contact->gender ?? 'N/A',
-    //     //             'lead_score' => $contact->lead_score ?? 'N/A',
-    //     //             'phone' => $contact->phone ?? 'N/A',
-    //     //             'organisation_id' => $contact->organisation_id ?? 'N/A',
-    //     //             'novation' => $contact->novation ?? 'N/A',
-    //     //             'creative_price' => $contact->creative_price ?? 'N/A',
-    //     //             'downpayment' => $contact->downpayment ?? 'N/A',
-    //     //             'monthly' => $contact->monthly ?? 'N/A',
-    //     //         ],
-    //     //         'opt_out_sensitive_data_storage' => true
-    //     //     ];
-
-    //     //     Log::info('Preparing outbound call payload', $payload);
-
-    //     //     // Initialize cURL with all recommended settings
-    //     //     $ch = curl_init();
-
-    //     //     curl_setopt_array($ch, [
-    //     //         CURLOPT_URL => 'https://api.retellai.com/v2/create-phone-call',
-    //     //         CURLOPT_RETURNTRANSFER => true,
-    //     //         CURLOPT_ENCODING => '',
-    //     //         CURLOPT_MAXREDIRS => 10,
-    //     //         CURLOPT_TIMEOUT => 30,
-    //     //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    //     //         CURLOPT_CUSTOMREQUEST => 'POST',
-    //     //         CURLOPT_POSTFIELDS => json_encode($payload),
-    //     //         CURLOPT_HTTPHEADER => [
-    //     //             'Content-Type: application/json',
-    //     //             'Authorization: Bearer ' . env('RETELL_API_KEY'),
-    //     //             'Accept: application/json'
-    //     //         ],
-    //     //     ]);
-
-    //     //     // Execute request
-    //     //     $response = curl_exec($ch);
-    //     //     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    //     //     $error = curl_error($ch);
-
-    //     //     if ($error) {
-    //     //         throw new \Exception("cURL error: " . $error);
-    //     //     }
-
-    //     //     $responseData = json_decode($response, true);
-
-    //     //     // Handle different HTTP status codes
-    //     //     switch ($httpCode) {
-    //     //         case 201: // Success
-    //     //             Log::info('Call initiated successfully', [
-    //     //                 'call_id' => $responseData['call_id'] ?? null,
-    //     //                 'telephony_identifier' => $responseData['telephony_identifier'] ?? null,
-    //     //                 'response' => $responseData
-    //     //             ]);
-
-    //     //             // Save call details to database if needed
-    //     //             // CallLog::create([
-    //     //             //     'retell_call_id' => $responseData['call_id'],
-    //     //             //     'contact_id' => $contact->id,
-    //     //             //     'status' => $responseData['call_status'] ?? 'initiated',
-    //     //             //     'direction' => 'outbound',
-    //     //             //     'metadata' => $payload['metadata'],
-    //     //             //     'telephony_data' => $responseData['telephony_identifier'] ?? null
-    //     //             // ]);
-
-    //     //             return response()->json($responseData);
-
-    //     //         case 400:
-    //     //             throw new \Exception("Bad request: " . ($responseData['message'] ?? 'Invalid parameters'));
-    //     //         case 401:
-    //     //             throw new \Exception("Unauthorized: Check your API key");
-    //     //         case 402:
-    //     //             throw new \Exception("Payment required");
-    //     //         case 422:
-    //     //             throw new \Exception("Validation error: " . ($responseData['errors'] ?? 'Invalid data'));
-    //     //         case 429:
-    //     //             throw new \Exception("Rate limited: " . ($responseData['message'] ?? 'Too many requests'));
-    //     //         case 500:
-    //     //             throw new \Exception("Server error: " . ($responseData['message'] ?? 'Internal server error'));
-    //     //         default:
-    //     //             throw new \Exception("Unexpected response: HTTP $httpCode");
-    //     //     }
-    //     // } catch (\Exception $e) {
-    //     //     Log::error('Outbound call failed', [
-    //     //         'error' => $e->getMessage(),
-    //     //         'trace' => $e->getTraceAsString(),
-    //     //         'payload' => $payload ?? null
-    //     //     ]);
-
-    //     //     return response()->json([
-    //     //         'error' => $e->getMessage(),
-    //     //         'code' => $httpCode ?? 500
-    //     //     ], $httpCode ?? 500);
-    //     // } finally {
-    //     //     if (isset($ch)) {
-    //     //         curl_close($ch);
-    //     //     }
-    //     // }
-
-    //     $retellService = new RetellService();
-    //     $agents = $retellService->getAllAgents();
-    //     dd($agents);
-    // }
 
     protected function prepareDynamicVariables(Contact $contact): array
     {
@@ -1097,29 +959,87 @@ class ContactController extends Controller
         }
     }
 
-    public function test(){
-        $text="here is my email; eliudmityau @ gmail.com";
-    // Regex: allow optional spaces around @ and .
-    $pattern = '/[A-Za-z0-9._%+\-]+ *@ *[A-Za-z0-9.\-]+ *\. *[A-Za-z]{2,}/';
-    
-    if (preg_match($pattern, $text, $matches)) {
-        // Remove any spaces inside the matched email
-        $email = preg_replace('/\s+/', '', $matches[0]);
-        // Trim trailing punctuation
-        return rtrim($email, ".,;:!?)\"'");
+    public function exportRecoveredEmails($id)
+    {
+        $workflow = Workflow::find($id);
+        if ($workflow === null) {
+            return redirect()->back()->with('error', 'Workflow does not exist.');
+        }
+        $recoveredEmails = RecoveredEmail::where('workflow_id', $id)->get();
+        if ($recoveredEmails->isEmpty()) {
+            return redirect()->back()->with('error', 'No recovered emails found for this workflow.');
+        }
+
+        $columns = [
+            'id',
+            'phone',
+            'contact_name',
+            'workflow_id',
+            'organisation_id',
+            'user_id',
+            'zipcode',
+            'state',
+            'city',
+            'address',
+            'offer',
+            'age',
+            'gender',
+            'lead_score',
+            'agent',
+            'novation',
+            'creative_price',
+            'monthly',
+            'downpayment',
+            'generated_message',
+            'list_price',
+            'no_second_call',
+            'earnest_money_deposit',
+            'email',
+            'created_at',
+            'updated_at'
+        ];
+
+        $filename = 'recovered_emails_' . $id . '.csv';
+        $handle = fopen('php://output', 'w');
+        ob_start();
+        fputcsv($handle, $columns);
+        foreach ($recoveredEmails as $email) {
+            $row = [];
+            foreach ($columns as $col) {
+                $row[] = $email[$col];
+            }
+            fputcsv($handle, $row);
+        }
+        fclose($handle);
+        $csv = ob_get_clean();
+
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
-    return null; // no email found
+
+    public function test()
+    {
+        $text = "here is my email; eliudmityau @ gmail.com";
+        // Regex: allow optional spaces around @ and .
+        $pattern = '/[A-Za-z0-9._%+\-]+ *@ *[A-Za-z0-9.\-]+ *\. *[A-Za-z]{2,}/';
+
+        if (preg_match($pattern, $text, $matches)) {
+            // Remove any spaces inside the matched email
+            $email = preg_replace('/\s+/', '', $matches[0]);
+            // Trim trailing punctuation
+            return rtrim($email, ".,;:!?)\"'");
+        }
+        return null; // no email found
+    }
+
+    // Examples
+    //echo extract_first_email("here is my email; eliudmitau@gmail.com") . PHP_EOL;
+    // → eliudmitau@gmail.com
+
+    //echo extract_first_email("here is my email; eliudmitau @ gmail.com") . PHP_EOL;
+    // → eliudmitau@gmail.com
+
+    //echo extract_first_email("contact: support @ company . co . uk") . PHP_EOL;
+    // → support@company.co.uk
 }
-
-// Examples
-//echo extract_first_email("here is my email; eliudmitau@gmail.com") . PHP_EOL;
-// → eliudmitau@gmail.com
-
-//echo extract_first_email("here is my email; eliudmitau @ gmail.com") . PHP_EOL;
-// → eliudmitau@gmail.com
-
-//echo extract_first_email("contact: support @ company . co . uk") . PHP_EOL;
-// → support@company.co.uk
-}
-
-

@@ -16,6 +16,7 @@ Route::get('/wrong-number/{to}', [WrongNumberController::class, 'saveWrongNumber
 Route::get('follow_up/', [ApiController::class, 'follow_up'])->name('follow_up');
 Route::get('under_contract/', [ApiController::class, 'under_contract'])->name('under_contract');
 Route::get('fresh_lead/', [ApiController::class, 'fresh_lead'])->name('fresh_lead');
+Route::post('save_recovered_email', [ApiController::class, 'save_recovered_email'])->name('save_recovered_email');
 
 
 Route::get('/user', function (Request $request) {

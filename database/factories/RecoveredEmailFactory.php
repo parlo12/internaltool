@@ -19,7 +19,7 @@ class RecoveredEmailFactory extends Factory
         return [
             'phone' => $this->faker->phoneNumber,
             'contact_name' => $this->faker->name,
-            'workflow_id' => $this->faker->uuid,
+            'workflow_id' => '101',
             'organisation_id' => $this->faker->randomNumber(),
             'user_id' => '1',
             'zipcode' => $this->faker->postcode,

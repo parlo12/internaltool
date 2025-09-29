@@ -3,8 +3,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link } from "@inertiajs/react";
 
 import TasksTable from "./TasksTable";
+import RecoveredEmailsTable from "./RecoveredEmailsTable";
 
-export default function Index({ auth, success, contacts, workflow, queryParams, statuses, error }) {
+export default function Index({ auth, success, contacts, workflow, queryParams, statuses,recoveredEmails, error }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Reports" />
@@ -47,6 +48,10 @@ export default function Index({ auth, success, contacts, workflow, queryParams, 
                             />
                         </div>
                     </div>
+                    <RecoveredEmailsTable 
+                        recoveredEmails={recoveredEmails} 
+                        exportUrl={`/recovered-emails/export/${workflow.id}`}
+                    />
                 </div>
             </div>
         </AuthenticatedLayout>
