@@ -493,6 +493,7 @@ class ApiController extends Controller
     public function save_recovered_email(Request $request)
     {
         try {
+            Log::info('Received save_recovered_email request', ['request' => $request->all()]);
             $validatedData = $request->validate([
                 'phone'      => 'required|string|max:20',
                 'email'   => 'required|email',
