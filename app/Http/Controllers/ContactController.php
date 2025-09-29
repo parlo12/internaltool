@@ -1097,13 +1097,29 @@ class ContactController extends Controller
         }
     }
 
-    public function test()
-    {
-        // Using distinct + pluck
-        $statuses = Contact::query()
-            ->distinct()
-            ->pluck('status');
-
-        return $statuses;
+    public function test(){
+        $text="here is my email; eliudmitau@gmail.com";
+    // Regex: allow optional spaces around @ and .
+    $pattern = '/[A-Za-z0-9._%+\-]+ *@ *[A-Za-z0-9.\-]+ *\. *[A-Za-z]{2,}/';
+    
+    if (preg_match($pattern, $text, $matches)) {
+        // Remove any spaces inside the matched email
+        $email = preg_replace('/\s+/', '', $matches[0]);
+        // Trim trailing punctuation
+        return rtrim($email, ".,;:!?)\"'");
     }
+    return null; // no email found
 }
+
+// Examples
+//echo extract_first_email("here is my email; eliudmitau@gmail.com") . PHP_EOL;
+// → eliudmitau@gmail.com
+
+//echo extract_first_email("here is my email; eliudmitau @ gmail.com") . PHP_EOL;
+// → eliudmitau@gmail.com
+
+//echo extract_first_email("contact: support @ company . co . uk") . PHP_EOL;
+// → support@company.co.uk
+}
+
+
