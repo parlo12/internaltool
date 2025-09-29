@@ -87,6 +87,14 @@ export default function TasksTable({
                                 Phone
                             </TableHeading>
                             <TableHeading
+                                name="email"
+                                sort_field={queryParams.sort_field}
+                                sort_direction={queryParams.sort_direction}
+                                sortChanged={sortChanged}
+                            >
+                                Email
+                            </TableHeading>
+                            <TableHeading
                                 name="response"
                                 sort_field={queryParams.sort_field}
                                 sort_direction={queryParams.sort_direction}
@@ -165,6 +173,7 @@ export default function TasksTable({
                                     onKeyPress={(e) => onKeyPress("phone", e)}
                                 />
                             </th>
+                            <th className="px-3 py-3"></th>
                             <th className="px-3 py-3">
                                 <SelectInput
                                     className="w-full"
@@ -226,6 +235,11 @@ export default function TasksTable({
                                 <td className="px-3 py-2">
                                     <span className="px-2 py-1 rounded text-nowrap bg-gray-100">
                                         {contact.phone}
+                                    </span>
+                                </td>
+                                <td className="px-3 py-2">
+                                    <span className="px-2 py-1 rounded text-nowrap bg-gray-100">
+                                        {contact.email}
                                     </span>
                                 </td>
                                 <td className="px-3 py-2 text-nowrap">
