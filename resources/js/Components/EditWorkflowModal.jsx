@@ -195,7 +195,7 @@ const EditWorkflowModal = ({
                                 htmlFor="texting_number"
                                 className="text-sm font-medium flex"
                             >
-                                Texting number
+                                Numberb Pool
                             </InputLabel>
                             <div className="flex">
                                 <select
