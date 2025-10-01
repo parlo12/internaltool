@@ -238,7 +238,7 @@ class WorkflowController extends Controller
             'agent_number' => $validatedData['agent_number'] ?? $workflow->agent_number,
             'calling_number' => $validatedData['calling_number'] ?? $workflow->calling_number,
             'texting_number' => $validatedData['texting_number'] ?? $workflow->texting_number,
-            'number_pool_id' => $validatedData['number_pool_id'] ?? $workflow->number_pool_id,
+            'number_pool_id' => $validatedData['number_pool_id'],
             'generated_message' => $validatedData['generated_message'] ?? $workflow->generated_message
         ]);
         return response()->json([
