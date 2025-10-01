@@ -107,7 +107,7 @@ class ImportContactsJob implements ShouldQueue
         }
 
         foreach ($data as $contactData) {
-            CreateContactJob::dispatch($import->user_id, $contactData, $new_workflow->id, $group_id);
+            CreateContactJob::dispatch($import->user_id, $contactData, $new_workflow->id, $group_id)->onQueue('processCSV');
             //  $progress->increment('processed_contacts');
         }
     }

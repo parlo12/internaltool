@@ -77,7 +77,7 @@ class CSVProcessorController extends Controller
                 'workflow_id' => $validated['selected_workflow_id'],
                 'filename' => $validated['filename'],
             ]);
-            ImportContactsJob::dispatch($import->id);
+            ImportContactsJob::dispatch($import->id)->onQueue('processCSV');
             return redirect()->back()->with('success', 'Contacts import started successfully');
         } catch (\Exception $e) {
             Log::error('Import failed', ['error' => $e->getMessage()]);
