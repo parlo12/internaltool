@@ -199,6 +199,11 @@ class SMSService
     private function sendWithSignalwire($phone, $content, $workflow_id, $type, $contact_id, $organisation_id, $texting_number)
     {
         try {
+            Log::info("Attempting to send SMS via SignalWire to {$phone}", [
+                'organisation_id' => $organisation_id,
+                'contact_id' => $contact_id,
+                'texting_number' => $texting_number
+            ]);
             $workflow = Workflow::find($workflow_id);
             $organisation = Organisation::find($organisation_id);
             $number = Number::where('phone_number', $texting_number)
