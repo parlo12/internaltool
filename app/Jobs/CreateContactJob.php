@@ -61,7 +61,7 @@ class CreateContactJob implements ShouldQueue
             // Save the contact regardless of phone presence
             $contact = Contact::create([
                 'user_id' => $this->user_id,
-                'phone' => $phoneResult,
+                'phone' => ltrim($phoneResult, '+'),
                 'contact_name' => $this->contactData['contact_name'] ?? null,
                 'uuid' => Str::uuid(),
                 'workflow_id' => $this->workflow_id,
