@@ -14,6 +14,15 @@ class CRMAPIRequestsService
     {
         $this->api_key = $api_key;
     }
+    /**
+     * Get the name of a contact group from the CRM by group ID.
+     *
+     * @param string|int $group_id The CRM group identifier.
+     * @return string|null Returns the group name on success, or null on failure.
+     *
+     * Error modes: returns null if the HTTP request fails, if the API responds with a non-200
+     * status code, or if the response payload doesn't contain the expected name field.
+     */
     public function get_group_name($group_id,)
     {
         $client = new Client();
@@ -48,6 +57,15 @@ class CRMAPIRequestsService
     }
     public function get_all_contacts($group_id)
     {
+        /**
+         * Retrieve all contacts from a CRM group, handling pagination.
+         *
+         * @param string|int $group_id The CRM group identifier.
+         * @return array Returns an array of contacts with keys 'uid' and 'phone'.
+         *
+         * Error modes: If any request fails or returns unexpected structure, the function
+         * will stop and return the contacts collected so far (possibly empty).
+         */
         $client = new Client();
         $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
         $token = $this->api_key;
@@ -82,6 +100,15 @@ class CRMAPIRequestsService
     }
     public function get_contact_groups()
     {
+        /**
+         * Fetch list of contact groups from the CRM.
+         *
+         * @return array|\Illuminate\Http\JsonResponse Returns an array of groups on success,
+         * or a JSON error response on exception.
+         *
+         * Note: This returns the raw data structure from the CRM on success. On failure it
+         * returns a JSON response with status and message for controller-level handling.
+         */
         $url = 'https://www.godspeedoffers.com/api/v3/contacts';
         $token = $this->api_key;
         $client = new Client();
@@ -111,6 +138,14 @@ class CRMAPIRequestsService
     }
     public function get_contact($contact_uid, $group_id)
     {
+        /**
+         * Retrieve a single contact by UID within a group from the CRM.
+         *
+         * @param string $contact_uid The contact's UID in CRM.
+         * @param string|int $group_id The CRM group identifier.
+         * @return array Returns contact data array on success.
+         * @throws \Exception Throws if the CRM responds with an error status.
+         */
         $url = "https://www.godspeedoffers.com/api/v3/contacts/{$group_id}/search/{$contact_uid}";
         $token = $this->api_key;
         $client = new Client();
@@ -129,6 +164,14 @@ class CRMAPIRequestsService
     }
     public function getFirstContact($group_id)
     {
+        /**
+         * Return the first contact (uid and phone) from the specified group.
+         *
+         * @param string|int $group_id The CRM group identifier.
+         * @return array|null An array with keys 'uid' and 'phone' or null if none found.
+         *
+         * Error modes: If pagination or API fails, returns null.
+         */
         $client = new Client();
         $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
         $token = $this->api_key;
@@ -164,6 +207,12 @@ class CRMAPIRequestsService
 
     public function group_has_contacts($group_id)
     {
+        /**
+         * Check whether a CRM group contains any contacts.
+         *
+         * @param string|int $group_id The CRM group identifier.
+         * @return bool True if at least one contact exists in the group, false otherwise.
+         */
         $client = new Client();
         $url = 'https://godspeedoffers.com/api/v3/contacts/' . $group_id . '/all';
         $token = $this->api_key;
@@ -200,6 +249,12 @@ class CRMAPIRequestsService
 
     public function createGroup($name)
     {
+        /**
+         * Create a new contact group in the CRM.
+         *
+         * @param string $name The desired group name.
+         * @return \Illuminate\Http\JsonResponse JSON response describing success or failure.
+         */
         $response = Http::withToken($this->api_key)
             ->acceptJson()
             ->post('https://www.godspeedoffers.com/api/v3/contacts', [
@@ -222,6 +277,15 @@ class CRMAPIRequestsService
 
 public function createContact(string $groupUid, array $contactData)
 {
+    /**
+     * Create a contact inside a specific CRM group.
+     *
+     * @param string $groupUid The CRM group UID where the contact will be created.
+     * @param array $contactData Associative array of contact fields to send to CRM.
+     * @return \Illuminate\Http\JsonResponse JSON response with created contact data or error message.
+     *
+     * Notes: Logs the CRM response on failure for debugging.
+     */
     $token = $this->api_key; // Replace with your token
 
     $response = Http::withToken($token)
