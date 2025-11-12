@@ -264,12 +264,9 @@ class WorkflowController extends Controller
             $contact->response = 'yes';
             $contact->save();
         }
-        $numberToDial = Number::where('phone_number', $called_number)
-            ->where('organisation_id', $workflow->organisation_id);
-        Log::info("Number to dial" . $numberToDial);
+      
         $numberToDial = Number::where('phone_number', '+'.$called_number)
-            ->where('organisation_id', $workflow->organisation_id)
-            ->first()->phone_number;
+            ->first()->redirect_to;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         Log::info("Redirecting call from {$calling_number} to {$numberToDial}");
@@ -300,8 +297,7 @@ class WorkflowController extends Controller
             ->first();
         Log::info("Number to dial" . $numberToDial);
         $numberToDial = Number::where('phone_number', '+'.$called_number)
-            ->where('organisation_id', $workflow->organisation_id)
-            ->first()->phone_number;
+            ->first()->redirect_to;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
         Log::info("Redirecting call from {$calling_number} to {$numberToDial}");
