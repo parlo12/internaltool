@@ -264,8 +264,9 @@ class WorkflowController extends Controller
             $contact->response = 'yes';
             $contact->save();
         }
-        Log::info( $numberToDial = Number::where('phone_number', $called_number)
-            ->where('organisation_id', $workflow->organisation_id));
+         $numberToDial = Number::where('phone_number', $called_number)
+            ->where('organisation_id', $workflow->organisation_id);
+        Log::info( $numberToDial);
         $numberToDial = Number::where('phone_number', $called_number)
             ->where('organisation_id', $workflow->organisation_id)
             ->first()->phone_number;
