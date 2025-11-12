@@ -253,8 +253,10 @@ class WorkflowController extends Controller
         $calling_number = ltrim($request->input('From'), '+');
 
         $contact = Contact::firstWhere('phone', ltrim($calling_number, '+'));
-        $workflow = Workflow::find($contact->workflow_id);
-        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+        if ($contact) {
+            $workflow = Workflow::find($contact->workflow_id);
+            $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+        }
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
@@ -278,8 +280,10 @@ class WorkflowController extends Controller
         $called_number = ltrim($request->input('To'), '+');
         $calling_number = ltrim($request->input('From'), '+');
         $contact = Contact::firstWhere('phone', $calling_number);
-        $workflow = Workflow::find($contact->workflow_id);
-        $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+        if ($contact) {
+            $workflow = Workflow::find($contact->workflow_id);
+            $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+        }
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
             $call_sent->response = "Yes";
@@ -289,9 +293,9 @@ class WorkflowController extends Controller
             $contact->response = 'Yes';
             $contact->save();
         }
-        if (!$workflow) {
-            return response('Workflow not found', 404);
-        }
+        // if (!$workflow) {
+        //     return response('Workflow not found', 404);
+        // }
 
         $numberToDial = Number::where('phone_number', '+' . $called_number)
             ->first()->redirect_to;
