@@ -257,7 +257,7 @@ Schedule::command('queue:work --queue=processCSV --max-time=60 --stop-when-empty
 
 
 
-    Schedule::call(function () {
+Schedule::call(function () {
     ini_set('memory_limit', '300M');
     $contacts = Contact::whereNull('current_step')
         ->where('created_at', '>=', Carbon::now()->subDay())
