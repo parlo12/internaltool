@@ -295,6 +295,10 @@ class WorkflowController extends Controller
         if (!$workflow) {
             return response('Workflow not found', 404);
         }
+         $numberToDial = Number::where('phone_number', $called_number)
+            ->where('organisation_id', $workflow->organisation_id)
+            ->first();
+            Log::info("Number to dial" . $numberToDial);
         $numberToDial = Number::where('phone_number', $called_number)
             ->where('organisation_id', $workflow->organisation_id)
             ->first()->phone_number;
