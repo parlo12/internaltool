@@ -266,7 +266,7 @@ class WorkflowController extends Controller
         }
          $numberToDial = Number::where('phone_number', $called_number)
             ->where('organisation_id', $workflow->organisation_id);
-        Log::info( $numberToDial);
+        Log::info("Number to dial".$numberToDial);
         $numberToDial = Number::where('phone_number', $called_number)
             ->where('organisation_id', $workflow->organisation_id)
             ->first()->phone_number;
