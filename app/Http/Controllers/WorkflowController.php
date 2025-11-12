@@ -267,7 +267,7 @@ class WorkflowController extends Controller
         $numberToDial = Number::where('phone_number', $called_number)
             ->where('organisation_id', $workflow->organisation_id);
         Log::info("Number to dial" . $numberToDial);
-        $numberToDial = Number::where('phone_number', $called_number)
+        $numberToDial = Number::where('phone_number', '+'.$called_number)
             ->where('organisation_id', $workflow->organisation_id)
             ->first()->phone_number;
         $response = new VoiceResponse();
@@ -299,7 +299,7 @@ class WorkflowController extends Controller
         $numberToDial = Number::where('phone_number', '+'.$called_number)
             ->first();
         Log::info("Number to dial" . $numberToDial);
-        $numberToDial = Number::where('phone_number', $called_number)
+        $numberToDial = Number::where('phone_number', '+'.$called_number)
             ->where('organisation_id', $workflow->organisation_id)
             ->first()->phone_number;
         $response = new VoiceResponse();
