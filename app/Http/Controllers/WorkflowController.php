@@ -269,6 +269,7 @@ class WorkflowController extends Controller
             ->first()->phone_number;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
+        Log::info("Redirecting call from {$calling_number} to {$numberToDial}");
         return response($response)->header('Content-Type', 'text/xml');
     }
 
@@ -296,6 +297,7 @@ class WorkflowController extends Controller
             ->first()->phone_number;
         $response = new VoiceResponse();
         $response->dial($numberToDial);
+        Log::info("Redirecting call from {$calling_number} to {$numberToDial}");
         return response($response)->header('Content-Type', 'text/xml');
     }
 
