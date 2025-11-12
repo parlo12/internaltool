@@ -255,7 +255,9 @@ class WorkflowController extends Controller
         $contact = Contact::firstWhere('phone', ltrim($calling_number, '+'));
         if ($contact) {
             $workflow = Workflow::find($contact->workflow_id);
-            $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+            if ($workflow) {
+                $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+            }
         }
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
@@ -282,7 +284,9 @@ class WorkflowController extends Controller
         $contact = Contact::firstWhere('phone', $calling_number);
         if ($contact) {
             $workflow = Workflow::find($contact->workflow_id);
-            $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+            if ($workflow) {
+                $this->send_customer_data($request->input('To'), $request->input('From'), $workflow->godspeedoffers_api);
+            }
         }
         $call_sent = CallsSent::firstWhere('phone', $calling_number);
         if ($call_sent) {
