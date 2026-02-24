@@ -14,6 +14,7 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\FreshleadController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ShareController;
 use App\Http\Controllers\ShopifyProductSyncController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\UnderContractController;
@@ -164,6 +165,12 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
     // CONTACT IMPORT FAILURE CONTROLLER
     Route::get('/contact-import-failures', [ContactImportFailureController::class, 'index'])->name('contact-import-failures.index');
     Route::delete('/contact-import-failures/clear', [ContactImportFailureController::class, 'clear'])->name('contacts.importFailures.clear');
+    
+    // RENTAL PROPERTY CALCULATOR
+    Route::get('/property-calculator', function () {
+        return Inertia::render('PropertyCalculator');
+    })->name('property-calculator');
+    Route::post('/api/calculator/share', [ShareController::class, 'uploadScreenshot'])->name('calculator.share');
 });
 
 require __DIR__ . '/auth.php';

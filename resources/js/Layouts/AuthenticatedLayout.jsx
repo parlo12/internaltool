@@ -100,6 +100,9 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('admin.index')} active={route().current('admin.index')}>
                                     Admin
                                 </NavLink>
+                                <NavLink href={route('property-calculator')} active={route().current('property-calculator')}>
+                                    Property Calculator
+                                </NavLink>
                             </div>
                         </div>
 
@@ -192,6 +195,9 @@ export default function Authenticated({ user, header, children }) {
 
                             <ResponsiveNavLink href={route('admin.index')} active={route().current('admin.index')}>
                                 Admin
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('property-calculator')} active={route().current('property-calculator')}>
+                                Property Calculator
                             </ResponsiveNavLink>
                         </div>
                     </div>
