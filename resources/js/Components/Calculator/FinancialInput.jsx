@@ -44,10 +44,10 @@ export default function FinancialInput({
 
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
                 {label}
                 {displayAmount !== undefined && (
-                    <span className="ml-2 text-gray-500 font-normal">
+                    <span className="ml-1 text-gray-500 font-normal text-[10px] sm:text-xs">
                         ({formatDisplayAmount(displayAmount)})
                     </span>
                 )}
@@ -56,7 +56,7 @@ export default function FinancialInput({
                 <button
                     type="button"
                     onClick={handleDecrement}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700 transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700 transition-colors flex-shrink-0"
                     aria-label="Decrease"
                 >
                     -
@@ -71,8 +71,8 @@ export default function FinancialInput({
                         type="text"
                         value={formatValue(value)}
                         onChange={handleInputChange}
-                        className={`w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-semibold ${
-                            type === 'currency' ? 'pl-7 pr-4 text-left' : 'pl-4 pr-8 text-right'
+                        className={`w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-semibold text-sm text-gray-900 ${
+                            type === 'currency' ? 'pl-7 pr-2 text-left' : 'pl-4 pr-8 text-right'
                         }`}
                     />
                     {type === 'percent' && (
@@ -84,7 +84,7 @@ export default function FinancialInput({
                 <button
                     type="button"
                     onClick={handleIncrement}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700 transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-700 transition-colors flex-shrink-0"
                     aria-label="Increase"
                 >
                     +
