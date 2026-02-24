@@ -26,13 +26,59 @@ export default function PropertyCalculator({ auth }) {
     const captureScreenshot = async () => {
         if (!calculatorRef.current) throw new Error('Calculator ref not found');
 
-        const canvas = await html2canvas(calculatorRef.current, {
-            backgroundColor: '#f3f4f6',
-            scale: 2,
-            logging: false,
-        });
+        // Store original styles
+        const parentContainer = calculatorRef.current.closest('.lg\\:h-screen');
+        const originalMaxHeight = parentContainer?.style.maxHeight;
+        const originalHeight = parentContainer?.style.height;
+        const originalOverflow = parentContainer?.style.overflow;
 
-        return canvas.toDataURL('image/png');
+        try {
+            // Add screenshot mode class
+            calculatorRef.current.classList.add('screenshot-mode');
+
+            // Temporarily remove height constraints for screenshot
+            if (parentContainer) {
+                parentContainer.style.height = 'auto';
+                parentContainer.style.maxHeight = 'none';
+                parentContainer.style.overflow = 'visible';
+            }
+
+            // Wait for styles to apply
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(calculatorRef.current, {
+                backgroundColor: '#f3f4f6',
+                scale: 2,
+                logging: false,
+                windowHeight: calculatorRef.current.scrollHeight,
+                height: calculatorRef.current.scrollHeight,
+            });
+
+            return canvas.toDataURL('image/png');
+        } finally {
+            // Remove screenshot mode class
+            calculatorRef.current.classList.remove('screenshot-mode');
+
+            // Restore original styles
+            if (parentContainer) {
+                parentContainer.style.height = originalHeight || '';
+                parentContainer.style.maxHeight = originalMaxHeight || '';
+                parentContainer.style.overflow = originalOverflow || '';
+            }
+        }
+    };
+
+    const handleDownloadScreenshot = async () => {
+        try {
+            const dataUrl = await captureScreenshot();
+            const link = document.createElement('a');
+            link.download = `property-calculator-${Date.now()}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error('Error downloading screenshot:', error);
+            alert('Failed to download screenshot');
+        }
     };
 
     const handleShareScreenshot = async () => {
@@ -102,7 +148,63 @@ export default function PropertyCalculator({ auth }) {
         >
             <Head title="Property Calculator" />
 
-            <div className="py-4 sm:py-6 bg-gray-100 min-h-screen">
+            <style>{`
+                .screenshot-mode .screenshot-hide {
+                    display: none !important;
+                }
+                .screenshot-mode button[aria-label="Decrease"],
+                .screenshot-mode button[aria-label="Increase"] {
+                    display: none !important;
+                }
+                .screenshot-mode input {
+                    border: none !important;
+                    background: transparent !important;
+                    pointer-events: none;
+                    font-weight: 600 !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    flex: none !important;
+                }
+                .screenshot-mode input[type="text"] {
+                    text-align: left !important;
+                    padding: 0 !important;
+                }
+                .screenshot-mode .flex.items-center.gap-2 {
+                    gap: 0 !important;
+                }
+                .screenshot-mode select {
+                    border: none !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    pointer-events: none;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    font-weight: 600 !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                }
+                .screenshot-mode .relative {
+                    flex: 1;
+                    display: flex !important;
+                    align-items: center !important;
+                }
+                .screenshot-mode .relative span {
+                    position: relative !important;
+                    transform: none !important;
+                    left: auto !important;
+                    right: auto !important;
+                    top: auto !important;
+                    font-weight: 500 !important;
+                    margin-right: 4px;
+                }
+                .screenshot-mode .relative input {
+                    flex: 1 !important;
+                    width: 100% !important;
+                }
+            `}</style>
+
+            <div className="py-4 sm:py-6 bg-gray-100 min-h-screen lg:h-screen lg:overflow-auto">
                 <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
                     <div ref={calculatorRef} className="bg-white rounded-lg shadow-lg overflow-hidden">
                         {/* Red Summary Header */}
@@ -286,18 +388,29 @@ export default function PropertyCalculator({ auth }) {
                                 </div>
                             </div>
 
-                            {/* Share Button */}
-                            <div className="pt-3 border-t">
-                                <button
-                                    onClick={handleShareScreenshot}
-                                    disabled={isGeneratingLink}
-                                    className="w-full px-6 py-3 bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-base font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                    </svg>
-                                    {isGeneratingLink ? 'Preparing...' : 'Share Screenshot'}
-                                </button>
+                            {/* Share & Download Buttons */}
+                            <div className="pt-3 border-t screenshot-hide">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={handleDownloadScreenshot}
+                                        className="px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download
+                                    </button>
+                                    <button
+                                        onClick={handleShareScreenshot}
+                                        disabled={isGeneratingLink}
+                                        className="px-4 py-2.5 bg-[#d32f2f] hover:bg-[#b71c1c] text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                                        {isGeneratingLink ? 'Preparing...' : 'Share'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
