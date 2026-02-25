@@ -41,11 +41,11 @@ export function useCalculator() {
         rehab: 0,
         monthlyRent: 2400,
         loanTermYears: 30,
-        taxes: 200,
-        insurance: 100,
-        utilities: 50,
-        maintenance: 100,
-        miscellaneous: 50,
+        taxes: 0,
+        insurance: 0,
+        utilities: 0,
+        maintenance: 0,
+        miscellaneous: 0,
         capExPercent: 8,
         propertyManagementPercent: 10,
         vacancyPercent: 5,
@@ -98,14 +98,13 @@ export function useCalculator() {
         const monthlyCashflow = inputs.monthlyRent - totalMonthlyExpenses;
         const annualCashflow = monthlyCashflow * 12;
 
-        // NOI (Net Operating Income) - excludes mortgage
+        // NOI (Net Operating Income) - excludes mortgage and CapEx
         const annualOperatingExpenses =
             (inputs.taxes +
             inputs.insurance +
             inputs.utilities +
             inputs.maintenance +
             inputs.miscellaneous +
-            capExDollar +
             propertyMgmtDollar +
             vacancyDollar) * 12;
         
