@@ -32,9 +32,54 @@ export default function PropertyCalculator({ auth }) {
         const originalHeight = parentContainer?.style.height;
         const originalOverflow = parentContainer?.style.overflow;
 
+        // Store references to inputs and selects to replace them temporarily
+        const inputs = Array.from(calculatorRef.current.querySelectorAll('input[type="text"]'));
+        const selects = Array.from(calculatorRef.current.querySelectorAll('select'));
+        const replacements = [];
+
         try {
             // Add screenshot mode class
             calculatorRef.current.classList.add('screenshot-mode');
+
+            // Replace inputs with divs (including currency/percent symbols)
+            inputs.forEach(input => {
+                const parent = input.closest('.relative');
+                if (parent) {
+                    const currencySymbol = parent.querySelector('span:first-child');
+                    const percentSymbol = parent.querySelector('span:last-child');
+                    
+                    const div = document.createElement('div');
+                    let text = '';
+                    
+                    if (currencySymbol && currencySymbol.textContent.trim() === '$') {
+                        text = '$ ' + input.value;
+                        currencySymbol.style.display = 'none';
+                        replacements.push({ original: currencySymbol, type: 'show' });
+                    } else if (percentSymbol && percentSymbol.textContent.trim() === '%') {
+                        text = input.value + ' %';
+                        percentSymbol.style.display = 'none';
+                        replacements.push({ original: percentSymbol, type: 'show' });
+                    } else {
+                        text = input.value;
+                    }
+                    
+                    div.textContent = text;
+                    div.style.cssText = 'display: inline; font-weight: 600; color: #111827; font-size: 14px;';
+                    parent.appendChild(div);
+                    input.style.display = 'none';
+                    replacements.push({ original: input, replacement: div });
+                }
+            });
+
+            // Replace selects with divs
+            selects.forEach(select => {
+                const div = document.createElement('div');
+                div.textContent = select.options[select.selectedIndex].text;
+                div.style.cssText = 'display: inline; font-weight: 600; color: #111827; font-size: 14px;';
+                select.parentNode.insertBefore(div, select);
+                select.style.display = 'none';
+                replacements.push({ original: select, replacement: div });
+            });
 
             // Temporarily remove height constraints for screenshot
             if (parentContainer) {
@@ -43,7 +88,10 @@ export default function PropertyCalculator({ auth }) {
                 parentContainer.style.overflow = 'visible';
             }
 
-            // Wait for styles to apply
+            // Force reflow to ensure styles are applied
+            void calculatorRef.current.offsetHeight;
+
+            // Wait for styles to apply and render
             await new Promise(resolve => setTimeout(resolve, 100));
 
             const canvas = await html2canvas(calculatorRef.current, {
@@ -52,10 +100,22 @@ export default function PropertyCalculator({ auth }) {
                 logging: false,
                 windowHeight: calculatorRef.current.scrollHeight,
                 height: calculatorRef.current.scrollHeight,
+                useCORS: true,
+                allowTaint: true,
             });
 
             return canvas.toDataURL('image/png');
         } finally {
+            // Remove temporary divs and restore inputs/selects
+            replacements.forEach(({ original, replacement, type }) => {
+                if (type === 'show') {
+                    original.style.display = '';
+                } else if (replacement) {
+                    replacement.remove();
+                    original.style.display = '';
+                }
+            });
+
             // Remove screenshot mode class
             calculatorRef.current.classList.remove('screenshot-mode');
 
@@ -156,51 +216,73 @@ export default function PropertyCalculator({ auth }) {
                 .screenshot-mode button[aria-label="Increase"] {
                     display: none !important;
                 }
-                .screenshot-mode input {
-                    border: none !important;
-                    background: transparent !important;
-                    pointer-events: none;
-                    font-weight: 600 !important;
-                    width: auto !important;
-                    min-width: 0 !important;
-                    flex: none !important;
-                }
-                .screenshot-mode input[type="text"] {
-                    text-align: left !important;
-                    padding: 0 !important;
+                .screenshot-mode .flex.items-center {
+                    overflow: visible !important;
                 }
                 .screenshot-mode .flex.items-center.gap-2 {
                     gap: 0 !important;
                 }
+                .screenshot-mode .relative {
+                    overflow: visible !important;
+                    display: block !important;
+                    position: static !important;
+                }
+                .screenshot-mode .relative span {
+                    position: static !important;
+                    display: inline !important;
+                    transform: none !important;
+                    font-weight: 600 !important;
+                    margin-right: 2px !important;
+                }
+                .screenshot-mode input::before,
+                .screenshot-mode input[type="text"]::before {
+                    content: attr(value) !important;
+                    display: inline !important;
+                    font-weight: 600 !important;
+                    color: #111827 !important;
+                }
+                .screenshot-mode input,
+                .screenshot-mode input[type="text"] {
+                    border: none !important;
+                    background: transparent !important;
+                    color: #111827 !important;
+                    pointer-events: none !important;
+                    font-weight: 600 !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    text-align: left !important;
+                    width: auto !important;
+                    min-width: fit-content !important;
+                    max-width: none !important;
+                    flex: none !important;
+                    display: inline-block !important;
+                    overflow: visible !important;
+                    white-space: nowrap !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                    font-size: 14px !important;
+                    line-height: 1.5 !important;
+                }
                 .screenshot-mode select {
                     border: none !important;
                     background: transparent !important;
+                    color: #111827 !important;
                     padding: 0 !important;
-                    pointer-events: none;
-                    appearance: none;
-                    -webkit-appearance: none;
-                    -moz-appearance: none;
+                    margin: 0 !important;
+                    pointer-events: none !important;
+                    appearance: none !important;
+                    -webkit-appearance: none !important;
+                    -moz-appearance: none !important;
                     font-weight: 600 !important;
                     width: auto !important;
-                    min-width: 0 !important;
-                }
-                .screenshot-mode .relative {
-                    flex: 1;
-                    display: flex !important;
-                    align-items: center !important;
-                }
-                .screenshot-mode .relative span {
-                    position: relative !important;
-                    transform: none !important;
-                    left: auto !important;
-                    right: auto !important;
-                    top: auto !important;
-                    font-weight: 500 !important;
-                    margin-right: 4px;
-                }
-                .screenshot-mode .relative input {
-                    flex: 1 !important;
-                    width: 100% !important;
+                    min-width: fit-content !important;
+                    max-width: none !important;
+                    display: inline-block !important;
+                    overflow: visible !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                    font-size: 14px !important;
+                    line-height: 1.5 !important;
                 }
             `}</style>
 
