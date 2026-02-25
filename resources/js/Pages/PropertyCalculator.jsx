@@ -2,12 +2,13 @@ import React, { useState, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import FinancialInput from '@/Components/Calculator/FinancialInput';
+import ScreenshotView from '@/Components/Calculator/ScreenshotView';
 import { useCalculator } from '@/Hooks/useCalculator';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
 
 export default function PropertyCalculator({ auth }) {
-    const calculatorRef = useRef(null);
+    const screenshotRef = useRef(null);
     const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
     const {
@@ -24,107 +25,43 @@ export default function PropertyCalculator({ auth }) {
     ];
 
     const captureScreenshot = async () => {
-        if (!calculatorRef.current) throw new Error('Calculator ref not found');
-
-        // Store original styles
-        const parentContainer = calculatorRef.current.closest('.lg\\:h-screen');
-        const originalMaxHeight = parentContainer?.style.maxHeight;
-        const originalHeight = parentContainer?.style.height;
-        const originalOverflow = parentContainer?.style.overflow;
-
-        // Store references to inputs and selects to replace them temporarily
-        const inputs = Array.from(calculatorRef.current.querySelectorAll('input[type="text"]'));
-        const selects = Array.from(calculatorRef.current.querySelectorAll('select'));
-        const replacements = [];
+        if (!screenshotRef.current) throw new Error('Screenshot ref not found');
 
         try {
-            // Add screenshot mode class
-            calculatorRef.current.classList.add('screenshot-mode');
+            // Temporarily move the screenshot view into the viewport
+            const originalLeft = screenshotRef.current.style.left;
+            const originalTop = screenshotRef.current.style.top;
+            const originalPosition = screenshotRef.current.style.position;
+            const originalZIndex = screenshotRef.current.style.zIndex;
 
-            // Replace inputs with divs (including currency/percent symbols)
-            inputs.forEach(input => {
-                const parent = input.closest('.relative');
-                if (parent) {
-                    const currencySymbol = parent.querySelector('span:first-child');
-                    const percentSymbol = parent.querySelector('span:last-child');
-                    
-                    const div = document.createElement('div');
-                    let text = '';
-                    
-                    if (currencySymbol && currencySymbol.textContent.trim() === '$') {
-                        text = '$ ' + input.value;
-                        currencySymbol.style.display = 'none';
-                        replacements.push({ original: currencySymbol, type: 'show' });
-                    } else if (percentSymbol && percentSymbol.textContent.trim() === '%') {
-                        text = input.value + ' %';
-                        percentSymbol.style.display = 'none';
-                        replacements.push({ original: percentSymbol, type: 'show' });
-                    } else {
-                        text = input.value;
-                    }
-                    
-                    div.textContent = text;
-                    div.style.cssText = 'display: inline; font-weight: 600; color: #111827; font-size: 14px;';
-                    parent.appendChild(div);
-                    input.style.display = 'none';
-                    replacements.push({ original: input, replacement: div });
-                }
-            });
-
-            // Replace selects with divs
-            selects.forEach(select => {
-                const div = document.createElement('div');
-                div.textContent = select.options[select.selectedIndex].text;
-                div.style.cssText = 'display: inline; font-weight: 600; color: #111827; font-size: 14px;';
-                select.parentNode.insertBefore(div, select);
-                select.style.display = 'none';
-                replacements.push({ original: select, replacement: div });
-            });
-
-            // Temporarily remove height constraints for screenshot
-            if (parentContainer) {
-                parentContainer.style.height = 'auto';
-                parentContainer.style.maxHeight = 'none';
-                parentContainer.style.overflow = 'visible';
-            }
-
-            // Force reflow to ensure styles are applied
-            void calculatorRef.current.offsetHeight;
+            screenshotRef.current.style.left = '0';
+            screenshotRef.current.style.top = '0';
+            screenshotRef.current.style.position = 'absolute';
+            screenshotRef.current.style.zIndex = '-9999';
 
             // Wait for styles to apply and render
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            const canvas = await html2canvas(calculatorRef.current, {
+            const canvas = await html2canvas(screenshotRef.current, {
                 backgroundColor: '#f3f4f6',
                 scale: 2,
                 logging: false,
-                windowHeight: calculatorRef.current.scrollHeight,
-                height: calculatorRef.current.scrollHeight,
+                windowHeight: screenshotRef.current.scrollHeight,
+                height: screenshotRef.current.scrollHeight,
                 useCORS: true,
                 allowTaint: true,
             });
 
-            return canvas.toDataURL('image/png');
-        } finally {
-            // Remove temporary divs and restore inputs/selects
-            replacements.forEach(({ original, replacement, type }) => {
-                if (type === 'show') {
-                    original.style.display = '';
-                } else if (replacement) {
-                    replacement.remove();
-                    original.style.display = '';
-                }
-            });
-
-            // Remove screenshot mode class
-            calculatorRef.current.classList.remove('screenshot-mode');
-
             // Restore original styles
-            if (parentContainer) {
-                parentContainer.style.height = originalHeight || '';
-                parentContainer.style.maxHeight = originalMaxHeight || '';
-                parentContainer.style.overflow = originalOverflow || '';
-            }
+            screenshotRef.current.style.left = originalLeft;
+            screenshotRef.current.style.top = originalTop;
+            screenshotRef.current.style.position = originalPosition;
+            screenshotRef.current.style.zIndex = originalZIndex;
+
+            return canvas.toDataURL('image/png');
+        } catch (error) {
+            console.error('Error capturing screenshot:', error);
+            throw error;
         }
     };
 
@@ -208,87 +145,18 @@ export default function PropertyCalculator({ auth }) {
         >
             <Head title="Property Calculator" />
 
-            <style>{`
-                .screenshot-mode .screenshot-hide {
-                    display: none !important;
-                }
-                .screenshot-mode button[aria-label="Decrease"],
-                .screenshot-mode button[aria-label="Increase"] {
-                    display: none !important;
-                }
-                .screenshot-mode .flex.items-center {
-                    overflow: visible !important;
-                }
-                .screenshot-mode .flex.items-center.gap-2 {
-                    gap: 0 !important;
-                }
-                .screenshot-mode .relative {
-                    overflow: visible !important;
-                    display: block !important;
-                    position: static !important;
-                }
-                .screenshot-mode .relative span {
-                    position: static !important;
-                    display: inline !important;
-                    transform: none !important;
-                    font-weight: 600 !important;
-                    margin-right: 2px !important;
-                }
-                .screenshot-mode input::before,
-                .screenshot-mode input[type="text"]::before {
-                    content: attr(value) !important;
-                    display: inline !important;
-                    font-weight: 600 !important;
-                    color: #111827 !important;
-                }
-                .screenshot-mode input,
-                .screenshot-mode input[type="text"] {
-                    border: none !important;
-                    background: transparent !important;
-                    color: #111827 !important;
-                    pointer-events: none !important;
-                    font-weight: 600 !important;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    text-align: left !important;
-                    width: auto !important;
-                    min-width: fit-content !important;
-                    max-width: none !important;
-                    flex: none !important;
-                    display: inline-block !important;
-                    overflow: visible !important;
-                    white-space: nowrap !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                    font-size: 14px !important;
-                    line-height: 1.5 !important;
-                }
-                .screenshot-mode select {
-                    border: none !important;
-                    background: transparent !important;
-                    color: #111827 !important;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    pointer-events: none !important;
-                    appearance: none !important;
-                    -webkit-appearance: none !important;
-                    -moz-appearance: none !important;
-                    font-weight: 600 !important;
-                    width: auto !important;
-                    min-width: fit-content !important;
-                    max-width: none !important;
-                    display: inline-block !important;
-                    overflow: visible !important;
-                    box-shadow: none !important;
-                    outline: none !important;
-                    font-size: 14px !important;
-                    line-height: 1.5 !important;
-                }
-            `}</style>
+            <ScreenshotView 
+                ref={screenshotRef}
+                inputs={inputs}
+                calculations={calculations}
+                getExpenseDollarAmount={getExpenseDollarAmount}
+                formatCurrency={formatCurrency}
+                formatPercent={formatPercent}
+            />
 
             <div className="py-4 sm:py-6 bg-gray-100 min-h-screen lg:h-screen lg:overflow-auto">
                 <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-                    <div ref={calculatorRef} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                         {/* Red Summary Header */}
                         <div className="bg-[#d32f2f] text-white p-3 sm:p-4">
                             <div className="grid grid-cols-2 gap-2 sm:gap-4">
@@ -471,7 +339,7 @@ export default function PropertyCalculator({ auth }) {
                             </div>
 
                             {/* Share & Download Buttons */}
-                            <div className="pt-3 border-t screenshot-hide">
+                            <div className="pt-3 border-t">
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         onClick={handleDownloadScreenshot}
