@@ -7,8 +7,8 @@ const ScreenshotView = forwardRef(({ inputs, calculations, getExpenseDollarAmoun
             className="bg-white rounded-lg shadow-lg overflow-hidden w-[800px]"
             style={{ position: 'absolute', left: '-9999px', top: 0 }}
         >
-            {/* Red Summary Header */}
-            <div className="bg-[#d32f2f] text-white p-6">
+            {/* Summary Header */}
+            <div className={`${calculations.monthlyCashflow >= 0 ? 'bg-[#2e7d32]' : 'bg-[#d32f2f]'} text-white p-6`}>
                 <div className="grid grid-cols-2 gap-6">
                     <div>
                         <div className="text-sm opacity-90 mb-1">Cash on Cash</div>

@@ -95,8 +95,8 @@ export default function PropertyCalculator({ auth }: any) {
             <div className="py-12 bg-gray-100 min-h-screen">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div ref={calculatorRef} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                        {/* Red Summary Header */}
-                        <div className="bg-[#d32f2f] text-white p-6">
+                        {/* Summary Header */}
+                        <div className={`${calculations.monthlyCashflow >= 0 ? 'bg-[#2e7d32]' : 'bg-[#d32f2f]'} text-white p-6 transition-colors duration-300`}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Left Section */}
                                 <div>
